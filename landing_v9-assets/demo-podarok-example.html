@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Пример Подарка · Анна Соколова, 28.06.1991, Санкт-Петербург</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@200..700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Manrope', sans-serif;
+  background: #FFFCF9;
+  color: #2A2422;
+  line-height: 1.55;
+}
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 64px 56px;
+  background: #FFFCF9;
+  min-height: 100vh;
+}
+
+.cover {
+  text-align: center;
+  padding: 120px 0 80px;
+  border-bottom: 0.5px solid rgba(180, 130, 90, 0.3);
+  margin-bottom: 60px;
+}
+.cover-mark {
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1.5px solid #C8946C;
+  line-height: 60px;
+  font-size: 24px;
+  color: #C8946C;
+  margin-bottom: 32px;
+}
+.cover h1 {
+  font-family: 'Lora', serif;
+  font-weight: 400;
+  font-size: 48px;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: #2A2422;
+}
+.cover h1 em { font-style: italic; color: #C8946C; }
+.cover-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #8B7560;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 24px;
+}
+.cover-tag {
+  display: inline-block;
+  margin-top: 32px;
+  padding: 8px 20px;
+  background: rgba(200, 148, 108, 0.1);
+  color: #C8946C;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 0.5px solid rgba(200, 148, 108, 0.3);
+}
+
+.section { margin-bottom: 56px; }
+.section h2 {
+  font-family: 'Lora', serif;
+  font-weight: 400;
+  font-size: 28px;
+  margin-bottom: 24px;
+  color: #2A2422;
+  border-bottom: 0.5px solid rgba(180, 130, 90, 0.3);
+  padding-bottom: 12px;
+}
+.section h2 em { font-style: italic; color: #C8946C; }
+
+.intro p {
+  margin-bottom: 16px;
+  font-size: 17px;
+  line-height: 1.7;
+}
+.intro p em { font-style: italic; color: #6B5A45; }
+
+.top-list { list-style: none; }
+.top-list li {
+  padding: 16px 0;
+  border-bottom: 0.5px solid rgba(180, 130, 90, 0.2);
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 16px;
+}
+.top-list li:last-child { border-bottom: none; }
+.top-list-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: #C8946C;
+  letter-spacing: 0.05em;
+}
+.top-list-title {
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #2A2422;
+}
+.top-list-body {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #4A3F35;
+}
+.top-list-tip {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 0.5px dashed rgba(180, 130, 90, 0.3);
+  font-size: 13px;
+  font-style: italic;
+  color: #8B7560;
+}
+
+.placeholder-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 8px 16px;
+  background: rgba(255, 220, 180, 0.95);
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #6B4A1E;
+  letter-spacing: 0.05em;
+  border-bottom: 0.5px solid rgba(200, 148, 108, 0.5);
+}
+
+.footer-page {
+  text-align: center;
+  padding-top: 40px;
+  margin-top: 60px;
+  border-top: 0.5px solid rgba(180, 130, 90, 0.3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #8B7560;
+  letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+<div class="placeholder-banner">
+  ✦ ПРИМЕР ПОДАРКА — обезличенный демо-разбор · реальные данные клиента не использованы · после фотосессии и первых продаж заменим на актуальные кейсы
+</div>
+
+<div class="page">
+
+  <header class="cover">
+    <div class="cover-mark">✦</div>
+    <h1>ТОП-10 сильных сторон<br>+ <em>ТОП-10 точек роста</em></h1>
+    <p class="cover-meta">Анна Соколова · 28.06.1991 · 09:14 · Санкт-Петербург</p>
+    <span class="cover-tag">пример · обезличенные данные</span>
+  </header>
+
+  <section class="section intro">
+    <h2>Анна, перед тем как начнёшь читать</h2>
+    <p>Это не «гороскоп для женщин Близнецов». Это разбор именно про тебя — построенный на 300+ параметрах твоей конфигурации. Каждое утверждение в этом подарке прошло через консилиум трёх AI-моделей и опирается на статистику биографий людей с похожей структурой.</p>
+    <p><em>Прочитай и сама реши, насколько это про тебя. Если сильные стороны узнаешь, а в точках роста увидишь свою боль — значит, метод работает на тебе.</em></p>
+  </section>
+
+  <section class="section">
+    <h2>ТОП-10 сильных сторон Анны</h2>
+    <ol class="top-list">
+      <li>
+        <span class="top-list-num">01</span>
+        <div>
+          <h3 class="top-list-title">Видишь систему там, где другие видят хаос</h3>
+          <p class="top-list-body">Когда вокруг тебя кризис или информационный шторм, ты автоматически достаёшь из него структуру. Не паникуешь, не «пытаешься помочь всем сразу» — ты сначала понимаешь, как устроено. Это твой главный ресурс в принятии решений и выходе из тупиковых ситуаций.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">02</span>
+        <div>
+          <h3 class="top-list-title">Способность учиться через противоречия</h3>
+          <p class="top-list-body">Тебя не пугают парадоксы. Когда два уважаемых человека говорят противоположное — у тебя не «когнитивный диссонанс», а интерес. Это редкое умение для нашего времени с его поляризацией.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">03</span>
+        <div>
+          <h3 class="top-list-title">Эмпатия с границами</h3>
+          <p class="top-list-body">Ты чувствуешь чужую боль — но не растворяешься в ней. У тебя естественно работает «контур»: можешь поддержать, не унося чужое в себе на ночь. Это качество, за которое люди (и психотерапевты) платят годами обучения.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">04</span>
+        <div>
+          <h3 class="top-list-title">Способность ждать без беспокойства</h3>
+          <p class="top-list-body">Когда нужно отложить решение и собрать данные — ты можешь это делать без дёрганий. Это твой ресурс в инвестициях, в карьерных манёврах, в построении долгих отношений.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">05</span>
+        <div>
+          <h3 class="top-list-title">Естественная любознательность к незнакомым областям</h3>
+          <p class="top-list-body">Тебе не страшно начать с нуля в новой теме. Ты не цепляешься за «свой» предмет, узкую специализацию. Это даёт мобильность мышления, которая редка после 30.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">06–10</span>
+        <div>
+          <h3 class="top-list-title">[Свернуто в этом примере]</h3>
+          <p class="top-list-body">В реальном Подарке для тебя — все 10 сильных сторон с конкретикой. Здесь показаны первые 5 как образец стиля и глубины. Остальные 5 раскрывают: твою способность держать долгие циклы; твой способ заботы; твою скрытую лидерскую жилку; твою устойчивость к усталости; твой дар замечать малое.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section">
+    <h2>ТОП-10 точек роста Анны<br><em>с конкретными советами под каждую</em></h2>
+    <ol class="top-list">
+      <li>
+        <span class="top-list-num">01</span>
+        <div>
+          <h3 class="top-list-title">Тенденция «делать самой быстрее»</h3>
+          <p class="top-list-body">Из-за высокой собственной структурности ты часто не дожидаешься, пока другой разберётся, и берёшь на себя задачу. Со временем это создаёт перегруз и обиду на «непомогающих» людей.</p>
+          <p class="top-list-tip"><b>Совет:</b> практика «28 секунд молчания» — когда хочется вмешаться и сделать самой, мысленно посчитай до 28. Часто человек за это время сам найдёт решение, и ты получишь не задачу, а помощника.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">02</span>
+        <div>
+          <h3 class="top-list-title">Сложно просить помощь до критической точки</h3>
+          <p class="top-list-body">Ты воспринимаешь просьбу о помощи как признак слабости — это глубинный паттерн. Но когда доходишь до края, помощь приходит уже в режиме «спасения», а не партнёрства.</p>
+          <p class="top-list-tip"><b>Совет:</b> практика «трёх просьб в неделю» — каждую неделю осознанно проси о трёх вещах, которые ты можешь сделать сама, но решаешь делегировать. Это тренирует мышцу.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">03</span>
+        <div>
+          <h3 class="top-list-title">Откладывание собственных желаний на «потом»</h3>
+          <p class="top-list-body">У тебя сильное чувство ответственности перед другими — и слабое перед собственными желаниями. Это превращается в накопленный долг, который потом «всплывает» в форме выгорания или внезапного желания всё бросить.</p>
+          <p class="top-list-tip"><b>Совет:</b> ритуал «один час в неделю — только моё» — час, в котором ты делаешь то, что тебе чисто-эгоистически приятно. Без оправданий, без задач для других.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">04</span>
+        <div>
+          <h3 class="top-list-title">Перфекционизм в коммуникации</h3>
+          <p class="top-list-body">Ты не отправляешь сообщение, пока оно не «идеально сформулировано». Это съедает время и часто приводит к тому, что сообщение вообще не отправляется.</p>
+          <p class="top-list-tip"><b>Совет:</b> правило «90% — это 100%». Если сообщение на 90% того, что ты хотела сказать, — отправляй. Дописать можно следующим. Это снимает 70% ментальной нагрузки.</p>
+        </div>
+      </li>
+      <li>
+        <span class="top-list-num">05–10</span>
+        <div>
+          <h3 class="top-list-title">[Свернуто в этом примере]</h3>
+          <p class="top-list-body">В реальном Подарке для тебя — все 10 точек роста. Каждая — с конкретным советом, как опереться. Без диагнозов и «вы должны». Это карта возможностей, а не критика.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <footer class="footer-page">
+    ✦ Метод «Суть» · the-essence.ai · подарок составлен консилиумом 3 AI-моделей<br>
+    Это пример на выдуманных данных. Твой Подарок будет полностью про тебя.
+  </footer>
+
+</div>
+</body>
+</html>
