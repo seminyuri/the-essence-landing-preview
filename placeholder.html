@@ -32,6 +32,17 @@
     color-scheme: dark;
   }
   body { margin: 0; background: var(--color-bg); color: var(--color-fg); }
+  /* ⚠️ СКИП-ССЫЛКА И <main> — ЧАСТЬ СНИМКА, А НЕ УКРАШЕНИЕ. Снимок берёт из
+     страницы только секцию героя, и без них он врал бы о доступности: на
+     живой странице первый Tab открывает «Перейти к содержимому» и ведёт на
+     #main-content. Проверять доступность по снимку, где этого нет, — значит
+     получить ответ про снимок, а не про страницу.
+     Стиль скопирован из _design_tokens.css (его снимок не подключает). */
+  .skip-link { position: absolute; left: -9999px; top: 0; z-index: 100;
+    padding: 10px 16px; background: var(--color-bg-elevated); color: var(--color-fg);
+    border: 1px solid var(--color-border-strong); border-radius: 3px;
+    font-family: var(--type-body); font-size: 14px; text-decoration: none; }
+  .skip-link:focus { left: 12px; top: 12px; }
 </style>
 
 <style>
@@ -63,6 +74,24 @@
    расходиться с источником. Файл лежит в app/assets/stylesheets, поэтому
    детектор 202 (сырые hex в app/views) его не считает.
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ⚠️ МЁРТВЫЕ ПРАВИЛА ОТ ВЫРЕЗАННЫХ КУСКОВ — ЗДЕСЬ, И ЭТО ОСОЗНАННО.
+   Порт снял видеокружок, попап книги (.qv) и кнопки покупки, но их стили
+   остались: 24 класса в селекторах, которых нет на странице ни в разметке,
+   ни в том, что ставит скрипт, — примерно 55 строк из 2382 (2,3%).
+   Замерено сверкой селекторов файла со списком классов ЖИВОЙ страницы.
+
+   Почему не вырезано. Я попробовал — самодельный удалятель принял текст
+   комментариев за селекторы и обрезал два объяснения в середине файла
+   (поймано diff'ом, откачено). Резать двухтысячестрочный порт вручную
+   написанным разборщиком дороже, чем стоит выигрыш: вред здесь — вес и
+   ложный след для следующего читателя, а не поведение страницы.
+
+   Что сделано вместо: число закреплено храповиком в
+   spec/views/marketing/placeholder_guards_spec.rb — вырасти оно не может.
+   Появится новый мёртвый класс — страж назовёт его поимённо.
+   Мёртвые: act__go/next/row/up · bk--light · btn · ghost · grp__i ·
+   lnk/lnk__t/lnk__w · org · qv__fig/in/no/note/q/t/x · vid__cap/disc/play/v · w3 */
 
 .bp-hero{
   /* ⚠️ ДОБАВЛЕНО ПРИ ПОРТЕ: в витрине эти токены объявлены глобально в её
@@ -1475,6 +1504,23 @@
    ничего не меняет; поля низа отданы ему, иначе он прилипнет к границе
    содержимого и под ним будет просвечивать таблица. */
 .bp-hero .ann__panel{display:flex;flex-direction:column;padding-bottom:0}
+/* 🔴 АТРИБУТ `hidden` БЫЛ ПОБЕЖДЁН СТРОКОЙ ВЫШЕ, И ЭТО ЛОМАЛО ДОСТУПНОСТЬ.
+   `[hidden]` даёт `display:none` из СТИЛЕЙ БРАУЗЕРА, а любое авторское правило
+   `display` его перебивает. Замерено на чистой загрузке, без единого касания:
+   `panel.hidden` → true, при этом `getComputedStyle(...).display` → «flex»,
+   `visibility` → «visible», `checkVisibility()` → true. Скрывала панель одна
+   лишь `opacity:0` — то есть она была ПРОЗРАЧНОЙ, а не скрытой. Отсюда две
+   беды сразу:
+     • три крестика «✕» закрытых панелей стояли в порядке обхода — человек
+       с клавиатуры трижды проваливался в невидимую кнопку;
+     • диктор читал содержимое всех трёх панелей при загрузке, включая
+       таблицу сметы в 16 строк, — то есть 306 000 ₽ звучали раньше, чем
+       человек дошёл до цены.
+   Лечение не костылём `!important`, а возвратом атрибуту его работы: пока
+   `hidden` стоит, панели нет ни в раскладке, ни в дереве доступности.
+   Порядок в скрипте это выдерживает: `open()` снимает `hidden` ДО замера
+   `place()`, а `shut()` возвращает его через 260 мс, после затухания. */
+.bp-hero .ann__panel[hidden]{display:none}
 .bp-hero .ann__out{position:sticky;bottom:0;z-index:1;background:var(--color-bg);
   padding-bottom:clamp(12px,1.1vw,16px)}
 /* ⚠️ СРЕЗ ПОД ЗАКРЕПЛЁННЫМ ИТОГОМ НУЖНО ГАСИТЬ ГРАДИЕНТОМ, А НЕ ТЕНЬЮ.
@@ -2099,6 +2145,40 @@ body{margin:0}
    а эти 48 px забирает полотно: fitStack() ужимает стопку по месту, значит
    обложки видно больше. Выключка вправо ставит колофон под правый край
    третьей полосы содержания — footer наследует ритм колонок над собой. */
+/* ═══ БАННЕР СООБЩЕНИЯ (flash) ════════════════════════════════════════════
+   🔴 КЛАССА `.placeholder-flash` НЕ СУЩЕСТВОВАЛО НИ В ОДНОМ ЛИСТЕ СТИЛЕЙ.
+   Замерено на живой странице: правил, упоминающих класс, — 0; вычисленные
+   стили — прозрачный фон, нулевые отступы, `position:static`. То есть
+   сообщение приезжало голой белой строкой поверх стены обложек: на светлой
+   обложке его не прочитать. А это единственный способ, которым человек
+   узнаёт, ПОЧЕМУ его увело сюда, — лэйаут заводил баннер ровно ради случая
+   «увели с оплаты без единого слова».
+   Второй урон был тише и хуже: строка в потоке сдвигала героя и ломала
+   обещание «один экран» — переполнение 0 → 22 px, страница начинала
+   прокручиваться. Поэтому баннер НАЛОЖЕН (fixed), а не втиснут в поток:
+   сообщение видно, экран остаётся один.
+   Собственная тёмная плашка, а не токен темы: страница прибита к тёмной, и
+   баннер обязан читаться на любой обложке, какая окажется под ним. */
+.bp-hero ~ .placeholder-flash,
+.placeholder-flash{position:fixed;z-index:40;
+  left:50%;transform:translateX(-50%);
+  top:max(12px,env(safe-area-inset-top,0px));
+  width:min(calc(100vw - 24px),640px);box-sizing:border-box;
+  margin:0;padding:11px 16px;
+  border-radius:3px;
+  border:.5px solid rgb(232 184 152 / .34);
+  background:rgb(15 13 8 / .96);
+  color:#F4EFE7;
+  font-family:"Manrope","Inter",system-ui,sans-serif;
+  font-size:clamp(12.5px,.9vw,14px);line-height:1.45;text-align:center;
+  text-wrap:pretty;
+  box-shadow:0 10px 34px rgb(0 0 0 / .5)}
+@media (prefers-reduced-motion:no-preference){
+  .placeholder-flash{animation:pl-flash-in .5s cubic-bezier(.16,1,.3,1) both}
+}
+@keyframes pl-flash-in{from{opacity:0;transform:translate(-50%,-8px)}
+  to{opacity:1;transform:translate(-50%,0)}}
+
 /* Колофон по умолчанию (телефон) — строка в самом низу полосы, со своим швом.
    На десктопе шов снимается: там его несёт обёртка .band на всю ширину. */
 .bp-hero .pl-colophon{margin-top:clamp(8px,1.4vh,16px);
@@ -2229,9 +2309,149 @@ body{margin:0}
   .bp-hero .pl-imprint{margin-top:3px;font-size:7px;line-height:1.5}
 }
 
+/* ═══ ОЧЕНЬ НИЗКИЙ И ОЧЕНЬ УЗКИЙ ЭКРАН ════════════════════════════════════
+   Ярус ниже существующего `max-height:700px`: тот доводил до одного экрана
+   375×667, но не справлялся с 360×640 и 320×568 — замерено переполнение
+   **25 px** и **127 px** соответственно. Полотно к этому моменту уже сжато
+   до предела (66 px, `fitStack()` больше не отдаёт), значит резать надо не
+   его, а самое атмосферное. Уходит карточка запроса: она не несёт ни цены,
+   ни гарантии, ни документа — ровно та часть, которой можно пожертвовать,
+   чтобы человек увидел остальное без прокрутки. Тем же рассуждением
+   источник снимает `.cap__hint` на 700 px. */
+@media (max-width:1079px) and (max-height:660px){
+  .bp-hero .stage{padding-top:6px;padding-bottom:6px}
+  .bp-hero .cap{display:none}
+  .bp-hero .lead{margin-top:4px}
+  .bp-hero .lede{margin-top:4px}
+  .bp-hero .pl-gist{margin-top:6px}
+  .bp-hero .act{margin-top:7px;padding-top:7px}
+  .bp-hero .pl-colophon{margin-top:4px;padding-top:4px}
+  .bp-hero .pl-imprint{margin-top:2px}
+}
+/* Очень узкий экран (320 px и уже). Две строки набраны `white-space:nowrap`
+   и на такой ширине вылезали за кадр: «САЙТ В РАЗРАБОТКЕ» и «НОТАРИАЛЬНАЯ
+   ГАРАНТИЯ ВОЗВРАТА →». Замерено: оба правым краем за вьюпортом.
+   Переносить их нельзя (у ссылки стрелка оставалась бы одна на строке —
+   разбор над `.guar__more`), поэтому ужимается кегль и трекинг. */
+@media (max-width:340px){
+  .bp-hero .pl-status{font-size:7.5px;letter-spacing:.08em;gap:5px}
+  .bp-hero .guar__more{font-size:9px;letter-spacing:.08em}
+  .bp-hero .brand{font-size:8px;letter-spacing:.1em}
+}
+
+/* ═══ ПЕЧАТЬ ═══════════════════════════════════════════════════════════════
+   🔴 БЕЗ ЭТОГО БЛОКА СТРАНИЦА ПЕЧАТАЛАСЬ ПОЧТИ ПУСТЫМ ЛИСТОМ. Ни один из
+   четырёх листов, которые подключает заглушка, не имел ни одного правила
+   `@media print`, а страница тёмная: браузер фоны при печати не рисует, но
+   цвет текста берёт как есть. Посчитано на бумаге (белый лист):
+     основной текст #F4EFE7 — 1,14:1 · акцент #E8B898 — 1,79:1
+     приглушённый #B5AB9D — 2,26:1 · тусклый #948A80 — 3,38:1
+   То есть человек, нажавший «Печать» или «Сохранить как PDF», получал белый
+   лист с еле различимыми разводами. А печатают тут ровно то, что стоит
+   печатать: цену, нотариальную гарантию и реквизиты ИП.
+
+   Решение — не «сделать красиво на бумаге», а «донести суть»: снимаем всё
+   движущееся и декоративное (стена обложек, свечение, ширма, зерно, подъём
+   обложки, карточка запроса — они бессмысленны в статике и съедают тонер),
+   возвращаем светлую палитру и печатаем то, ради чего лист и заводят. */
+@media print{
+  /* ⚠️ `.stage` ОБЯЗАН СТАТЬ СТАТИЧНЫМ, И ЭТО НЕ МЕЛОЧЬ. На экране он
+     `position:absolute` внутри `.scene`, а `.scene` держит высоту вьюпортом.
+     Убрав высоту, но оставив абсолютность, я получил ровно то, от чего лечил:
+     `.scene` схлопнулась в 0, набор вывалился из потока, тёмный текст лёг на
+     тёмный холст — ЧЁРНЫЙ ЛИСТ вместо белого. Поймано рендером пробы, а не
+     чтением: замерено `scene h=0`, `stage position:absolute`, при этом
+     `lead h=209`, `deck h=619`. Белый фон ставится и на лист (`html`,`body`),
+     иначе холст остаётся тем, каким его назначил `color-scheme:dark`. */
+  @page{margin:14mm 14mm 12mm}
+  html,body{background:#fff}
+  /* ⚠️ ПАЛИТРА ПЕРЕОПРЕДЕЛЯЕТСЯ ТОКЕНАМИ, А НЕ ПЕРЕЧНЕМ СЕЛЕКТОРОВ. Первая
+     попытка красила `.guar__t b`, `.price`, `h1 em` поимённо — и пропустила
+     всё остальное: на пробе «о вашем ребёнке», «целой книгой», «2500 лет»,
+     «200 страниц А4», «30 000» остались бледно-персиковыми на белом. Порт
+     красит через `--acc`, `--fg`, `--mut` и т.д.; значит и на бумаге менять
+     надо их — тогда ни один акцент не проскочит мимо. */
+  .bp-hero{
+    --fg:#151310; --body:#242019; --mut:#4A443C; --sub:#5C554B;
+    --faint:#6B6459; --acc:#8A5326; --acc2:#7A4A22; --acc-on:#fff;
+    --brd:#C9C2B6; --line:rgba(21,19,16,.16);
+    --color-fg-rgb:21 19 16; --color-paper-rgb:21 19 16;
+    --color-accent-rgb:138 83 38; --color-accent-strong-rgb:122 74 34;
+    --color-bg:#fff; --color-bg-deep:#fff; --color-bg-deep-rgb:255 255 255;
+    background:#fff;color:#151310}
+  .bp-hero .scene{height:auto;min-height:0;overflow:visible;background:#fff}
+  .bp-hero .stage{position:static;display:block;padding:0;min-height:0;
+    background:#fff;color:#151310}
+
+  /* Декорация и движение с бумаги уходят целиком. */
+  .bp-hero .web,.bp-hero .glow,.bp-hero .veil,.bp-hero .grain,
+  .bp-hero .lift,.bp-hero .cap,.bp-hero .web__dim,
+  .bp-hero .ann__panel,.bp-hero .pl-status{display:none}
+
+  /* Тени экранного набора на бумаге превращаются в грязь. */
+  .bp-hero *{text-shadow:none!important;box-shadow:none!important}
+
+  /* Печать — это документ: заголовок сверху, дальше содержание, внизу
+     гарантия и реквизиты. Порядок задаёт поток, сетку распускаем. */
+  .bp-hero .top{display:flex;margin-bottom:14pt}
+  .bp-hero .lead{margin-bottom:12pt}
+  .bp-hero .deck{display:block;margin:0}
+  .bp-hero .beats{display:block}
+  .bp-hero .bt{margin:0 0 10pt;page-break-inside:avoid}
+  .bp-hero .pl-gist{display:none}
+  .bp-hero .band{display:block;border-top:.5pt solid #C9C2B6;padding-top:10pt;
+    margin-top:14pt;page-break-inside:avoid}
+  .bp-hero .act{display:flex;align-items:center;gap:12pt;
+    border:none;margin:0;padding:0}
+  .bp-hero .pl-colophon{text-align:left;margin:10pt 0 0;border:none;padding:0}
+  /* Выключка влево принудительно: правая треть — экранная затея, а на листе
+     блок идёт обычным текстом. Десктопный медиаблок (min-width:1080px) на
+     бумаге шириной ~816 px и не сработал бы, но полагаться на это нельзя:
+     лист бывает и альбомным. */
+  .bp-hero .pl-legal{display:flex!important;flex-wrap:wrap;gap:4pt 14pt;
+    justify-content:flex-start!important;text-align:left}
+  /* ⚠️ РАЗМЕРЫ НА БУМАГЕ ЗАДАЮТСЯ ЗАНОВО. Экранные `clamp(8px,.55vw,9.5px)`
+     на листе дают около 6 пунктов — ниже порога читаемости для печати. А
+     печатают эту страницу ровно ради нижней части: реквизитов ИП и списка
+     документов. Замерено на пробе: реквизиты 8 px, ссылки 8,5 px. */
+  .bp-hero .pl-legal a{border-bottom:none;font-size:8pt;letter-spacing:.08em}
+  /* Адрес документа рядом с его названием: на бумаге ссылка не кликается.
+     Строчными — прописной URL в каптелях нечитаем. */
+  .bp-hero .pl-legal a::after{content:" " attr(href);color:#6B6459;
+    text-transform:lowercase;letter-spacing:0}
+  .bp-hero .pl-imprint{font-size:8pt;line-height:1.5;letter-spacing:.02em}
+  .bp-hero .guar__t{font-size:12pt}
+  .bp-hero .act__fine{font-size:8.5pt}
+  .bp-hero .brand{font-size:8pt}
+  .bp-hero h1{font-size:26pt;line-height:1.1}
+  .bp-hero .lede{font-size:11pt}
+  .bp-hero .bt__t{font-size:10pt;line-height:1.45}
+
+  /* Печать — единственное место, где обводка кольца обязана быть тёмной:
+     иначе от гарантии остаётся пустой кружок. */
+  /* Печать — единственное место, где обводка кольца обязана быть тёмной:
+     иначе от гарантии остаётся пустой кружок. `!important` здесь честен —
+     цвета печати обязаны победить экранные значения `stroke`/`fill`. */
+  .bp-hero .seal{width:74pt;flex:none}
+  .bp-hero .seal__ring{stroke:#7A4A22!important}
+  .bp-hero .seal__arc,.bp-hero .seal__big,.bp-hero .seal__sub{fill:#7A4A22!important}
+
+  /* ⚠️ ГАСЯ АНИМАЦИИ, ОБЯЗАТЕЛЬНО ВЕРНУТЬ `opacity`. Набор въезжает на экран
+     анимацией `hero-riseIn`, у которой стартовая `opacity:0`. Сняв анимацию и
+     не вернув непрозрачность, я получил БЕЛЫЙ ПУСТОЙ ЛИСТ: замерено на пробе —
+     `.top`, `h1`, `.lede`, `.deck` все с `opacity:0` при `animation:none`,
+     высота у них при этом честная (163, 29, 619 px). Ровно эту ловушку
+     обходит и блок `prefers-reduced-motion` в источнике, где рядом с
+     `animation:none` всегда стоит `opacity:1`. Декоративные слои не всплывут:
+     они сняты `display:none` выше, а он сильнее любой непрозрачности. */
+  .bp-hero *{animation:none!important;transition:none!important;opacity:1!important}
+}
+
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Перейти к содержимому</a>
+<main id="main-content" tabindex="-1">
 <section id="akt-01" class="bp-hero" data-theme="dark"
          aria-label="Создаём книги о конкретном человеке">
   <div class="scene" id="scene" data-hold="0" data-cap="0">
@@ -2476,6 +2696,7 @@ body{margin:0}
     </div>
   </div>
 </section>
+</main>
 <script>
 
 //<![CDATA[
@@ -3304,6 +3525,20 @@ body{margin:0}
                ['yearsBtn','yearsPanel','yearsX'],
                ['annBtnM','annPanel','annX'],['teamBtnM','teamPanel','teamX'],
                ['yearsBtnM','yearsPanel','yearsX']];
+  /* 🔴 «ПОГАСИТЬ СОСЕДНЮЮ» СРАВНИВАЕТСЯ ПО ПАНЕЛИ, А НЕ ПО ЗАМЫКАНИЮ.
+     В списке ШЕСТЬ записей на ТРИ панели: у каждой сноски две кнопки —
+     десктопная в полосе содержания и мобильная в строке сути, — и обе ведут
+     ОДНУ И ТУ ЖЕ панель. Прежняя строка исключала только собственный `shut`
+     (`other!==shut`), поэтому открытие с десктопной кнопки немедленно звало
+     `shut` кнопки-близнеца — на той же панели.
+     Замерено на чистой загрузке одним кликом: `hidden=false` → `data-pin=0` →
+     `data-on=0` → `data-on=1` → `hidden=true`. Конец: `hidden=true` при
+     `data-on=1` и `aria-expanded=true` — состояние спорит само с собой.
+     Глазами это не было видно ровно по одной причине: правило `display:flex`
+     перебивало `display:none`, который даёт браузер атрибуту `hidden`, и
+     панель оставалась на экране вопреки собственному «я скрыта». Как только
+     атрибуту вернули силу, баг вышел наружу целиком.
+     Теперь в списке лежит пара {панель, гасилка}, и гасятся только ЧУЖИЕ панели. */
   const annOpenAll=[];
   for(const [bid,pid,xid] of ANNS){
   const annBtn=$(bid);
@@ -3386,7 +3621,7 @@ body{margin:0}
       if(annOpen) return;
       /* Две открытые панели одновременно перекрыли бы друг друга и сцену:
          открывая одну, гасим соседнюю. */
-      for(const other of annOpenAll) if(other!==shut) other();
+      for(const other of annOpenAll) if(other.panel!==annPanel) other.shut();
       annOpen=true;
       annPanel.hidden=false;
       place();
@@ -3448,7 +3683,7 @@ body{margin:0}
       const b=annBtn.getBoundingClientRect();
       if(b.bottom<0||b.top>innerHeight) shut(); else place();
     },{passive:true});
-    annOpenAll.push(shut);
+    annOpenAll.push({panel:annPanel,shut});
   }
   }
 
