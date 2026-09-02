@@ -1,0 +1,3536 @@
+<!doctype html>
+<html lang="ru" data-theme="dark" data-density="comfortable">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Суть · заглушка главной — снимок для просмотра</title>
+<meta name="robots" content="noindex, nofollow">
+<!--
+  СНИМОК, НЕ ИСТОЧНИК ИСТИНЫ. Собран 2026-09-02 из app/views/marketing/index.html.erb.
+  Пересобрать: script/preview-placeholder.py
+  Отличия от прода ровно два, оба вынужденные:
+    1. шрифты тянутся с Google Fonts (на проде они свои, самохостовые);
+    2. обложки берутся относительными путями из app/assets/images/hero/,
+       поэтому открывать файл надо ИЗ КЛОНА репозитория, а не сам по себе.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Lora:ital,wght@0,400;0,500;1,500&family=Manrope:wght@200;250;400;600&display=swap">
+<style>
+  /* Тёмная ветка токенов дизайн-системы — страница тёмная всегда, как и на
+     проде (лэйаут ставит data-theme="dark"). Значения скопированы из
+     app/assets/stylesheets/_design_tokens.css, а не подобраны на глаз. */
+  :root {
+    --color-accent: #E8B898; --color-bg: #0F0D08; --color-bg-elevated: #1A1610;
+    --color-fg: #F4EFE7; --color-fg-muted: #B5AB9D; --color-fg-subtle: #948A80;
+    --color-border: #2A241C; --color-border-strong: #4A4135;
+    --type-display: "Manrope", "Inter", system-ui, sans-serif;
+    --type-body: "Manrope", "Inter", system-ui, sans-serif;
+    --type-italic: "Lora", Georgia, "Times New Roman", serif;
+    --type-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+    --radius-full: 9999px; --motion-duration-base: 200ms;
+    --motion-duration-slow: 320ms; --motion-ease: cubic-bezier(.2,0,0,1);
+    color-scheme: dark;
+  }
+  body { margin: 0; background: var(--color-bg); color: var(--color-fg); }
+</style>
+<style>
+  /* Микро-reset: страница не грузит Tailwind (см. layouts/placeholder) */
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  .hr {
+    position: relative; isolation: isolate;
+    height: 100vh; height: 100dvh; overflow: hidden;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--type-body);
+
+    /* Высота стены и, следовательно, кегль обложки. Четыре полосы с
+       коэффициентами .66/.88/1.18/.88 и пропорцией 707/1000 занимают
+       примерно 5,2 высоты одной базовой обложки — отсюда делитель. */
+    --wall: clamp(300px, 60vh, 660px);
+    /* Обложка крупнее, чем помещается в полосу, — и это нарочно: ряды выходят
+       за неё сверху и снизу и обрезаются краем экрана. Ровно так стена сделана
+       на лендинге; вписанная целиком, она читается галереей, а не полкой без
+       конца. Замер: делитель 5,2 давал 145 px при 158 px у оригинала. */
+    --cwb: calc(var(--wall) / 4.2);
+    --gap: clamp(9px, 1.4vh, 18px);
+    --pad: clamp(1rem, 3.4vw, 3.5rem);
+  }
+
+  /* ── Стена обложек ───────────────────────────────────────────────────── */
+  .hr__web {
+    position: absolute; left: 0; right: 0; top: 0; height: var(--wall);
+    z-index: 0; pointer-events: none;
+    display: flex; flex-direction: column; justify-content: center; gap: var(--gap);
+    /* Наклон и вылет за края — с лендинга: стена должна уходить за кадр,
+       иначе читается как галерея, а не как бесконечная полка. */
+    transform: rotate(-2.2deg) scale(1.12);
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  @keyframes hr-web-in { from { opacity: 0; } to { opacity: 1; } }
+
+  .hr__row { display: flex; flex: none; overflow: visible; }
+  .hr__row--far  { --cw: calc(var(--cwb) * .66); --dim: .42; }
+  .hr__row--mid  { --cw: calc(var(--cwb) * .88); --dim: .24; }
+  .hr__row--near { --cw: calc(var(--cwb) * 1.18); --dim: 0; }
+
+  .hr__track {
+    display: flex; align-items: flex-start; flex: none;
+    gap: var(--gap); padding-right: var(--gap);
+    animation: hr-run var(--dur, 240s) linear infinite;
+    will-change: transform;
+  }
+  .hr__row--back .hr__track { animation-direction: reverse; }
+  /* Список внутри дорожки лежит ДВАЖДЫ, поэтому сдвиг ровно на половину
+     возвращает кадр в исходное положение — шва не видно. */
+  @keyframes hr-run { to { transform: translate3d(-50%, 0, 0); } }
+
+  .hr__bk {
+    position: relative; top: var(--off, 0px); flex: none;
+    width: var(--cw); aspect-ratio: 707 / 1000;
+    border-radius: 2px; overflow: hidden;
+    background: var(--color-bg-elevated);
+    box-shadow: inset 0 0 0 .5px color-mix(in oklab, var(--color-fg) 12%, transparent);
+    pointer-events: auto;
+    transition: filter var(--motion-duration-slow) var(--motion-ease);
+  }
+  .hr__bk img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Косой блик — обложка перестаёт быть плоской картинкой */
+  .hr__bk::before {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: linear-gradient(146deg,
+      color-mix(in oklab, var(--color-fg) 13%, transparent) 0%,
+      color-mix(in oklab, var(--color-fg) 4%, transparent) 11%,
+      transparent 27%);
+  }
+  /* Виньетка + притемнение дальних полос */
+  .hr__bk::after {
+    content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    background:
+      radial-gradient(ellipse 132% 92% at 50% 0%, transparent 44%,
+        color-mix(in oklab, var(--color-bg) 42%, transparent)),
+      linear-gradient(color-mix(in oklab, var(--color-bg) calc(var(--dim, 0) * 100%), transparent),
+                      color-mix(in oklab, var(--color-bg) calc(var(--dim, 0) * 100%), transparent));
+    transition: opacity var(--motion-duration-slow) var(--motion-ease);
+  }
+  /* Наведение: обложка выходит из тени. Кликать некуда — поэтому и курсор
+     остаётся обычным, а «нажмите» нигде не написано. */
+  .hr__bk:hover { filter: brightness(1.16) saturate(1.05); }
+  .hr__bk:hover::after { opacity: .25; }
+
+  /* Полог: сверху чуть гасит стену под заголовком, снизу доводит до чистого
+     фона, чтобы полосы содержания и колофон стояли на ровном. */
+  .hr__veil {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    /* Верх притушен ради заголовка, середина открыта — там стена и должна
+       читаться, — а к низу полог быстро уходит в плотный фон, чтобы полосы
+       содержания и колофон стояли на ровном. Промежуточная «серая» ступень
+       посередине убрана: она превращала стену в кашу (видно на замере). */
+    background: linear-gradient(to bottom,
+      color-mix(in oklab, var(--color-bg) 60%, transparent) 0%,
+      color-mix(in oklab, var(--color-bg) 24%, transparent) 30%,
+      color-mix(in oklab, var(--color-bg) 32%, transparent) 52%,
+      color-mix(in oklab, var(--color-bg) 94%, transparent) 68%,
+      var(--color-bg) 74%);
+  }
+
+  /* ── Полоса набора ───────────────────────────────────────────────────── */
+  /* Лист набора лежит ПОВЕРХ стены, поэтому сам он для указателя прозрачен —
+     иначе он перехватывал бы наведение на обложки, и подпись бы не работала.
+     Обратно события включены только там, где они нужны: ссылки, текст,
+     карточка. Между блоками указатель проходит насквозь, к обложкам. */
+  .hr__sheet {
+    position: relative; z-index: 2; pointer-events: none;
+    height: 100%; display: flex; flex-direction: column;
+    padding: var(--pad);
+    max-width: 92rem; margin-inline: auto;
+  }
+  .hr__sheet a, .hr__sheet p, .hr__sheet h1,
+  .hr__sheet header, .hr__sheet aside, .hr__sheet li { pointer-events: auto; }
+
+  .hr__rule { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .hr__brand { display: inline-flex; align-items: center; gap: .6rem; }
+  .hr__mark {
+    font-size: .68rem; text-transform: uppercase; letter-spacing: .2em;
+    color: var(--color-fg-subtle); white-space: nowrap;
+  }
+  .hr__status {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: var(--type-mono); font-size: .62rem;
+    text-transform: uppercase; letter-spacing: .18em;
+    color: var(--color-accent); white-space: nowrap;
+  }
+  .hr__dot {
+    width: 5px; height: 5px; border-radius: var(--radius-full);
+    background: var(--color-accent); animation: hr-pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes hr-pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+
+  /* ── Заголовок ───────────────────────────────────────────────────────── */
+  .hr__body {
+    flex: 1; display: grid; align-content: start;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(1rem, 3vw, 3rem);
+    padding-top: clamp(1.2rem, 5vh, 4rem);
+  }
+
+  /* Тень не украшение: тонкая антиква идёт поверх обложек, и без неё
+     заголовок местами ложится светлым на светлое. */
+  .hr__title, .hr__lede {
+    text-shadow:
+      0 1px 14px color-mix(in oklab, var(--color-bg) 92%, transparent),
+      0 0 34px color-mix(in oklab, var(--color-bg) 80%, transparent),
+      0 0 4px  color-mix(in oklab, var(--color-bg) 75%, transparent);
+  }
+
+  .hr__title {
+    margin: 0; max-width: min(100%, 38ch);
+    font-family: var(--type-display); font-weight: 250;
+    font-size: clamp(2rem, .5rem + 4.3vw, min(6rem, 12.2vh));
+    line-height: .98; letter-spacing: -.038em; text-wrap: balance;
+    color: var(--color-fg);
+  }
+  @keyframes hr-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  /* Сменяющийся адресат: окно в одну строку, колонка едет по шагу --rstep */
+  .hr__roll { display: block; margin-top: -.38em; --rstep: 1.78em; }
+  .hr__win { display: block; position: relative; overflow: hidden; height: var(--rstep); }
+  .hr__col {
+    display: block; position: absolute; left: 0; top: 0; width: max-content;
+    transition: transform .95s var(--motion-ease);
+  }
+  .hr__it {
+    display: block; width: max-content; height: var(--rstep); line-height: var(--rstep);
+    white-space: nowrap; letter-spacing: -.018em;
+    font-family: var(--type-italic); font-style: italic; color: var(--color-accent);
+  }
+  .hr__underline {
+    display: block; height: 1px; margin-top: -.06em;
+    background: var(--color-accent); opacity: .34;
+    width: var(--rw, 10ch); transition: width .95s var(--motion-ease);
+  }
+
+  .hr__lede {
+    margin: clamp(.9rem, 1.9vh, 1.5rem) 0 0; max-width: min(100%, 46ch);
+    font-weight: 300; line-height: 1.38; text-wrap: pretty;
+    font-size: clamp(1rem, .86rem + .5vw, 1.34rem);
+    color: var(--color-fg-muted);
+  }
+  .hr__lede b { color: var(--color-fg); font-weight: 600; }
+
+  /* ── Карточка экземпляра — то, что на лендинге показывает клик ────────── */
+  .hr__cap {
+    align-self: start; justify-self: end; text-align: right; max-width: 26rem;
+  }
+  .hr__cap-no {
+    display: block; font-family: var(--type-mono); font-size: .62rem;
+    text-transform: uppercase; letter-spacing: .18em; color: var(--color-fg-subtle);
+  }
+  .hr__cap-t {
+    display: block; margin-top: .4rem;
+    font-family: var(--type-italic); font-style: italic; font-size: 1.22rem;
+    color: var(--color-fg);
+  }
+  .hr__cap-q { display: block; margin-top: .25rem; font-size: .86rem; line-height: 1.45; color: var(--color-fg-muted); }
+  .hr__cap-rule { display: block; height: 1px; margin-top: .8rem; background: var(--color-border-strong); opacity: .55; }
+  .hr__cap-hint {
+    margin: .55rem 0 0; font-family: var(--type-mono); font-size: .58rem;
+    text-transform: uppercase; letter-spacing: .16em; color: var(--color-fg-subtle);
+  }
+
+  /* ── Три полосы содержания ───────────────────────────────────────────── */
+  .hr__beats {
+    list-style: none; margin: 0 0 clamp(.9rem, 2.2vh, 1.6rem); padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 3.5rem);
+  }
+  .hr__bt { border-top: 1px solid var(--color-border); padding-top: .85rem; }
+  .hr__bt p {
+    margin: 0; font-size: clamp(.82rem, .78rem + .18vw, .95rem);
+    line-height: 1.5; color: var(--color-fg-muted); text-wrap: pretty;
+  }
+  .hr__bt b { color: var(--color-fg); font-weight: 600; }
+  .hr__bt u {
+    text-decoration: none; color: var(--color-accent);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-accent) 45%, transparent);
+  }
+
+  /* ── Аннотации в тексте ──────────────────────────────────────────────────
+     Два слова во второй полосе — не ссылки, а сноски: «специалистам» и
+     «300 000». За ними стоят настоящие ответы (кто делает книгу и почему
+     она стоит вдесятеро меньше ручной), и без них строка про цену звучит
+     голословно — именно за этим они и перенесены с лендинга. */
+  .hr__ann {
+    font: inherit; color: var(--color-accent); background: none; padding: 0;
+    border: 0; border-bottom: 1px dashed color-mix(in oklab, var(--color-accent) 60%, transparent);
+    cursor: pointer; pointer-events: auto;
+  }
+  .hr__ann::after { content: " ?"; font-size: .7em; vertical-align: .35em; opacity: .8; }
+  .hr__ann:hover { color: var(--color-fg); border-bottom-style: solid; }
+  .hr__ann:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+  .hr__scrim {
+    position: fixed; inset: 0; z-index: 40;
+    background: color-mix(in oklab, var(--color-bg) 82%, transparent);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: grid; place-items: center; padding: clamp(1rem, 4vw, 3rem);
+  }
+  .hr__scrim[hidden] { display: none; }
+
+  .hr__panel {
+    position: relative; width: min(100%, 46rem); max-height: 86dvh; overflow: auto;
+    padding: clamp(1.3rem, 3vw, 2.2rem);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card); pointer-events: auto;
+  }
+  .hr__panel[hidden] { display: none; }
+  .hr__panel-x {
+    position: absolute; top: .7rem; right: .7rem; width: 2rem; height: 2rem;
+    display: grid; place-items: center; font-size: 1rem; line-height: 1;
+    color: var(--color-fg-subtle); background: none; border: 0; cursor: pointer;
+    border-radius: var(--radius-full);
+  }
+  .hr__panel-x:hover { color: var(--color-fg); background: var(--color-bg-muted); }
+  .hr__panel-k {
+    margin: 0; font-family: var(--type-mono); font-size: .6rem;
+    text-transform: uppercase; letter-spacing: .2em; color: var(--color-fg-subtle);
+  }
+  .hr__panel-t {
+    margin: .5rem 0 1.1rem; font-family: var(--type-italic); font-style: italic;
+    font-size: clamp(1.1rem, 1rem + .5vw, 1.5rem); line-height: 1.25; color: var(--color-fg);
+  }
+  .hr__panel p, .hr__panel li { font-size: .86rem; line-height: 1.55; color: var(--color-fg-muted); }
+  .hr__panel b { color: var(--color-fg); }
+
+  .hr__roles { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+  .hr__roles li { padding-left: 1rem; border-left: 1px solid var(--color-border); }
+
+  .hr__ai { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+
+  .hr__tbl { width: 100%; border-collapse: collapse; margin: .4rem 0 0; font-size: .8rem; }
+  .hr__tbl th, .hr__tbl td { padding: .38rem .5rem; text-align: right; color: var(--color-fg-muted); }
+  .hr__tbl th:first-child, .hr__tbl td:first-child { text-align: left; }
+  .hr__tbl thead th {
+    font-family: var(--type-mono); font-size: .56rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: .14em; color: var(--color-fg-subtle);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .hr__tbl td { font-variant-numeric: tabular-nums; }
+  .hr__tbl tr.grp td {
+    padding-top: .9rem; color: var(--color-fg); font-weight: 600;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .hr__out { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+  .hr__bar { display: grid; grid-template-columns: 9rem 1fr auto; align-items: center; gap: .7rem; margin-top: .5rem; }
+  .hr__bar span:first-child { font-family: var(--type-mono); font-size: .58rem; text-transform: uppercase; letter-spacing: .14em; color: var(--color-fg-subtle); }
+  /* Ширина полоски приходит переменной --w с элемента: это единственная
+     форма инлайнового стиля, которую детектор 60 считает не долгом, —
+     значение времени выполнения, а не оформление в разметке. */
+  .hr__bar i { display: block; height: 8px; width: var(--w, 100%);
+    border-radius: var(--radius-full);
+    background: color-mix(in oklab, var(--color-fg) 30%, transparent); }
+  .hr__bar--us i { background: var(--color-accent); }
+  .hr__bar b { font-variant-numeric: tabular-nums; color: var(--color-fg); }
+  .hr__out-note { margin-top: .9rem; }
+
+  /* Короткая строка с ценой — только на телефоне (см. разметку) */
+  .hr__price-m { display: none; }
+  .hr__price-m u {
+    text-decoration: none; color: var(--color-accent);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-accent) 45%, transparent);
+  }
+
+  /* ── Колофон ─────────────────────────────────────────────────────────── */
+  .hr__foot { border-top: 1px solid var(--color-border); padding-top: .8rem; }
+  .hr__soon { margin: 0 0 .65rem; font-size: .8rem; line-height: 1.5; color: var(--color-fg-muted); }
+  .hr__legal { display: flex; flex-wrap: wrap; gap: .3rem 1.3rem; }
+  .hr__legal a {
+    font-size: .66rem; text-transform: uppercase; letter-spacing: .15em; white-space: nowrap;
+    color: var(--color-fg-subtle); text-decoration: none;
+    border-bottom: 1px solid var(--color-border); padding-bottom: 1px;
+    transition: color var(--motion-duration-base) var(--motion-ease),
+                border-color var(--motion-duration-base) var(--motion-ease);
+  }
+  .hr__legal a:hover, .hr__legal a:focus-visible { color: var(--color-fg); border-color: var(--color-accent); }
+  .hr__imprint {
+    margin: .75rem 0 0; font-family: var(--type-mono);
+    font-size: .58rem; line-height: 1.7; letter-spacing: .08em; color: var(--color-fg-subtle);
+  }
+
+  /* ── Планшет ─────────────────────────────────────────────────────────── */
+  @media (max-width: 68rem) {
+    .hr__body { grid-template-columns: minmax(0, 1fr); }
+    .hr__cap { justify-self: start; text-align: left; }
+    .hr__cap-rule { display: none; }
+    .hr__beats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hr__bt--third { display: none; }
+  }
+
+  /* ── Телефон: стена остаётся, полосы содержания сжимаются до одной ───── */
+  @media (max-width: 44rem) {
+    .hr { --wall: clamp(260px, 46vh, 460px); --cwb: calc(var(--wall) / 3.4); }
+    .hr__row--fourth { display: none; }
+    .hr__row--far { display: none; }
+    .hr__mark, .hr__status { font-size: .55rem; letter-spacing: .12em; }
+
+    /* На телефоне заголовок уходит ПОД стену, а не ложится поверх неё.
+       Две причины, обе с замера 390×844: поверх узкой стены он спорил с
+       обложками за те же 340 px, а прижатый к верху оставлял между собой и
+       полосой содержания 220 px пустоты. Прижатый к низу — стоит на чистом
+       фоне, читается сразу, и дыра исчезает. */
+    .hr__body { align-content: end; padding-top: 0; padding-bottom: clamp(.6rem, 2.4vh, 1.6rem); }
+
+    /* Верхний колонтитул на телефоне приходится ровно на светлые корешки —
+       без этого «СУТЬ · THE ESSENCE» и метка разработки в них тонут. */
+    .hr__veil {
+      background: linear-gradient(to bottom,
+        color-mix(in oklab, var(--color-bg) 88%, transparent) 0%,
+        color-mix(in oklab, var(--color-bg) 30%, transparent) 12%,
+        color-mix(in oklab, var(--color-bg) 26%, transparent) 40%,
+        color-mix(in oklab, var(--color-bg) 96%, transparent) 58%,
+        var(--color-bg) 64%);
+    }
+    .hr__cap { display: none; }
+    .hr__beats { grid-template-columns: minmax(0, 1fr); gap: .7rem; margin-bottom: .7rem; }
+    .hr__bt--second, .hr__bt--third { display: none; }
+    .hr__price-m { display: block; margin: 0 0 .7rem; font-size: .78rem;
+      line-height: 1.5; color: var(--color-fg-muted); }
+    .hr__lede { margin-top: .7rem; }
+    .hr__legal { gap: .25rem .85rem; }
+    .hr__legal a { font-size: .56rem; letter-spacing: .1em; }
+    .hr__imprint { margin-top: .5rem; font-size: .52rem; line-height: 1.5; letter-spacing: .05em; }
+  }
+
+  /* Короткий телефон (SE и родня). Здесь колофон с полосой содержания занимают
+     больше половины экрана, и заголовок неизбежно наезжает на нижний край
+     стены — уводить его некуда. Поэтому стена ниже, а полог под заголовком
+     плотнее: обложки за ним превращаются в фактуру, а не спорят с текстом. */
+  @media (max-width: 44rem) and (max-height: 46rem) {
+    .hr { --wall: clamp(200px, 34vh, 320px); }
+    .hr__veil {
+      background: linear-gradient(to bottom,
+        color-mix(in oklab, var(--color-bg) 88%, transparent) 0%,
+        color-mix(in oklab, var(--color-bg) 34%, transparent) 14%,
+        color-mix(in oklab, var(--color-bg) 62%, transparent) 34%,
+        color-mix(in oklab, var(--color-bg) 97%, transparent) 50%,
+        var(--color-bg) 56%);
+    }
+    .hr__lede { font-size: .95rem; }
+  }
+
+  /* ── Появление ───────────────────────────────────────────────────────────
+     Анимации входа объявлены ТОЛЬКО здесь, а базовое состояние — видимое.
+     Обратный порядок (прозрачно по умолчанию + `forwards`, чтобы проявить)
+     выглядит короче, но делает читаемость страницы заложником анимации:
+     не отработала — человек смотрит на пустой экран. Проверено принудительным
+     `animation: none`: при прежней записи заголовок, лид, карточка, стена и
+     полосы содержания давали opacity 0 разом.
+
+     Отсюда две мелочи, которые легко потерять: прозрачность объявлена ВНУТРИ
+     @keyframes (`from`), а не на элементе, и заполнение — `backwards`, а не
+     `forwards`. Backwards держит стартовый кадр только до начала анимации,
+     а после неё элемент возвращается к своему обычному состоянию — видимому. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hr__web   { animation: hr-web-in 1.6s var(--motion-ease) .05s backwards; }
+    .hr__title { animation: hr-rise .9s var(--motion-ease) .15s backwards; }
+    .hr__lede  { animation: hr-rise .9s var(--motion-ease) .28s backwards; }
+    .hr__cap   { animation: hr-rise 1s  var(--motion-ease) .5s  backwards; }
+    .hr__deck  { animation: hr-rise 1s  var(--motion-ease) .62s backwards; }
+  }
+
+  /* «Меньше движения»: стена замирает, адресат перестаёт меняться, метка не
+     мигает. Появления сюда не входят — их просто нет за пределами блока выше. */
+  @media (prefers-reduced-motion: reduce) {
+    .hr__track { animation: none; }
+    .hr__dot { animation: none; }
+    .hr__col, .hr__underline { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="hr" data-hr>
+  <div class="hr__web" aria-hidden="true">
+      <div class="hr__row hr__row--far">
+        <div class="hr__track" style="--dur: 236s">
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+        </div>
+      </div>
+      <div class="hr__row hr__row--mid hr__row--back">
+        <div class="hr__track" style="--dur: 168s">
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+        </div>
+      </div>
+      <div class="hr__row hr__row--near">
+        <div class="hr__track" style="--dur: 288s">
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+        </div>
+      </div>
+      <div class="hr__row hr__row--mid hr__row--back hr__row--fourth">
+        <div class="hr__track" style="--dur: 196s">
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 028"
+                   data-t="Первый берег"
+                   data-q="«куда я всё время возвращаюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/28_perviy-bereg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 002"
+                   data-t="Всё уже взошло"
+                   data-q="«жду знака, хотя всё уже случилось»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/02_pavel-vzoshlo.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 039"
+                   data-t="Дом на двоих"
+                   data-q="«что мы построили и кто там живёт»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/39_dom-na-dvoih.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 005"
+                   data-t="Золото со дна"
+                   data-q="«что во мне есть — и как поднять это со дна»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/05_oksana-zoloto.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 036"
+                   data-t="Дальний свет"
+                   data-q="«куда я иду, когда не вижу дороги»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/36_dalniy-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 004"
+                   data-t="Та, кто возвращает свет"
+                   data-q="«дар, который весь уходит на других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/04_anya-svet.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 030"
+                   data-t="Сад под снегом"
+                   data-q="«что во мне ждёт своего срока»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/30_sad-pod-snegom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 008"
+                   data-t="Единая картина"
+                   data-q="«душа, дар и путь — одним чертежом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/08_vladimir-sut.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 024"
+                   data-t="Комната с окном"
+                   data-q="«что я держу закрытым»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/24_komnata-s-oknom.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 009"
+                   data-t="Портрет души"
+                   data-q="«кто я, в чём мой дар и куда мой путь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/09_ekaterina-portret.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 038"
+                   data-t="Тонкий лёд"
+                   data-q="«почему я всё время проверяю почву»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/38_tonkiy-lyod.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 006"
+                   data-t="Тёплые руки"
+                   data-q="«как наполняться, когда лечишь других»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/06_ekaterina-ruki.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 046"
+                   data-t="Возвращение тепла"
+                   data-q="«как перестать беречь себя от жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/46_vozvraschenie-tepla.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 007"
+                   data-t="Карта поля"
+                   data-q="«книга ведущего — перед первой расстановкой»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/07_vladimir-karta.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 047"
+                   data-t="Карта без дорог"
+                   data-q="«как выбирать, когда указателей нет»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/47_karta-bez-dorog.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 011"
+                   data-t="Двое одной воды"
+                   data-q="«как любить, беречь и наполнять друг друга»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/11_dvoe-vody.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 025"
+                   data-t="Ближе, чем кажется"
+                   data-q="«почему я держу дистанцию»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/25_blizhe-chem-kazhetsya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 012"
+                   data-t="Огонь и звезда"
+                   data-q="«что между нами старше этой жизни»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/12_gulsinya-ogon.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 032"
+                   data-t="Между двух огней"
+                   data-q="«почему выбор даётся так дорого»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/32_mezhdu-dvuh-ogney.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 013"
+                   data-t="Твой год"
+                   data-q="«двенадцать дней, которые его создают»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/13_yulia-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 050"
+                   data-t="Поздняя весна"
+                   data-q="«почему я расцветаю не вовремя»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/50_pozdnyaya-vesna.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 015"
+                   data-t="Твой год"
+                   data-q="«какой ты в наступающем году»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/15_solar-god.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 023"
+                   data-t="Долгий разбег"
+                   data-q="«почему у меня всё начинается позже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/23_dolgiy-razbeg.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 026"
+                   data-t="Обратная сторона силы"
+                   data-q="«чем я плачу за то, что справляюсь»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/26_obratnaya-storona-sily.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.072)"
+                   data-hr-bk
+                   data-no="Экземпляр № 044"
+                   data-t="Тяжёлая корона"
+                   data-q="«цена быть тем, на кого опираются»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/44_tyazhelaya-korona.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.005)"
+                   data-hr-bk
+                   data-no="Экземпляр № 027"
+                   data-t="Не моя тяжесть"
+                   data-q="«что я несу не своё»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/27_ne-moya-tyazhest.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.049)"
+                   data-hr-bk
+                   data-no="Экземпляр № 040"
+                   data-t="Слепое пятно"
+                   data-q="«то, что видят все, кроме меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/40_slepoe-pyatno.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.081)"
+                   data-hr-bk
+                   data-no="Экземпляр № 022"
+                   data-t="Пока не назвали"
+                   data-q="«то, что я знаю о себе без слов»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/22_poka-ne-nazvali.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.014)"
+                   data-hr-bk
+                   data-no="Экземпляр № 045"
+                   data-t="Между строк"
+                   data-q="«что я говорю, не говоря»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/45_mezhdu-strok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.04)"
+                   data-hr-bk
+                   data-no="Экземпляр № 031"
+                   data-t="Голос из-за двери"
+                   data-q="«кого я до сих пор слушаю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/31_golos-iz-za-dveri.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.076)"
+                   data-hr-bk
+                   data-no="Экземпляр № 041"
+                   data-t="Обещание из детства"
+                   data-q="«какой договор я до сих пор исполняю»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/41_obeschanie-iz-detstva.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.026)"
+                   data-hr-bk
+                   data-no="Экземпляр № 029"
+                   data-t="Медленная вода"
+                   data-q="«почему меня не поторопить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/29_medlennaya-voda.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.058)"
+                   data-hr-bk
+                   data-no="Экземпляр № 049"
+                   data-t="Свой ритм"
+                   data-q="«почему чужая скорость меня ломает»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/49_svoy-ritm.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.03)"
+                   data-hr-bk
+                   data-no="Экземпляр № 033"
+                   data-t="Сухая земля"
+                   data-q="«где во мне кончилась вода»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/33_suhaya-zemlya.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.085)"
+                   data-hr-bk
+                   data-no="Экземпляр № 037"
+                   data-t="Второе дыхание"
+                   data-q="«где взять силы, когда всё уже потрачено»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/37_vtoroe-dyhanie.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.011)"
+                   data-hr-bk
+                   data-no="Экземпляр № 034"
+                   data-t="Нить и узел"
+                   data-q="«что я не могу развязать»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/34_nit-i-uzel.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.053)"
+                   data-hr-bk
+                   data-no="Экземпляр № 042"
+                   data-t="Стеклянный потолок"
+                   data-q="«что останавливает меня перед самым верхом»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/42_steklyanniy-potolok.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.068)"
+                   data-hr-bk
+                   data-no="Экземпляр № 035"
+                   data-t="Свет в подкладке"
+                   data-q="«что во мне есть, но не наружу»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/35_svet-v-podkladke.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0)"
+                   data-hr-bk
+                   data-no="Экземпляр № 043"
+                   data-t="Гость в своей жизни"
+                   data-q="«почему всё как будто не про меня»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/43_gost-v-svoey-zhizni.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.062)"
+                   data-hr-bk
+                   data-no="Экземпляр № 048"
+                   data-t="Незажжённая свеча"
+                   data-q="«о чём я боюсь спросить»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/48_nezazhzhennaya-svecha.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.021)"
+                   data-hr-bk
+                   data-no="Экземпляр № 001"
+                   data-t="Под видом слабости"
+                   data-q="«десять вопросов, которые ты не задаёшь вслух»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/01_yulia-slabost.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.088)"
+                   data-hr-bk
+                   data-no="Экземпляр № 021"
+                   data-t="Тихий мотор"
+                   data-q="«почему я не останавливаюсь, даже когда пусто»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/21_tihiy-motor.webp" />
+              </div>
+              <div class="hr__bk"
+                   style="--off: calc(var(--cw) * 0.034)"
+                   data-hr-bk
+                   data-no="Экземпляр № 003"
+                   data-t="Глубже, чем видно"
+                   data-q="«меня видят поверхностно — а что глубже»">
+                <img alt="" loading="eager" decoding="async" width="369" height="520" src="placeholder-assets/03_konstantin-glubzhe.webp" />
+              </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="hr__veil" aria-hidden="true"></div>
+
+  <div class="hr__sheet">
+    <header class="hr__rule">
+      <span class="hr__brand">
+        <!-- BEGIN app/views/shared/brand/_seal.html.erb
+--><img src="placeholder-assets/seal-compact.svg"
+     width="26" height="26"
+     alt="" aria-hidden="true"
+     class="brand-seal-c "
+     style="--brand-seal-size: 26px"
+     decoding="async">
+<!-- END app/views/shared/brand/_seal.html.erb -->
+        <span class="hr__mark">Суть · The Essence</span>
+      </span>
+      <span class="hr__status"><i class="hr__dot" aria-hidden="true"></i>Сайт в разработке</span>
+    </header>
+
+    <main id="main-content" class="hr__body" role="main" aria-labelledby="hr-title">
+      <div>
+        <h1 id="hr-title" class="hr__title">
+          Создаём книги —
+          <span class="hr__roll">
+            <span class="hr__win">
+              <span class="hr__col" data-hr-col>
+                <span class="hr__it">о вас</span>
+                <span class="hr__it">о вашем ребёнке</span>
+                <span class="hr__it">о вашей паре</span>
+                <span class="hr__it">о близком человеке</span>
+                <span class="hr__it">о вас</span>
+              </span>
+            </span>
+            <span class="hr__underline" data-hr-underline aria-hidden="true"></span>
+          </span>
+        </h1>
+
+        <p class="hr__lede">
+          Вы задаёте один вопрос — мы отвечаем <b>целой книгой</b>.
+        </p>
+      </div>
+
+      <aside class="hr__cap" data-hr-cap>
+        <span class="hr__cap-no" data-hr-cap-no>Сорок три обложки</span>
+        <span class="hr__cap-t"  data-hr-cap-t>Ни одна не повторяет другую</span>
+        <span class="hr__cap-q"  data-hr-cap-q>«из готовых обложек мы не выбираем — их у нас нет»</span>
+        <span class="hr__cap-rule" aria-hidden="true"></span>
+        <p class="hr__cap-hint" data-hr-cap-hint>наведите на обложку — что это за книга</p>
+      </aside>
+    </main>
+
+    <footer class="hr__deck">
+      <ul class="hr__beats">
+        <li class="hr__bt">
+          <p>
+            <u>2500 лет</u> люди копили знания о связи между положением небесных
+            тел в момент рождения и устройством человека. Мы собрали их целиком —
+            в одну из <b>самых подробных систем в мире</b>, высчитывающую
+            уникальный чертёж конкретного человека.
+          </p>
+        </li>
+        <li class="hr__bt hr__bt--second">
+          <p>
+            Дальше — то, что <b>раньше было невозможно</b>. Чертёж —
+            <u>200 страниц А4</u>: человек изучал бы его месяцами, истолковывал
+            годами. ИИ помогает нашим
+            <button type="button" class="hr__ann" data-hr-ann="team"
+                    aria-expanded="false" aria-controls="hr-panel-team">специалистам</button>
+            справиться за дни, кратно увеличивая точность — позволяя книге
+            стоить <u>30 000</u>, а не
+            <button type="button" class="hr__ann" data-hr-ann="est"
+                    aria-expanded="false" aria-controls="hr-panel-est">300 000</button>.
+          </p>
+        </li>
+        <li class="hr__bt hr__bt--third">
+          <p>
+            Вы формируете запрос, мы, понимая всю глубину вашего устройства,
+            создаём целую книгу, развёрнуто отвечая на него. Тон, цвета, обложка,
+            иллюстрации — <b>всё персонально</b>. <u>8–10 дней</u>,
+            <u>около 100</u> страниц.
+          </p>
+        </li>
+      </ul>
+
+      <p class="hr__price-m">
+        Книга стоит <u>30 000</u>, а не
+        <button type="button" class="hr__ann" data-hr-ann="est"
+                aria-expanded="false" aria-controls="hr-panel-est">300 000</button>.
+        <button type="button" class="hr__ann" data-hr-ann="team"
+                aria-expanded="false" aria-controls="hr-panel-team">Кто её делает</button>
+      </p>
+
+      <div class="hr__foot">
+        <p class="hr__soon">
+          Полный сайт сейчас набирается: библиотека книг, метод целиком,
+          гарантия узнавания — и первая книга в подарок.
+        </p>
+
+        <nav class="hr__legal" aria-label="Юридические документы">
+          <a href="https://the-essence.ai/legal/oferta" target="_blank" rel="noopener">Договор-оферта</a>
+          <a href="https://the-essence.ai/privacy" target="_blank" rel="noopener">Политика конфиденциальности</a>
+          <a href="https://the-essence.ai/legal/consent" target="_blank" rel="noopener">Согласие на обработку ПД</a>
+          <a href="https://the-essence.ai/legal/refund" target="_blank" rel="noopener">Условия возврата</a>
+          <a href="https://the-essence.ai/cookies" target="_blank" rel="noopener">Политика cookies</a>
+          <a href="https://the-essence.ai/legal" target="_blank" rel="noopener">Все документы</a>
+        </nav>
+
+        <p class="hr__imprint">
+          ИП Сёмин Юрий Михайлович · ИНН 731305364806 · ОГРНИП 322730000043263 ·
+          18+ · Данные рождения защищены по 152-ФЗ · © 2026 Суть · The Essence
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <div class="hr__scrim" data-hr-scrim hidden>
+    <div class="hr__panel" id="hr-panel-team" data-hr-panel="team"
+         role="dialog" aria-modal="true" aria-labelledby="hr-team-t" hidden>
+      <button type="button" class="hr__panel-x" data-hr-close aria-label="Закрыть">✕</button>
+      <p class="hr__panel-k">Команда</p>
+      <p class="hr__panel-t" id="hr-team-t">Книгу пишут люди. ИИ помогает им успеть</p>
+      <ul class="hr__roles">
+        <li><b>Астролог</b> разбирает ваш чертёж и решает, о чём именно спрашивать
+          карту, чтобы ответить на ваш вопрос</li>
+        <li><b>Автор</b> строит книгу — части, главы, порядок — и пишет текст под ваш тон</li>
+        <li><b>Художник</b> рисует обложку, иллюстрации и схемы — для вашей книги
+          и больше ни для чьей</li>
+        <li><b>Редактор и корректор</b> читают книгу целиком и сверяют каждое
+          утверждение с чертежом</li>
+      </ul>
+      <div class="hr__ai">
+        <p class="hr__panel-k">Что здесь делает ИИ</p>
+        <p>Читает 200 страниц чертежа за минуты и готовит разбор, на который у
+          человека уходили месяцы. <b>Ни одна страница не уходит к вам, пока её
+          не прочитал человек.</b></p>
+        <p>Он не заменил никого из них — он сэкономил недели. Поэтому книга стоит
+          <b>30 000</b>, а не 300 000.</p>
+      </div>
+    </div>
+
+    <div class="hr__panel" id="hr-panel-est" data-hr-panel="est"
+         role="dialog" aria-modal="true" aria-labelledby="hr-est-t" hidden>
+      <button type="button" class="hr__panel-x" data-hr-close aria-label="Закрыть">✕</button>
+      <p class="hr__panel-k">Смета</p>
+      <p class="hr__panel-t" id="hr-est-t">Столько стоила бы такая книга, если делать её руками</p>
+      <p>Средняя книга: около 100 страниц, около 90 000 знаков.</p>
+      <table class="hr__tbl">
+        <thead><tr><th scope="col">Работа</th><th scope="col">Кол-во</th>
+          <th scope="col">Цена</th><th scope="col">Сумма</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="3">Замысел</td><td>37 000</td></tr>
+          <tr><td>Разбор чертежа под ваш вопрос</td><td>10 ч</td><td>2 500</td><td>25 000</td></tr>
+          <tr><td>Архитектура книги: части и главы</td><td>—</td><td>—</td><td>12 000</td></tr>
+          <tr class="grp"><td colspan="3">Текст</td><td>115 000</td></tr>
+          <tr><td>Написание текста</td><td>90 000 знаков</td><td>1 000/1000</td><td>90 000</td></tr>
+          <tr><td>Редактура и корректура</td><td>100 страниц</td><td>250</td><td>25 000</td></tr>
+          <tr class="grp"><td colspan="3">Иллюстрации</td><td>110 000</td></tr>
+          <tr><td>Обложка</td><td>1</td><td>20 000</td><td>20 000</td></tr>
+          <tr><td>Полностраничные иллюстрации</td><td>6</td><td>6 000</td><td>36 000</td></tr>
+          <tr><td>Рисунки в тексте</td><td>14</td><td>3 000</td><td>42 000</td></tr>
+          <tr><td>Схемы и навигаторы</td><td>3</td><td>4 000</td><td>12 000</td></tr>
+          <tr class="grp"><td colspan="3">Книга</td><td>44 000</td></tr>
+          <tr><td>Вёрстка</td><td>100 страниц</td><td>300</td><td>30 000</td></tr>
+          <tr><td>Подготовка к печати</td><td>—</td><td>—</td><td>6 000</td></tr>
+          <tr><td>Печать и твёрдый переплёт</td><td>1 экз.</td><td>8 000</td><td>8 000</td></tr>
+        </tbody>
+      </table>
+      <p>Здесь взяты самые низкие цены на рынке. Налоги, прибыль и работу
+        менеджера мы не считали вовсе — с ними вышло бы дороже.</p>
+      <div class="hr__out">
+        <div class="hr__bar"><span>Если делать руками</span><i></i><b>306 000 ₽</b></div>
+        <div class="hr__bar hr__bar--us"><span>Наша цена</span><i style="--w: 9.8%"></i><b>30 000 ₽</b></div>
+        <p class="hr__out-note">Книга обходится <b>в 10 раз дешевле</b>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+//<![CDATA[
+
+  (function () {
+    "use strict";
+
+    var root = document.querySelector("[data-hr]");
+    if (!root) return;
+    var calm = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // ── Сменяющийся адресат ────────────────────────────────────────────────
+    // Последний пункт колонки — копия первого: доехав до него, колонка
+    // возвращается в начало без перехода, и петля не видна.
+    var col  = root.querySelector("[data-hr-col]");
+    var line = root.querySelector("[data-hr-underline]");
+    if (col && line) {
+      var items = col.children, at = 0;
+
+      var draw = function () {
+        col.style.transform = "translateY(-" + (at * 1.78) + "em)";
+        var w = items[at] && items[at].offsetWidth;
+        if (w) line.style.setProperty("--rw", w + "px");
+      };
+      draw();
+
+      if (!calm.matches && items.length > 1) {
+        setInterval(function () {
+          at += 1;
+          draw();
+          if (at === items.length - 1) {
+            // Доехали до копии — вернуться в начало молча, пока переход не виден.
+            setTimeout(function () {
+              var keep = col.style.transition;
+              col.style.transition = "none";
+              at = 0; draw();
+              void col.offsetWidth;          // применить до возврата перехода
+              col.style.transition = keep;
+            }, 1000);
+          }
+        }, 3200);
+      }
+    }
+
+    // ── Сноски: команда и смета ────────────────────────────────────────────
+    // Панели лежат в разметке готовыми — скрипт только показывает их. Так
+    // содержимое остаётся в HTML (его видно поиском и без JS), а не собирается
+    // строками в коде.
+    var scrim = root.querySelector("[data-hr-scrim]");
+    if (scrim) {
+      var panels = {};
+      Array.prototype.forEach.call(root.querySelectorAll("[data-hr-panel]"), function (el) {
+        panels[el.dataset.hrPanel] = el;
+      });
+      var openedBy = null;
+
+      var closePanel = function () {
+        scrim.hidden = true;
+        Object.keys(panels).forEach(function (k) { panels[k].hidden = true; });
+        Array.prototype.forEach.call(root.querySelectorAll("[data-hr-ann]"), function (b) {
+          b.setAttribute("aria-expanded", "false");
+        });
+        if (openedBy) { openedBy.focus(); openedBy = null; }
+      };
+
+      Array.prototype.forEach.call(root.querySelectorAll("[data-hr-ann]"), function (btn) {
+        btn.addEventListener("click", function () {
+          var key = btn.dataset.hrAnn;
+          if (!panels[key]) return;
+          Object.keys(panels).forEach(function (k) { panels[k].hidden = k !== key; });
+          scrim.hidden = false;
+          btn.setAttribute("aria-expanded", "true");
+          openedBy = btn;
+          var x = panels[key].querySelector("[data-hr-close]");
+          if (x) x.focus();
+        });
+      });
+
+      Array.prototype.forEach.call(root.querySelectorAll("[data-hr-close]"), function (x) {
+        x.addEventListener("click", closePanel);
+      });
+      // Клик по подложке — мимо панели, значит закрыть
+      scrim.addEventListener("click", function (e) { if (e.target === scrim) closePanel(); });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !scrim.hidden) closePanel();
+      });
+    }
+
+    // ── Подпись под наведением ─────────────────────────────────────────────
+    // На лендинге историю книги открывает клик; здесь открывать нечего, поэтому
+    // обложка просто называет себя. Значения лежат на самих обложках в data-*,
+    // так что список книг живёт в одном месте — в шаблоне.
+    var cap = root.querySelector("[data-hr-cap]");
+    if (!cap) return;
+    var slot = {
+      no: cap.querySelector("[data-hr-cap-no]"),
+      t:  cap.querySelector("[data-hr-cap-t]"),
+      q:  cap.querySelector("[data-hr-cap-q]"),
+      hint: cap.querySelector("[data-hr-cap-hint]")
+    };
+    if (!slot.no || !slot.t || !slot.q) return;
+
+    var base = { no: slot.no.textContent, t: slot.t.textContent, q: slot.q.textContent };
+    var back = 0;
+
+    var show = function (v) {
+      slot.no.textContent = v.no;
+      slot.t.textContent  = v.t;
+      slot.q.textContent  = v.q;
+      if (slot.hint) slot.hint.hidden = v !== base;
+    };
+
+    root.addEventListener("pointerover", function (e) {
+      var bk = e.target.closest && e.target.closest("[data-hr-bk]");
+      if (!bk) return;
+      clearTimeout(back);
+      show({ no: bk.dataset.no, t: bk.dataset.t, q: bk.dataset.q });
+    });
+
+    // Возврат с задержкой: без неё подпись мигала бы на каждом зазоре между
+    // обложками, а они едут — зазор проезжает под курсором сам собой.
+    root.addEventListener("pointerout", function (e) {
+      if (!(e.target.closest && e.target.closest("[data-hr-bk]"))) return;
+      clearTimeout(back);
+      back = setTimeout(function () { show(base); }, 420);
+    });
+  })();
+
+//]]>
+
+</script>
+</body>
+</html>
