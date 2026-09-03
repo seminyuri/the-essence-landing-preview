@@ -6,7 +6,7 @@
 <title>Суть · заглушка главной — снимок для просмотра</title>
 <meta name="robots" content="noindex, nofollow">
 <!--
-  СНИМОК, НЕ ИСТОЧНИК ИСТИНЫ. Собран 2026-09-02 из app/views/marketing/index.html.erb.
+  СНИМОК, НЕ ИСТОЧНИК ИСТИНЫ. Собран 2026-09-03 из app/views/marketing/index.html.erb.
   Пересобрать: script/preview-placeholder.py
   Отличия от прода ровно два, оба вынужденные:
     1. шрифты тянутся с Google Fonts (на проде они свои, самохостовые);
@@ -183,11 +183,25 @@
 .bp-hero .web{position:absolute;inset:0;display:flex;flex-direction:column;
   justify-content:center;gap:var(--gap);z-index:1;pointer-events:none;
   padding-bottom:var(--web-pad,0px);
-  /* Наклон приподнимает правый край на полширины × tg(угла), и внизу справа
-     открывается тёмный клин. Угол держим небольшим, а вылет за кадр — с
-     запасом, чтобы стопка этот клин перекрывала. */
-  transform:rotate(-2.2deg) scale(1.12);
-  /* ⚠️ ЦЕНТР МАСШТАБИРОВАНИЯ — СЕРЕДИНА ВИДИМОЙ ЧАСТИ, А НЕ КАДРА.
+  /* 🔴 УВЕЛИЧЕНИЕ СНЯТО, УГОЛ УМЕНЬШЕН — ПОТОМУ ЧТО ИЗ-ЗА НИХ НЕ БЫЛО ВИДНО
+     НИ ОДНОЙ ЦЕЛОЙ ОБЛОЖКИ. Замерено на 1440×900 до правки: в кадре 17
+     обложек, целиком видно **0**. Верхний ряд срезан сверху на 80 px из 217
+     (37 % карточки за кромкой), нижний уходит под полосу на 55 px из 328.
+     Юрий это и назвал: «у нижнего ряда низа не видно, а у верхнего верха».
+
+     Причина арифметическая, а не вкусовая. `scale(1.12)` растягивал стопку на
+     12 % ПОСЛЕ того, как её размер посчитали по чистой высоте, и компенсировать
+     его пытались множителем .82 в скрипте — то есть одно место увеличивало, а
+     другое угадывало, насколько уменьшить. Поворот на 2,2° добавлял сверху
+     ещё ±28 px на кромках кадра (полширины × sin угла). Сумма двух поправок и
+     съедала карточку с обоих концов.
+
+     Теперь увеличения нет вовсе, угол — 1,2° (вертикальный размах на 1440 px
+     падает с 55 до 30 px), и стопка считается от требования «целая обложка»
+     напрямую (см. applyStack в скрипте). Наклон остался: он даёт кадру
+     движение, а его вклад теперь ВХОДИТ в расчёт, а не спорит с ним. */
+  transform:rotate(-1.2deg);
+  /* Центр поворота — середина ВИДИМОЙ части, а не кадра.
      Полотно занимает весь кадр, но стопка центрируется в его верхней части
      (padding-bottom поднимает её над полосой). При origin 50% 50% увеличение
      считалось от середины ЭКРАНА и утаскивало стопку вниз: на 1920×1080 низ
@@ -701,9 +715,14 @@
 .bp-hero .brand{display:flex;align-items:center;gap:10px;margin:0;
   font-family:var(--mono);font-size:clamp(9px,.62vw,10.5px);letter-spacing:.32em;
   text-transform:uppercase;color:var(--sub);white-space:nowrap}
-.bp-hero .brand i{width:15px;height:15px;flex:none;border-radius:50%;border:1px solid var(--acc);
-  position:relative}
-.bp-hero .brand i::after{content:"";position:absolute;inset:4.5px;border-radius:50%;background:var(--acc)}
+/* 🔴 БЫЛО: пустой <i>, которому здесь рисовали кружок с точкой — подражание
+   «глазу» в два правила. Настоящий знак лежит файлом (/seal-compact.svg), им
+   же отдаются фавиконки, и бренд-книга требует именно его до 64 px. */
+.bp-hero .brand__seal{width:18px;height:18px;flex:none;display:block;
+  /* Печать нарисована в тёплой гамме бренда и на тёмном полотне читается как
+     есть — подсветка не нужна, нужна лишь лёгкая тень, чтобы она не сливалась
+     с обложкой, которая проедет под ней. */
+  filter:drop-shadow(0 1px 6px rgb(var(--color-bg-deep-rgb) / .85))}
 /* ═══ ВИДЕО В УГЛУ ══════════════════════════════════════════════════════
    ⚠️ ДИАМЕТР 76–96 px — ЭТО НЕ ВКУСОВЩИНА, А ПОРОГ УЗНАВАНИЯ ЛИЦА. Мельче
    60 px лицо перестаёт читаться лицом и превращается в значок: доверия такой
@@ -908,12 +927,17 @@
    плотность уже .92, а над ней полотно открыто. */
 .bp-hero .deck::before{content:"";position:absolute;z-index:-1;pointer-events:none;
   left:50%;transform:translateX(-50%);width:100vw;
-  /* ⚠️ РАЗГОН 92 px БЫЛ КОРОТОК. Обложка высотой 300–400 px попадала в него
-     серединой: низ уже в глухом чёрном, верх ещё в полную силу — карточка
-     выглядела обрезанной ножом, и стык полосы читался полосой. 170 px — это
-     примерно половина ближней обложки, на такой длине переход перестаёт быть
-     виден вовсе. Плотность к верхней кромке полосы прежняя, .93. */
-  top:-170px;bottom:calc(-1 * clamp(24px,3.4vh,42px));
+  /* ⚠️ РАЗГОН — 118 px, И ЭТО ТРЕТЬЕ ЗНАЧЕНИЕ ПОДРЯД. Сначала было 92 px:
+     обложка высотой 300–400 px попадала в него серединой, низ уже в глухом
+     чёрном, верх в полную силу — карточка выглядела обрезанной ножом. Тогда
+     разгон растянули до 170 px, и нож исчез — но вместе с ним исчезла и
+     видимость нижнего ряда: карточки начинали гаснуть за 170 px до полосы,
+     то есть треть кадра работала на растушёвку, а не на товар.
+     118 px — это примерно половина ближней обложки ПОСЛЕ того, как стопка
+     стала считаться от целой карточки (см. applyStack): ближняя теперь ниже,
+     и полукарточки хватает ровно на то же самое. Освободившиеся ~52 px
+     уходят обложкам: `canvasH()` в скрипте берёт их себе. */
+  top:-118px;bottom:calc(-1 * clamp(24px,3.4vh,42px));
   background:linear-gradient(180deg,
     rgb(var(--color-bg-deep-rgb) / 0) 0%,
     rgb(var(--color-bg-deep-rgb) / .14) 9%,
@@ -1790,7 +1814,25 @@
      двадцать четыре процента экрана нечем: обложки там всё равно срезаны
      кромкой и читаются фрагментом. Освободившееся место уходит вниз, к
      методу, который до правки начинался на 824 px при кадре 734. */
-  .bp-hero{--cwb:clamp(76px,12.4vh,108px);--ribbon:clamp(108px,15.5vh,158px)}
+  /* 🔴 ШИРИНА ОБЛОЖКИ ВЫВОДИТСЯ ИЗ ЛЕНТЫ, А НЕ ПОДБИРАЕТСЯ РЯДОМ С НЕЙ.
+     Инвариант записан строкой выше и в комментарии к ленте — «обложка обязана
+     влезать целиком: cw × 1000/707 ≤ ribbon − 12», — но держался он на том,
+     что две величины подбирали в паре. Их правили в ТРЁХ медиаблоках
+     независимо (1769, 2274, 2284), и они разъехались. Замерено на 390×844:
+     лента 110 px, обложка 174 px — из трёх карточек в кадре целиком НЕ ВИДНО
+     НИ ОДНОЙ, срез сверху 22–32 px. Ровно это Юрий и назвал: «у верхнего ряда
+     верха не видно».
+     Теперь ширина СЧИТАЕТСЯ от ленты, и нарушить инвариант нельзя, меняя одну
+     величину: 0.599 = 707/1000 ÷ 1.18, где 1.18 — доля единственного плана
+     телефона (PLANES[1] в скрипте), а 12px — зазор на вертикальный сдвиг
+     карточек (--off). Кто поменяет ленту в любом из трёх блоков, получит
+     согласованную обложку автоматически. */
+  .bp-hero{--ribbon:clamp(150px,30vh,268px);
+    /* 26px, а не 12: карточки в ряду разведены по вертикали переменной --off
+       (до 8.8% ширины в каждую сторону), то есть самая сдвинутая занимает на
+       два таких сдвига больше центральной. Замерено с запасом в 12: целыми
+       выходили 2 обложки из 4. */
+    --cwb:max(42px,calc((var(--ribbon) - 26px) * 0.599))}
   
   .bp-hero .scene{display:flex;flex-direction:column;height:auto;min-height:100dvh;
     isolation:auto}
@@ -1819,9 +1861,20 @@
   /* Спуск к тексту начинается только с 58%: при трёх планах в полосу входит
      три ряда, и при раннем спуске целый ряд обложек уходил под плашку в
      половину плотности — на 390×844 он читался чёрными прямоугольниками. */
+  /* 🔴 СПУСК К ТЕКСТУ НАЧИНАЛСЯ НА 78% И СЪЕДАЛ ЧЕТВЕРТЬ ОБЛОЖКИ. Замерено на
+     390×844: карточки занимают 13…232 из ленты в 236, то есть влезают целиком —
+     а выглядели обрезанными, потому что с 78% ленты (184 px) начиналась
+     заливка .34 и ниже, и нижние 48 px карточки из 210 гасли в чёрное.
+     Со стороны это неотличимо от среза кромкой — ровно то, на что Юрий и
+     показал: «у нижнего ряда низа не видно».
+     Спуск отодвинут на 88% и смягчён (.18 вместо .34): переход к тексту
+     остаётся — он нужен, чтобы полоса не обрывалась ножом, — но теперь он
+     укладывается в те 4 px пустой ленты под карточкой плюс нижнюю кромку
+     обложки, а не в четверть товара. Верхняя виньетка (.66 → .06 к 15%) не
+     тронута: она гасит подпись «СУТЬ · THE ESSENCE», а не обложку. */
   .bp-hero .veil{inset:0 0 auto 0;height:var(--ribbon);
     background:linear-gradient(180deg,rgb(var(--color-bg-deep-rgb) / .66) 0%,rgb(var(--color-bg-deep-rgb) / .06) 15%,
-      rgb(var(--color-bg-deep-rgb) / .06) 58%,rgb(var(--color-bg-deep-rgb) / .34) 78%,rgb(var(--color-bg-deep-rgb) / .84) 92%,var(--color-bg-deep) 100%)}
+      rgb(var(--color-bg-deep-rgb) / .06) 74%,rgb(var(--color-bg-deep-rgb) / .18) 88%,rgb(var(--color-bg-deep-rgb) / .72) 96%,var(--color-bg-deep) 100%)}
   /* ⚠️ absolute, А НЕ fixed. На стенде экран был один и зерно во весь вьюпорт
      ложилось ровно; на длинной странице /next fixed-слой накрыл бы все главы
      ниже, и светлые развороты получили бы чужую шершавость. */
@@ -1984,7 +2037,9 @@
 @media (max-width:1079px) and (max-height:680px){
   /* Лента на коротких экранах урезана вслед за общей: 22% от 640 — это
      141 px витрины против четырёх строк текста, которые в них не влезают. */
-  .bp-hero{--cwb:clamp(66px,11vh,92px);--ribbon:clamp(96px,15vh,132px)}
+  /* Ширину здесь больше не задаём: она выводится из ленты формулой выше.
+     Пара, подобранная руками, и была причиной расхождения. */
+  .bp-hero{--ribbon:clamp(140px,27vh,220px)}
   /* 8 вместо 10: на 360×640 кнопка заканчивалась в пяти пикселях от кромки —
      запас, который съест любой шрифт, приехавший чуть иначе. */
   .bp-hero .act{gap:8px}
@@ -2126,12 +2181,26 @@ body{margin:0}
   .bp-hero .stage{padding-top:clamp(18px,2.8vh,34px)}
 }
 
-.bp-hero .pl-status{margin:0;display:inline-flex;align-items:center;gap:8px;
-  font-family:var(--mono);font-size:clamp(9px,.62vw,11px);letter-spacing:.18em;
-  text-transform:uppercase;color:var(--acc);white-space:nowrap}
-.bp-hero .pl-dot{width:5px;height:5px;border-radius:999px;background:var(--acc);
+/* 🔴 СТАТУС «САЙТ В РАЗРАБОТКЕ» — ПЛАШКА, А НЕ СТРОЧКА. Он был набран тем же
+   кеглем, что и марка слева (9–11 px), тем же трекингом и почти тем же цветом,
+   то есть читался как продолжение колонтитула — а это единственное на экране
+   предупреждение, что перед человеком не работающий сайт. Юрий попросил
+   сделать акцентнее; сделано формой, а не размером: своя рамка, своя подложка,
+   точка крупнее и с ореолом. Кегль поднят умеренно (11–13 px) — плашка и так
+   выделяется контуром, а крупный шрифт здесь спорил бы с заголовком. */
+.bp-hero .pl-status{margin:0;display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:clamp(10px,.78vw,12.5px);letter-spacing:.2em;
+  text-transform:uppercase;color:var(--acc2);white-space:nowrap;
+  padding:6px 13px 6px 11px;border-radius:999px;
+  border:1px solid rgb(var(--color-accent-rgb) / .42);
+  background:rgb(var(--color-bg-deep-rgb) / .72);
+  box-shadow:0 2px 16px rgb(var(--color-bg-deep-rgb) / .55),
+             inset 0 0 0 1px rgb(var(--color-accent-rgb) / .08)}
+.bp-hero .pl-dot{width:7px;height:7px;border-radius:999px;background:var(--acc2);
+  flex:none;box-shadow:0 0 0 3px rgb(var(--color-accent-rgb) / .18);
   animation:pl-pulse 2.6s ease-in-out infinite}
-@keyframes pl-pulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes pl-pulse{0%,100%{opacity:.45;box-shadow:0 0 0 2px rgb(var(--color-accent-rgb) / .1)}
+  50%{opacity:1;box-shadow:0 0 0 5px rgb(var(--color-accent-rgb) / .22)}}
 
 /* ═══ ЮРИДИЧЕСКИЙ БЛОК — В ПРАВОЙ ТРЕТИ ПОЛОСЫ ГАРАНТИИ ═══════════════════
    Сетка .act пришла с лендинга под торговлю: "seal price more btn" /
@@ -2242,7 +2311,16 @@ body{margin:0}
    первом экране принадлежит цене и гарантии. */
 @media (max-width:1079px){
   .bp-hero .pl-legal{gap:3px 12px}
-  .bp-hero .pl-status{font-size:8.5px;letter-spacing:.12em;gap:6px}
+  /* 🔴 КАРТОЧКА ЗАПРОСА СНЯТА С ТЕЛЕФОНА ЦЕЛИКОМ, И МЕСТО ОТДАНО ОБЛОЖКАМ.
+     Она занимала ~108 px первого экрана и повторяла то, что и так говорят
+     обложки: название книги и вопрос читателя. При этом лента обложек была
+     110 px — то есть атмосфера получала больше места, чем товар, и обложки в
+     неё не влезали целиком (замерено: 0 целых из 3).
+     Раньше карточка снималась только на низких экранах (≤660 px); теперь на
+     всех телефонах. 85% читателей приходят отсюда — здесь и решается, увидят
+     они книгу или полоску. */
+  .bp-hero .cap{display:none}
+  .bp-hero .pl-status{font-size:9px;letter-spacing:.14em;gap:6px;padding:5px 10px 5px 9px}
   .bp-hero .pl-colophon{margin-top:8px;padding-top:7px}
   .bp-hero .pl-legal{gap:3px 12px}
   .bp-hero .pl-legal a{font-size:8px;letter-spacing:.1em}
@@ -2281,7 +2359,7 @@ body{margin:0}
 /* Ещё 24 px: лента отдаёт их первой — к этому моменту она уже сказала всё,
    что могла, а цена и гарантия не сказали ничего (логика источника). */
 @media (max-width:1079px){
-  .bp-hero{--ribbon:clamp(96px,13vh,140px)}
+  .bp-hero{--ribbon:clamp(150px,28vh,250px)}
   .bp-hero .stage{padding-bottom:clamp(12px,2vh,22px)}
 }
 
@@ -2291,7 +2369,13 @@ body{margin:0}
    лента, потом воздух, потом служебные кегли. Цена, гарантия, все три сноски
    и юридический ряд остаются нетронутыми. */
 @media (max-width:1079px) and (max-height:700px){
-  .bp-hero{--ribbon:clamp(66px,9.6vh,100px)}
+  /* 🔴 ЛЕНТА НА НИЗКОМ ЭКРАНЕ БЫЛА 113 px — ОБЛОЖКА 68×97, ТО ЕСТЬ МИНИАТЮРА.
+     Читать на ней нечего: ни названия, ни рисунка. Замерено на 375×667 (это
+     iPhone SE и 8 — не редкость), внизу при этом оставалось 60 px пустого
+     хвоста. Отдаём их ленте: 24vh на 667 даёт 160 px и обложку 92×130, где
+     название уже читается. Инвариант держит формула --cwb выше, ломать
+     нечего. */
+  .bp-hero{--ribbon:clamp(130px,24vh,180px)}
   .bp-hero .stage{padding-top:8px;padding-bottom:8px}
   .bp-hero h1{font-size:clamp(1.7rem,.9rem + 3.6vw,2.4rem)}
   .bp-hero .lead{margin-top:6px}
@@ -2333,6 +2417,63 @@ body{margin:0}
    ГАРАНТИЯ ВОЗВРАТА →». Замерено: оба правым краем за вьюпортом.
    Переносить их нельзя (у ссылки стрелка оставалась бы одна на строке —
    разбор над `.guar__more`), поэтому ужимается кегль и трекинг. */
+/* ⚠️ ОЧЕНЬ НИЗКИЙ ЭКРАН (≤600 px): ЛЕНТЕ ПРИХОДИТСЯ УСТУПИТЬ. Ярус выше даёт
+   24vh, и на 320×568 это 136 px — экран переполнялся на 75 px (замерено:
+   сумма блоков 602 при кадре 568). Здесь витрина физически не может быть
+   крупной: под ней шесть юридических ссылок, реквизиты, цена и гарантия, и
+   всё это обязано поместиться. 18vh на 568 даёт 102 px и обложку 58×82 —
+   мало, но такой аппарат и не показывает витрин: он показывает цену и
+   документы, а обложки подсказывают, о чём речь. */
+@media (max-width:1079px) and (max-height:600px){
+  .bp-hero{--ribbon:clamp(92px,18vh,120px)}
+  .bp-hero .lead{margin-top:3px}
+  .bp-hero h1{font-size:clamp(1.5rem,.8rem + 3.2vw,2rem)}
+  .bp-hero .lede{font-size:.88rem;margin-top:3px}
+  .bp-hero .chain{display:none}
+  .bp-hero .pl-gist{margin-top:5px;font-size:11.5px;line-height:1.4}
+  .bp-hero .act{margin-top:6px;padding-top:6px;gap:6px}
+  .bp-hero .guar__t{font-size:.95rem}
+  .bp-hero .seal{width:clamp(52px,13vw,64px)}
+  .bp-hero .pl-colophon{margin-top:4px;padding-top:4px}
+}
+
+/* ⚠️ ТЕЛЕФОН В АЛЬБОМНОЙ: 390 px ВЫСОТЫ НА ВСЁ. Замерено на 844×390 — сумма
+   блоков 448 при кадре 390, переполнение 64 px. Экран широкий, а высоты нет
+   совсем: витрина здесь обязана уступить всё, что можно, потому что цена,
+   гарантия и шесть документов не уступают ничего.
+   Ярус ≤600 давал ленте пол 92 px — для 390-пиксельного кадра это четверть
+   экрана под обложки высотой 70 px, которые всё равно не читаются. Здесь
+   лента 62–78, заголовок мельче, лид в одну строку. Кадр остаётся один.
+   ⚠️ СТАВИТСЯ ПОСЛЕ ЯРУСА ≤600, И ЭТО НЕ ПОРЯДОК ЧТЕНИЯ, А УСЛОВИЕ РАБОТЫ.
+   Оба медиазапроса подходят экрану в 390 px, специфичность у них равная —
+   значит побеждает ТОТ, ЧТО НИЖЕ. Первый заход поставил этот блок выше, и
+   ярус ≤600 его молча перебивал: правило было написано и не действовало. */
+@media (max-width:1079px) and (max-height:430px){
+  /* 🔴 ВИТРИНА В АЛЬБОМНОЙ СНИМАЕТСЯ ЦЕЛИКОМ, И ЭТО НЕ КАПИТУЛЯЦИЯ.
+     Замерено: после ужатия текста под ленту остаётся 68 px. Целая обложка в
+     них — 25×35 px, то есть цветной прямоугольник без названия и рисунка;
+     а если не резать по формуле, выходит пятнадцать обрезков подряд (замер
+     до правки: 0 целых из 15). Оба варианта показывают не книгу, а помеху.
+     Показывать товар нечем — значит показываем то, ради чего сюда пришли:
+     заголовок, цену, гарантию и документы. Поворот телефона состояние
+     проходящее; вернут вертикаль — вернётся и витрина. */
+  .bp-hero .web,
+  .bp-hero .glow,
+  .bp-hero .veil{display:none}
+  .bp-hero{--ribbon:0px}
+  .bp-hero .stage{padding-top:4px;padding-bottom:4px}
+  .bp-hero h1{font-size:clamp(1.25rem,.7rem + 2.4vw,1.7rem)}
+  .bp-hero .lead{margin-top:2px}
+  .bp-hero .lede{font-size:.82rem;margin-top:2px}
+  .bp-hero .pl-gist{margin-top:4px;font-size:11px;line-height:1.35}
+  .bp-hero .act{margin-top:5px;padding-top:5px}
+  .bp-hero .guar__t{font-size:.9rem}
+  .bp-hero .seal{width:clamp(44px,9vw,54px)}
+  .bp-hero .pl-colophon{margin-top:3px;padding-top:3px}
+  .bp-hero .pl-legal a{font-size:7px;letter-spacing:.08em}
+  .bp-hero .pl-imprint{font-size:6.5px;line-height:1.45;margin-top:2px}
+}
+
 @media (max-width:340px){
   .bp-hero .pl-status{font-size:7.5px;letter-spacing:.08em;gap:5px}
   .bp-hero .guar__more{font-size:9px;letter-spacing:.08em}
@@ -2453,6 +2594,7 @@ body{margin:0}
 <a href="#main-content" class="skip-link">Перейти к содержимому</a>
 <main id="main-content" tabindex="-1">
 <section id="akt-01" class="bp-hero" data-theme="dark"
+         data-books="[{&quot;n&quot;:1,&quot;c&quot;:&quot;01_yulia-slabost&quot;,&quot;t&quot;:&quot;Под видом слабости&quot;,&quot;q&quot;:&quot;десять вопросов, которые ты не задаёшь вслух&quot;,&quot;src&quot;:&quot;placeholder-assets/01_yulia-slabost.webp&quot;},{&quot;n&quot;:21,&quot;c&quot;:&quot;21_tihiy-motor&quot;,&quot;t&quot;:&quot;Тихий мотор&quot;,&quot;q&quot;:&quot;почему я не останавливаюсь, даже когда пусто&quot;,&quot;src&quot;:&quot;placeholder-assets/21_tihiy-motor.webp&quot;},{&quot;n&quot;:3,&quot;c&quot;:&quot;03_konstantin-glubzhe&quot;,&quot;t&quot;:&quot;Глубже, чем видно&quot;,&quot;q&quot;:&quot;меня видят поверхностно — а что глубже&quot;,&quot;src&quot;:&quot;placeholder-assets/03_konstantin-glubzhe.webp&quot;},{&quot;n&quot;:28,&quot;c&quot;:&quot;28_perviy-bereg&quot;,&quot;t&quot;:&quot;Первый берег&quot;,&quot;q&quot;:&quot;куда я всё время возвращаюсь&quot;,&quot;src&quot;:&quot;placeholder-assets/28_perviy-bereg.webp&quot;},{&quot;n&quot;:2,&quot;c&quot;:&quot;02_pavel-vzoshlo&quot;,&quot;t&quot;:&quot;Всё уже взошло&quot;,&quot;q&quot;:&quot;жду знака, хотя всё уже случилось&quot;,&quot;src&quot;:&quot;placeholder-assets/02_pavel-vzoshlo.webp&quot;},{&quot;n&quot;:36,&quot;c&quot;:&quot;36_dalniy-svet&quot;,&quot;t&quot;:&quot;Дальний свет&quot;,&quot;q&quot;:&quot;куда я иду, когда не вижу дороги&quot;,&quot;src&quot;:&quot;placeholder-assets/36_dalniy-svet.webp&quot;},{&quot;n&quot;:30,&quot;c&quot;:&quot;30_sad-pod-snegom&quot;,&quot;t&quot;:&quot;Сад под снегом&quot;,&quot;q&quot;:&quot;что во мне ждёт своего срока&quot;,&quot;src&quot;:&quot;placeholder-assets/30_sad-pod-snegom.webp&quot;},{&quot;n&quot;:24,&quot;c&quot;:&quot;24_zaperto-iznutri&quot;,&quot;t&quot;:&quot;Заперто изнутри&quot;,&quot;q&quot;:&quot;что я держу закрытым&quot;,&quot;src&quot;:&quot;placeholder-assets/24_zaperto-iznutri.webp&quot;},{&quot;n&quot;:6,&quot;c&quot;:&quot;06_ekaterina-ruki&quot;,&quot;t&quot;:&quot;Тёплые руки&quot;,&quot;q&quot;:&quot;как наполняться, когда лечишь других&quot;,&quot;src&quot;:&quot;placeholder-assets/06_ekaterina-ruki.webp&quot;},{&quot;n&quot;:38,&quot;c&quot;:&quot;38_tonkiy-lyod&quot;,&quot;t&quot;:&quot;Тонкий лёд&quot;,&quot;q&quot;:&quot;почему я всё время проверяю почву&quot;,&quot;src&quot;:&quot;placeholder-assets/38_tonkiy-lyod.webp&quot;},{&quot;n&quot;:46,&quot;c&quot;:&quot;46_vozvraschenie-tepla&quot;,&quot;t&quot;:&quot;Возвращение тепла&quot;,&quot;q&quot;:&quot;как перестать беречь себя от жизни&quot;,&quot;src&quot;:&quot;placeholder-assets/46_vozvraschenie-tepla.webp&quot;},{&quot;n&quot;:47,&quot;c&quot;:&quot;47_karta-bez-dorog&quot;,&quot;t&quot;:&quot;Карта без дорог&quot;,&quot;q&quot;:&quot;как выбирать, когда указателей нет&quot;,&quot;src&quot;:&quot;placeholder-assets/47_karta-bez-dorog.webp&quot;},{&quot;n&quot;:12,&quot;c&quot;:&quot;12_gulsinya-ogon&quot;,&quot;t&quot;:&quot;Огонь и звезда&quot;,&quot;q&quot;:&quot;что между нами старше этой жизни&quot;,&quot;src&quot;:&quot;placeholder-assets/12_gulsinya-ogon.webp&quot;},{&quot;n&quot;:25,&quot;c&quot;:&quot;25_blizhe-chem-kazhetsya&quot;,&quot;t&quot;:&quot;Ближе, чем кажется&quot;,&quot;q&quot;:&quot;почему я держу дистанцию&quot;,&quot;src&quot;:&quot;placeholder-assets/25_blizhe-chem-kazhetsya.webp&quot;},{&quot;n&quot;:32,&quot;c&quot;:&quot;32_mezhdu-dvuh-ogney&quot;,&quot;t&quot;:&quot;Между двух огней&quot;,&quot;q&quot;:&quot;почему выбор даётся так дорого&quot;,&quot;src&quot;:&quot;placeholder-assets/32_mezhdu-dvuh-ogney.webp&quot;},{&quot;n&quot;:50,&quot;c&quot;:&quot;50_pozdnyaya-vesna&quot;,&quot;t&quot;:&quot;Поздняя весна&quot;,&quot;q&quot;:&quot;почему я расцветаю не вовремя&quot;,&quot;src&quot;:&quot;placeholder-assets/50_pozdnyaya-vesna.webp&quot;},{&quot;n&quot;:23,&quot;c&quot;:&quot;23_dolgiy-razbeg&quot;,&quot;t&quot;:&quot;Долгий разбег&quot;,&quot;q&quot;:&quot;почему у меня всё начинается позже&quot;,&quot;src&quot;:&quot;placeholder-assets/23_dolgiy-razbeg.webp&quot;},{&quot;n&quot;:26,&quot;c&quot;:&quot;26_obratnaya-storona-sily&quot;,&quot;t&quot;:&quot;Обратная сторона силы&quot;,&quot;q&quot;:&quot;чем я плачу за то, что справляюсь&quot;,&quot;src&quot;:&quot;placeholder-assets/26_obratnaya-storona-sily.webp&quot;},{&quot;n&quot;:44,&quot;c&quot;:&quot;44_tyazhelaya-korona&quot;,&quot;t&quot;:&quot;Тяжёлая корона&quot;,&quot;q&quot;:&quot;цена быть тем, на кого опираются&quot;,&quot;src&quot;:&quot;placeholder-assets/44_tyazhelaya-korona.webp&quot;},{&quot;n&quot;:27,&quot;c&quot;:&quot;27_ne-moya-tyazhest&quot;,&quot;t&quot;:&quot;Не моя тяжесть&quot;,&quot;q&quot;:&quot;что я несу не своё&quot;,&quot;src&quot;:&quot;placeholder-assets/27_ne-moya-tyazhest.webp&quot;},{&quot;n&quot;:40,&quot;c&quot;:&quot;40_slepoe-pyatno&quot;,&quot;t&quot;:&quot;Слепое пятно&quot;,&quot;q&quot;:&quot;то, что видят все, кроме меня&quot;,&quot;src&quot;:&quot;placeholder-assets/40_slepoe-pyatno.webp&quot;},{&quot;n&quot;:22,&quot;c&quot;:&quot;22_poka-ne-nazvali&quot;,&quot;t&quot;:&quot;Пока не назвали&quot;,&quot;q&quot;:&quot;то, что я знаю о себе без слов&quot;,&quot;src&quot;:&quot;placeholder-assets/22_poka-ne-nazvali.webp&quot;},{&quot;n&quot;:45,&quot;c&quot;:&quot;45_mezhdu-strok&quot;,&quot;t&quot;:&quot;Между строк&quot;,&quot;q&quot;:&quot;что я говорю, не говоря&quot;,&quot;src&quot;:&quot;placeholder-assets/45_mezhdu-strok.webp&quot;},{&quot;n&quot;:31,&quot;c&quot;:&quot;31_golos-iz-za-dveri&quot;,&quot;t&quot;:&quot;Голос из-за двери&quot;,&quot;q&quot;:&quot;кого я до сих пор слушаю&quot;,&quot;src&quot;:&quot;placeholder-assets/31_golos-iz-za-dveri.webp&quot;},{&quot;n&quot;:41,&quot;c&quot;:&quot;41_obeschanie-iz-detstva&quot;,&quot;t&quot;:&quot;Обещание из детства&quot;,&quot;q&quot;:&quot;какой договор я до сих пор исполняю&quot;,&quot;src&quot;:&quot;placeholder-assets/41_obeschanie-iz-detstva.webp&quot;},{&quot;n&quot;:29,&quot;c&quot;:&quot;29_medlennaya-voda&quot;,&quot;t&quot;:&quot;Медленная вода&quot;,&quot;q&quot;:&quot;почему меня не поторопить&quot;,&quot;src&quot;:&quot;placeholder-assets/29_medlennaya-voda.webp&quot;},{&quot;n&quot;:49,&quot;c&quot;:&quot;49_svoy-ritm&quot;,&quot;t&quot;:&quot;Свой ритм&quot;,&quot;q&quot;:&quot;почему чужая скорость меня ломает&quot;,&quot;src&quot;:&quot;placeholder-assets/49_svoy-ritm.webp&quot;},{&quot;n&quot;:33,&quot;c&quot;:&quot;33_suhaya-zemlya&quot;,&quot;t&quot;:&quot;Сухая земля&quot;,&quot;q&quot;:&quot;где во мне кончилась вода&quot;,&quot;src&quot;:&quot;placeholder-assets/33_suhaya-zemlya.webp&quot;},{&quot;n&quot;:37,&quot;c&quot;:&quot;37_vtoroe-dyhanie&quot;,&quot;t&quot;:&quot;Второе дыхание&quot;,&quot;q&quot;:&quot;где взять силы, когда всё уже потрачено&quot;,&quot;src&quot;:&quot;placeholder-assets/37_vtoroe-dyhanie.webp&quot;},{&quot;n&quot;:34,&quot;c&quot;:&quot;34_nit-i-uzel&quot;,&quot;t&quot;:&quot;Нить и узел&quot;,&quot;q&quot;:&quot;что я не могу развязать&quot;,&quot;src&quot;:&quot;placeholder-assets/34_nit-i-uzel.webp&quot;},{&quot;n&quot;:42,&quot;c&quot;:&quot;42_steklyanniy-potolok&quot;,&quot;t&quot;:&quot;Стеклянный потолок&quot;,&quot;q&quot;:&quot;что останавливает меня перед самым верхом&quot;,&quot;src&quot;:&quot;placeholder-assets/42_steklyanniy-potolok.webp&quot;},{&quot;n&quot;:35,&quot;c&quot;:&quot;35_ne-dlya-chuzhih-glaz&quot;,&quot;t&quot;:&quot;Не для чужих глаз&quot;,&quot;q&quot;:&quot;что во мне есть, но не наружу&quot;,&quot;src&quot;:&quot;placeholder-assets/35_ne-dlya-chuzhih-glaz.webp&quot;},{&quot;n&quot;:43,&quot;c&quot;:&quot;43_gost-v-svoey-zhizni&quot;,&quot;t&quot;:&quot;Гость в своей жизни&quot;,&quot;q&quot;:&quot;почему всё как будто не про меня&quot;,&quot;src&quot;:&quot;placeholder-assets/43_gost-v-svoey-zhizni.webp&quot;},{&quot;n&quot;:48,&quot;c&quot;:&quot;48_nezazhzhennaya-svecha&quot;,&quot;t&quot;:&quot;Незажжённая свеча&quot;,&quot;q&quot;:&quot;о чём я боюсь спросить&quot;,&quot;src&quot;:&quot;placeholder-assets/48_nezazhzhennaya-svecha.webp&quot;},{&quot;n&quot;:39,&quot;c&quot;:&quot;39_raznye-chasovye-poyasa&quot;,&quot;t&quot;:&quot;Разные часовые пояса&quot;,&quot;q&quot;:&quot;почему мы не совпадаем во времени&quot;,&quot;src&quot;:&quot;placeholder-assets/39_raznye-chasovye-poyasa.webp&quot;},{&quot;n&quot;:51,&quot;c&quot;:&quot;51_tishe-chem-krik&quot;,&quot;t&quot;:&quot;Тише, чем крик&quot;,&quot;q&quot;:&quot;почему меня не слышно, когда я говорю спокойно&quot;,&quot;src&quot;:&quot;placeholder-assets/51_tishe-chem-krik.webp&quot;},{&quot;n&quot;:52,&quot;c&quot;:&quot;52_pustaya-polka&quot;,&quot;t&quot;:&quot;Пустая полка&quot;,&quot;q&quot;:&quot;чего мне не досталось&quot;,&quot;src&quot;:&quot;placeholder-assets/52_pustaya-polka.webp&quot;},{&quot;n&quot;:53,&quot;c&quot;:&quot;53_dolg-kotorogo-ne-bral&quot;,&quot;t&quot;:&quot;Долг, которого не брал&quot;,&quot;q&quot;:&quot;за что я расплачиваюсь&quot;,&quot;src&quot;:&quot;placeholder-assets/53_dolg-kotorogo-ne-bral.webp&quot;},{&quot;n&quot;:54,&quot;c&quot;:&quot;54_klyuch-ne-podhodit&quot;,&quot;t&quot;:&quot;Ключ не подходит&quot;,&quot;q&quot;:&quot;почему то, что помогало раньше, больше не работает&quot;,&quot;src&quot;:&quot;placeholder-assets/54_klyuch-ne-podhodit.webp&quot;},{&quot;n&quot;:55,&quot;c&quot;:&quot;55_severnaya-storona&quot;,&quot;t&quot;:&quot;Северная сторона&quot;,&quot;q&quot;:&quot;почему мне достаётся меньше света, чем другим&quot;,&quot;src&quot;:&quot;placeholder-assets/55_severnaya-storona.webp&quot;},{&quot;n&quot;:56,&quot;c&quot;:&quot;56_obratniy-otschet&quot;,&quot;t&quot;:&quot;Обратный отсчёт&quot;,&quot;q&quot;:&quot;почему я всё время жду подходящего момента&quot;,&quot;src&quot;:&quot;placeholder-assets/56_obratniy-otschet.webp&quot;},{&quot;n&quot;:57,&quot;c&quot;:&quot;57_tonkaya-kozha&quot;,&quot;t&quot;:&quot;Тонкая кожа&quot;,&quot;q&quot;:&quot;почему меня задевает то, что другим ничего&quot;,&quot;src&quot;:&quot;placeholder-assets/57_tonkaya-kozha.webp&quot;},{&quot;n&quot;:58,&quot;c&quot;:&quot;58_most-bez-drugogo-berega&quot;,&quot;t&quot;:&quot;Мост без другого берега&quot;,&quot;q&quot;:&quot;как решаться, не зная, чем кончится&quot;,&quot;src&quot;:&quot;placeholder-assets/58_most-bez-drugogo-berega.webp&quot;},{&quot;n&quot;:59,&quot;c&quot;:&quot;59_gnezdo-na-vetru&quot;,&quot;t&quot;:&quot;Гнездо на ветру&quot;,&quot;q&quot;:&quot;на чём я держусь, когда всё качает&quot;,&quot;src&quot;:&quot;placeholder-assets/59_gnezdo-na-vetru.webp&quot;},{&quot;n&quot;:60,&quot;c&quot;:&quot;60_zaperty-sad&quot;,&quot;t&quot;:&quot;Запертый сад&quot;,&quot;q&quot;:&quot;что я берегу так, что сам туда не хожу&quot;,&quot;src&quot;:&quot;placeholder-assets/60_zaperty-sad.webp&quot;},{&quot;n&quot;:61,&quot;c&quot;:&quot;61_svoya-pogoda&quot;,&quot;t&quot;:&quot;Своя погода&quot;,&quot;q&quot;:&quot;почему мне тяжелее там, где всем легко&quot;,&quot;src&quot;:&quot;placeholder-assets/61_svoya-pogoda.webp&quot;},{&quot;n&quot;:62,&quot;c&quot;:&quot;62_posledniy-vagon&quot;,&quot;t&quot;:&quot;Последний вагон&quot;,&quot;q&quot;:&quot;что я боюсь упустить, если остановлюсь&quot;,&quot;src&quot;:&quot;placeholder-assets/62_posledniy-vagon.webp&quot;}]"
          aria-label="Создаём книги о конкретном человеке">
   <div class="scene" id="scene" data-hold="0" data-cap="0">
 
@@ -2464,7 +2606,8 @@ body{margin:0}
     <div class="stage">
 
       <header class="top">
-        <p class="brand"><i></i>Суть · The Essence</p>
+        <p class="brand"><img src="placeholder-assets/seal-compact.svg" alt="" aria-hidden="true"
+             class="brand__seal" width="18" height="18" decoding="async">Суть · The Essence</p>
         <p class="pl-status"><i class="pl-dot" aria-hidden="true"></i>Сайт в разработке</p>
       </header>
 
@@ -2705,7 +2848,15 @@ body{margin:0}
     var root = document.querySelector(".bp-hero");
     if (!root) return;
 
-    var BOOKS = [{"n":1,"c":"01_yulia-slabost","t":"Под видом слабости","q":"десять вопросов, которые ты не задаёшь вслух","src":"placeholder-assets/01_yulia-slabost.webp"},{"n":21,"c":"21_tihiy-motor","t":"Тихий мотор","q":"почему я не останавливаюсь, даже когда пусто","src":"placeholder-assets/21_tihiy-motor.webp"},{"n":3,"c":"03_konstantin-glubzhe","t":"Глубже, чем видно","q":"меня видят поверхностно — а что глубже","src":"placeholder-assets/03_konstantin-glubzhe.webp"},{"n":28,"c":"28_perviy-bereg","t":"Первый берег","q":"куда я всё время возвращаюсь","src":"placeholder-assets/28_perviy-bereg.webp"},{"n":2,"c":"02_pavel-vzoshlo","t":"Всё уже взошло","q":"жду знака, хотя всё уже случилось","src":"placeholder-assets/02_pavel-vzoshlo.webp"},{"n":36,"c":"36_dalniy-svet","t":"Дальний свет","q":"куда я иду, когда не вижу дороги","src":"placeholder-assets/36_dalniy-svet.webp"},{"n":30,"c":"30_sad-pod-snegom","t":"Сад под снегом","q":"что во мне ждёт своего срока","src":"placeholder-assets/30_sad-pod-snegom.webp"},{"n":24,"c":"24_zaperto-iznutri","t":"Заперто изнутри","q":"что я держу закрытым","src":"placeholder-assets/24_zaperto-iznutri.webp"},{"n":6,"c":"06_ekaterina-ruki","t":"Тёплые руки","q":"как наполняться, когда лечишь других","src":"placeholder-assets/06_ekaterina-ruki.webp"},{"n":38,"c":"38_tonkiy-lyod","t":"Тонкий лёд","q":"почему я всё время проверяю почву","src":"placeholder-assets/38_tonkiy-lyod.webp"},{"n":46,"c":"46_vozvraschenie-tepla","t":"Возвращение тепла","q":"как перестать беречь себя от жизни","src":"placeholder-assets/46_vozvraschenie-tepla.webp"},{"n":47,"c":"47_karta-bez-dorog","t":"Карта без дорог","q":"как выбирать, когда указателей нет","src":"placeholder-assets/47_karta-bez-dorog.webp"},{"n":12,"c":"12_gulsinya-ogon","t":"Огонь и звезда","q":"что между нами старше этой жизни","src":"placeholder-assets/12_gulsinya-ogon.webp"},{"n":25,"c":"25_blizhe-chem-kazhetsya","t":"Ближе, чем кажется","q":"почему я держу дистанцию","src":"placeholder-assets/25_blizhe-chem-kazhetsya.webp"},{"n":32,"c":"32_mezhdu-dvuh-ogney","t":"Между двух огней","q":"почему выбор даётся так дорого","src":"placeholder-assets/32_mezhdu-dvuh-ogney.webp"},{"n":50,"c":"50_pozdnyaya-vesna","t":"Поздняя весна","q":"почему я расцветаю не вовремя","src":"placeholder-assets/50_pozdnyaya-vesna.webp"},{"n":23,"c":"23_dolgiy-razbeg","t":"Долгий разбег","q":"почему у меня всё начинается позже","src":"placeholder-assets/23_dolgiy-razbeg.webp"},{"n":26,"c":"26_obratnaya-storona-sily","t":"Обратная сторона силы","q":"чем я плачу за то, что справляюсь","src":"placeholder-assets/26_obratnaya-storona-sily.webp"},{"n":44,"c":"44_tyazhelaya-korona","t":"Тяжёлая корона","q":"цена быть тем, на кого опираются","src":"placeholder-assets/44_tyazhelaya-korona.webp"},{"n":27,"c":"27_ne-moya-tyazhest","t":"Не моя тяжесть","q":"что я несу не своё","src":"placeholder-assets/27_ne-moya-tyazhest.webp"},{"n":40,"c":"40_slepoe-pyatno","t":"Слепое пятно","q":"то, что видят все, кроме меня","src":"placeholder-assets/40_slepoe-pyatno.webp"},{"n":22,"c":"22_poka-ne-nazvali","t":"Пока не назвали","q":"то, что я знаю о себе без слов","src":"placeholder-assets/22_poka-ne-nazvali.webp"},{"n":45,"c":"45_mezhdu-strok","t":"Между строк","q":"что я говорю, не говоря","src":"placeholder-assets/45_mezhdu-strok.webp"},{"n":31,"c":"31_golos-iz-za-dveri","t":"Голос из-за двери","q":"кого я до сих пор слушаю","src":"placeholder-assets/31_golos-iz-za-dveri.webp"},{"n":41,"c":"41_obeschanie-iz-detstva","t":"Обещание из детства","q":"какой договор я до сих пор исполняю","src":"placeholder-assets/41_obeschanie-iz-detstva.webp"},{"n":29,"c":"29_medlennaya-voda","t":"Медленная вода","q":"почему меня не поторопить","src":"placeholder-assets/29_medlennaya-voda.webp"},{"n":49,"c":"49_svoy-ritm","t":"Свой ритм","q":"почему чужая скорость меня ломает","src":"placeholder-assets/49_svoy-ritm.webp"},{"n":33,"c":"33_suhaya-zemlya","t":"Сухая земля","q":"где во мне кончилась вода","src":"placeholder-assets/33_suhaya-zemlya.webp"},{"n":37,"c":"37_vtoroe-dyhanie","t":"Второе дыхание","q":"где взять силы, когда всё уже потрачено","src":"placeholder-assets/37_vtoroe-dyhanie.webp"},{"n":34,"c":"34_nit-i-uzel","t":"Нить и узел","q":"что я не могу развязать","src":"placeholder-assets/34_nit-i-uzel.webp"},{"n":42,"c":"42_steklyanniy-potolok","t":"Стеклянный потолок","q":"что останавливает меня перед самым верхом","src":"placeholder-assets/42_steklyanniy-potolok.webp"},{"n":35,"c":"35_ne-dlya-chuzhih-glaz","t":"Не для чужих глаз","q":"что во мне есть, но не наружу","src":"placeholder-assets/35_ne-dlya-chuzhih-glaz.webp"},{"n":43,"c":"43_gost-v-svoey-zhizni","t":"Гость в своей жизни","q":"почему всё как будто не про меня","src":"placeholder-assets/43_gost-v-svoey-zhizni.webp"},{"n":48,"c":"48_nezazhzhennaya-svecha","t":"Незажжённая свеча","q":"о чём я боюсь спросить","src":"placeholder-assets/48_nezazhzhennaya-svecha.webp"},{"n":39,"c":"39_raznye-chasovye-poyasa","t":"Разные часовые пояса","q":"почему мы не совпадаем во времени","src":"placeholder-assets/39_raznye-chasovye-poyasa.webp"},{"n":51,"c":"51_tishe-chem-krik","t":"Тише, чем крик","q":"почему меня не слышно, когда я говорю спокойно","src":"placeholder-assets/51_tishe-chem-krik.webp"},{"n":52,"c":"52_pustaya-polka","t":"Пустая полка","q":"чего мне не досталось","src":"placeholder-assets/52_pustaya-polka.webp"},{"n":53,"c":"53_dolg-kotorogo-ne-bral","t":"Долг, которого не брал","q":"за что я расплачиваюсь","src":"placeholder-assets/53_dolg-kotorogo-ne-bral.webp"},{"n":54,"c":"54_klyuch-ne-podhodit","t":"Ключ не подходит","q":"почему то, что помогало раньше, больше не работает","src":"placeholder-assets/54_klyuch-ne-podhodit.webp"},{"n":55,"c":"55_severnaya-storona","t":"Северная сторона","q":"почему мне достаётся меньше света, чем другим","src":"placeholder-assets/55_severnaya-storona.webp"},{"n":56,"c":"56_obratniy-otschet","t":"Обратный отсчёт","q":"почему я всё время жду подходящего момента","src":"placeholder-assets/56_obratniy-otschet.webp"},{"n":57,"c":"57_tonkaya-kozha","t":"Тонкая кожа","q":"почему меня задевает то, что другим ничего","src":"placeholder-assets/57_tonkaya-kozha.webp"},{"n":58,"c":"58_most-bez-drugogo-berega","t":"Мост без другого берега","q":"как решаться, не зная, чем кончится","src":"placeholder-assets/58_most-bez-drugogo-berega.webp"},{"n":59,"c":"59_gnezdo-na-vetru","t":"Гнездо на ветру","q":"на чём я держусь, когда всё качает","src":"placeholder-assets/59_gnezdo-na-vetru.webp"},{"n":60,"c":"60_zaperty-sad","t":"Запертый сад","q":"что я берегу так, что сам туда не хожу","src":"placeholder-assets/60_zaperty-sad.webp"},{"n":61,"c":"61_svoya-pogoda","t":"Своя погода","q":"почему мне тяжелее там, где всем легко","src":"placeholder-assets/61_svoya-pogoda.webp"},{"n":62,"c":"62_posledniy-vagon","t":"Последний вагон","q":"что я боюсь упустить, если остановлюсь","src":"placeholder-assets/62_posledniy-vagon.webp"}];
+    /* 🔴 ДАННЫЕ ПРИЕЗЖАЮТ ЧЕРЕЗ data-АТРИБУТ, А НЕ ИНТЕРПОЛЯЦИЕЙ В СКРИПТ.
+       Здесь стоял `raw … .to_json` — гейт erb_safety называет это прямо:
+       «erb interpolation with raw in this context is never safe». Он прав по
+       построению: внутри скрипта экранирование HTML не спасает, а `raw`
+       снимает и его. Правило проекта то же (CLAUDE.md: в скрипте —
+       json_escape либо данные через data-атрибуты, не сырая интерполяция).
+       Теперь список книг лежит в `data-books` на секции: ERB экранирует его
+       как обычный атрибут, браузер возвращает исходную строку в `dataset`. */
+    var BOOKS = JSON.parse(root.dataset.books);
 
   const DOC = root.ownerDocument;
   const $ = (id) => root.querySelector('#' + id);
@@ -2929,16 +3080,18 @@ body{margin:0}
   function canvasH(){
     const d=root.querySelector('.deck');
     const dh=d?d.getBoundingClientRect().height:0;
-    /* 60 px — там, где разгон подложки (см. .deck::before) уже гасит обложки
-       примерно на три четверти; ниже показывать нечего. */
-    return Math.max(200, innerHeight - dh - 60);
+    /* 42 px — там, где разгон подложки (см. .deck::before) уже гасит обложки
+       примерно на три четверти; ниже показывать нечего. Было 60 при разгоне
+       в 170 px; разгон укорочен до 118, и запас уменьшился пропорционально —
+       эти пиксели уходят обложкам, ради которых экран и существует. */
+    return Math.max(200, innerHeight - dh - 42);
   }
   let CH=canvasH();
   /* Ширина решает раньше высоты: ниже 1080 полоса обложек — самостоятельный
      предмет высотой 320 px (см. .web в мобильной ветке), и второй план в неё
      физически не входит. Порог тот же, что у медиазапроса, — иначе раскладка и
      стили разъедутся на границе. */
-  const planeSet=()=>innerWidth<1080 ? PLANES[1] : PLANES[CH>=520 ? 3 : 2];
+  const planeSet=()=>1080>innerWidth ? PLANES[1] : PLANES[CH>=520 ? 3 : 2];
   let ROWS=planeSet();
   function applyStack(){
     CH=canvasH();
@@ -2951,13 +3104,24 @@ body{margin:0}
        именем, получит необъяснимое поведение через полстраницы. */
     const rootS=root.style;
     rootS.setProperty('--fsum',fsum.toFixed(3));
-    /* ⚠️ .93 БЫЛО МАЛО: полотно само по себе увеличено (scale 1.12, а при
-       параллаксе 1.16), и стопка, рассчитанная по «чистой» высоте, после
-       масштабирования всё равно ныряла под полосу — замерено: низ последнего ряда
-       455 при кромке полосы 393. Коэффициент .82 гасит это увеличение и
-       оставляет обложкам лёгкий вылет за верхний край, ради которого масштаб и
-       заводился. */
-    rootS.setProperty('--cwb-px',Math.round(CH*.82/fsum)+'px');
+    /* 🔴 РАЗМЕР СЧИТАЕТСЯ ОТ ТРЕБОВАНИЯ «ОБЛОЖКА ЦЕЛИКОМ», А НЕ ПОДБОРОМ.
+       Здесь стоял множитель `.82` — он гасил `scale(1.12)` у полотна, то есть
+       одно место увеличивало стопку, а другое угадывало, насколько уменьшить.
+       Итог замерен: на 1440×900 в кадре 17 обложек и НИ ОДНОЙ целой — верхний
+       ряд срезан на 80 px, нижний утоплен под полосу на 55.
+
+       Увеличение снято (см. .web), и теперь считается прямо:
+
+         высота стопки = cwb · AR · Σf + (n−1)·зазор + размах поворота ≤ CH
+
+       где AR = 1000/707 (пропорция обложки), Σf — сумма долей планов,
+       размах поворота = ширина кадра · sin(1,2°) — это на сколько наклон
+       поднимает один край стопки относительно другого. Раньше этот вклад в
+       расчёт не входил вовсе и съедал верх карточки на кромках кадра. */
+    const AR=1000/707, gapPx=parseFloat(getComputedStyle(root).getPropertyValue('--gap'))||16;
+    const tilt=innerWidth*Math.sin(1.2*Math.PI/180);
+    const free=Math.max(120, CH - (ROWS.length-1)*gapPx - tilt);
+    rootS.setProperty('--cwb-px',Math.max(90,Math.round(free/(AR*fsum)))+'px');
     /* Стопка центрируется в ВИДИМОЙ части: нижний отступ у .web поднимает её
        ровно на ту величину, которую отъедает полоса. */
     rootS.setProperty('--web-pad',Math.max(0,Math.round(innerHeight-CH))+'px');
@@ -3029,8 +3193,8 @@ body{margin:0}
     const seq=shift(weave(HERO,r.step),
       PHASE + ri * Math.round(HERO.length / ROWS.length));
     const perHalf=perHalfFor(r.f);
-    for(let half=0;half<2;half++){
-      for(let k=0;k<perHalf;k++){
+    for(let half=0;2>half;half++){
+      for(let k=0;perHalf>k;k++){
         const b=seq[k%seq.length];
         const i=BOOKS.indexOf(b);
         const first=(half===0);
@@ -3086,7 +3250,7 @@ body{margin:0}
   /* Пересборка нужна, только если после ресайза половина перестала перекрывать
      кадр (окно растянули шире, чем рассчитывали): иначе справа откроется шов. */
   const seamBroken=()=>[...root.querySelectorAll('.track')]
-    .some(t=>t.scrollWidth/2 < innerWidth);
+    .some(t=>innerWidth > t.scrollWidth/2);
 
   /* ═══ ФОКУС НА КНИГЕ: ВХОД И ВЫХОД ═══════════════════════════════════════
      🔴 ПОЧЕМУ ПОЛОТНО ДРЕБЕЗЖАЛО. Причин было три, и все три — разные.
@@ -3366,7 +3530,7 @@ body{margin:0}
     let top=Infinity,bot=-Infinity;
     root.querySelectorAll('.row').forEach(r=>{
       const b=r.getBoundingClientRect();
-      if(b.top<top) top=b.top;
+      if(top>b.top) top=b.top;
       if(b.bottom>bot) bot=b.bottom;
     });
     return {top,bot};
@@ -3374,9 +3538,9 @@ body{margin:0}
   function fitStack(){
     const d=root.querySelector('.deck');
     const limit=(d?d.getBoundingClientRect().top:innerHeight)+BLEED;
-    for(let pass=0;pass<3;pass++){
+    for(let pass=0;3>pass;pass++){
       const {top,bot}=stackBottom();
-      if(!isFinite(top)||bot<=limit) break;
+      if(!isFinite(top)||limit>=bot) break;
       const cur=parseFloat(getComputedStyle(root)
         .getPropertyValue('--cwb-px'))||0;
       if(!cur) break;
@@ -3681,7 +3845,7 @@ body{margin:0}
     on(window,'scroll',()=>{
       if(!annOpen) return;
       const b=annBtn.getBoundingClientRect();
-      if(b.bottom<0||b.top>innerHeight) shut(); else place();
+      if(0>b.bottom||b.top>innerHeight) shut(); else place();
     },{passive:true});
     annOpenAll.push({panel:annPanel,shut});
   }
