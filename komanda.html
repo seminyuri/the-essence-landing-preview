@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Суть ✕ Команда — мокап</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#7A5340;--accent-strong:#5C3D29;--accent-soft:#EADCD2;--accent-on:#fff;
+  --bg:#FFFCF9;--bg-el:#FFFFFF;--bg-muted:#F5F0EA;--fg:#1A1612;--fg-muted:#5C534B;--fg-subtle:#756C64;
+  --border:#E8E0D6;--border-strong:#C9BCAB;
+  --success:#2F7A4F;--success-soft:#DCEFE3;--success-text:#1F6B41;
+  --warning:#B17A23;--warning-soft:#F6E9C3;--warning-text:#8A5D17;
+  --danger:#B7392E;--danger-soft:#F4D6D2;--danger-text:#9F2C23;
+  --info:#3E6C8E;--info-soft:#DCE9F2;--info-text:#2C5678;
+  --shadow-soft:0 1px 2px rgba(26,22,18,.04);--shadow-card:0 4px 16px rgba(26,22,18,.06);--shadow-pop:0 26px 64px rgba(26,22,18,.14);
+  --r-sm:8px;--r-md:10px;--r-lg:12px;--r-xl:14px;--r-2xl:16px;
+  --font:"Manrope",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --accent:#E8B898;--accent-strong:#F0C9AE;--accent-soft:#3A2B20;--accent-on:#0F0D08;
+  --bg:#0F0D08;--bg-el:#1A1610;--bg-muted:#211C14;--fg:#F4EFE7;--fg-muted:#B5AB9D;--fg-subtle:#948A80;
+  --border:#2A241C;--border-strong:#4A4135;--success-soft:#1B3A26;--success-text:#88D6AB;--warning-soft:#3A2C0E;--warning-text:#E8C271;
+  --danger-soft:#3B1714;--danger-text:#F1A19A;--info-soft:#17293A;--info-text:#9CC6E6;
+  --shadow-card:0 4px 16px rgba(0,0,0,.45);--shadow-pop:0 26px 70px rgba(0,0,0,.6);}}
+:root[data-theme="dark"]{
+  --accent:#E8B898;--accent-strong:#F0C9AE;--accent-soft:#3A2B20;--accent-on:#0F0D08;
+  --bg:#0F0D08;--bg-el:#1A1610;--bg-muted:#211C14;--fg:#F4EFE7;--fg-muted:#B5AB9D;--fg-subtle:#948A80;
+  --border:#2A241C;--border-strong:#4A4135;--success-soft:#1B3A26;--success-text:#88D6AB;--warning-soft:#3A2C0E;--warning-text:#E8C271;
+  --danger-soft:#3B1714;--danger-text:#F1A19A;--info-soft:#17293A;--info-text:#9CC6E6;
+  --shadow-card:0 4px 16px rgba(0,0,0,.45);--shadow-pop:0 26px 70px rgba(0,0,0,.6);}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+.app{display:flex;height:100vh;overflow:hidden}
+/* ---------- шторка модуля ---------- */
+.sidebar{width:250px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--bg)}
+.sb-head{padding:18px 18px 10px;display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;letter-spacing:-.01em}
+.sb-head .x{color:var(--fg-subtle);font-weight:500}
+.ws{margin:4px 12px 10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-el);padding:8px 10px;display:flex;align-items:center;gap:10px;position:relative}
+.ws-logo{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff}
+.ws-name{font-weight:700;font-size:13px;line-height:1.2}.ws-sub{font-size:11.5px;color:var(--fg-subtle)}
+.ws select{position:absolute;inset:0;opacity:0;cursor:pointer}
+.search-btn{margin:0 12px 12px;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-muted);color:var(--fg-subtle);text-align:left}
+.search-btn kbd{margin-left:auto;font-family:var(--mono);font-size:11px;background:var(--bg-el);border:1px solid var(--border);border-radius:5px;padding:0 5px}
+.nav{padding:0 8px;display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);text-decoration:none;color:var(--fg-muted);font-weight:600}
+.nav a:hover{background:var(--bg-muted);color:var(--fg)}
+.nav a.on{background:var(--accent-soft);color:var(--accent-strong)}
+:root[data-theme="dark"] .nav a.on{color:var(--accent)}
+.nav .count{margin-left:auto;font-size:11.5px;color:var(--fg-subtle);font-weight:600}
+.nav-sep{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-subtle);padding:14px 10px 4px;font-weight:700}
+.sb-foot{margin-top:auto;padding:12px;border-top:1px solid var(--border);font-size:12px;color:var(--fg-subtle)}
+.ask-yuia{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px solid var(--border);cursor:pointer;text-align:left;width:100%}
+.ask-yuia b{display:block;color:var(--fg);font-size:12.5px}
+/* ---------- рельс ---------- */
+.rail{width:56px;flex:none;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;background:var(--bg)}
+.rail button{width:40px;height:40px;border-radius:var(--r-md);border:0;background:transparent;display:grid;place-items:center;color:var(--fg-subtle);position:relative}
+.rail button:hover{background:var(--bg-muted);color:var(--fg)}
+.rail button.on{background:var(--accent);color:var(--accent-on)}
+.rail button.yuia{color:var(--accent)}
+.rail .tip{position:absolute;right:48px;white-space:nowrap;background:var(--fg);color:var(--bg);font-size:12px;padding:3px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:.15s}
+.rail button:hover .tip{opacity:1}
+.rail .sp{flex:1}
+.avatar-me{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;background:#8C6A57}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* ---------- основное ---------- */
+main{flex:1;min-width:0;overflow-y:auto}
+.page{max-width:1120px;margin:0 auto;padding:28px 32px 120px}
+.ph{display:flex;align-items:flex-end;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.ph h1{margin:0;font-size:26px;letter-spacing:-.02em;font-weight:800}
+.ph .sub{color:var(--fg-subtle);font-size:13px;margin-top:2px}
+.ph .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--bg-el);font-weight:600;font-size:13px;text-decoration:none}
+.btn:hover{border-color:var(--border-strong)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-on)}
+.btn.primary:hover{background:var(--accent-strong)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.card{background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-soft)}
+.toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.input{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--bg-el);border-radius:var(--r-md);padding:8px 10px;min-width:260px;flex:1;max-width:420px}
+.input input{border:0;outline:0;background:transparent;font:inherit;color:inherit;width:100%}
+.select{border:1px solid var(--border);background:var(--bg-el);border-radius:var(--r-md);padding:8px 10px;font:inherit;color:inherit}
+.check{display:inline-flex;gap:7px;align-items:center;font-size:13px;color:var(--fg-muted);cursor:pointer}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-subtle);text-align:left;font-weight:700;padding:10px 14px;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr{cursor:pointer;transition:background .12s}
+.tbl tbody tr:hover{background:var(--bg-muted)}
+.tbl tr.left td{opacity:.55}
+.who{display:flex;align-items:center;gap:10px}
+.who b{font-weight:700}
+.av{border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex:none;letter-spacing:.02em}
+.muted{color:var(--fg-subtle)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg-muted);color:var(--fg-muted);white-space:nowrap}
+.badge.warn{background:var(--warning-soft);color:var(--warning-text)}
+.badge.ok{background:var(--success-soft);color:var(--success-text)}
+.badge.info{background:var(--info-soft);color:var(--info-text)}
+.badge.danger{background:var(--danger-soft);color:var(--danger-text)}
+.badge.accent{background:var(--accent-soft);color:var(--accent-strong)}
+.pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;padding:12px 14px;color:var(--fg-subtle);font-size:12.5px;border-top:1px solid var(--border)}
+/* карточка человека */
+.hero{display:flex;gap:20px;align-items:center;padding:22px;flex-wrap:wrap}
+.hero h1{margin:0;font-size:26px;letter-spacing:-.02em}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--bg-muted);font-size:12.5px;font-weight:600;color:var(--fg-muted);text-decoration:none;border:1px solid transparent}
+a.chip:hover{border-color:var(--border-strong)}
+.crumbs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;padding:14px 22px;border-top:1px solid var(--border)}
+.crumbs a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:3px 8px 3px 3px;border-radius:999px;background:var(--bg-muted);font-weight:600}
+.crumbs a:hover{background:var(--accent-soft)}
+.crumbs .arr{color:var(--fg-subtle)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:18px}
+.sec-t{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-subtle);font-weight:800;margin:0 0 10px}
+.subs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.pc{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg-el);text-decoration:none;transition:.12s}
+.pc:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-card)}
+.pc b{display:block;font-size:13px;line-height:1.25}.pc div>span{font-size:12px;color:var(--fg-subtle)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);padding:0 14px;overflow-x:auto}
+.tab{border:0;background:transparent;padding:12px 12px;font-weight:700;color:var(--fg-subtle);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;display:flex;gap:7px;align-items:center}
+.tab.on{color:var(--fg);border-bottom-color:var(--accent)}
+.tab .lock{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 7px;border-radius:999px}
+.doc-wrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:28px;padding:22px}
+.toc{position:sticky;top:12px;align-self:start;font-size:12.5px}
+.toc a{display:block;padding:4px 8px;border-left:2px solid var(--border);text-decoration:none;color:var(--fg-muted)}
+.toc a:hover{color:var(--fg);border-left-color:var(--accent)}
+.meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--fg-subtle);padding:10px 22px;border-bottom:1px solid var(--border);background:var(--bg-muted)}
+.meta-line .sp{flex:1}
+.doc{font-size:15px;line-height:1.65;max-width:720px}
+.doc h2{font-size:19px;margin:28px 0 8px;letter-spacing:-.01em;scroll-margin-top:12px}
+.doc h2:first-child{margin-top:0}
+.doc h3{font-size:16px;margin:20px 0 6px}
+.doc p{margin:0 0 12px}
+.doc ul,.doc ol{margin:0 0 12px;padding-left:22px}
+.doc li{margin:3px 0}
+.doc blockquote{margin:0 0 16px;padding:12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 var(--r-md) var(--r-md) 0;color:var(--fg)}
+.doc pre{font-family:var(--mono);font-size:12.5px;line-height:1.45;background:var(--bg-muted);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;overflow-x:auto;white-space:pre;margin:0 0 16px}
+.doc .tw{overflow-x:auto;margin:0 0 16px;border:1px solid var(--border);border-radius:var(--r-md)}
+.doc table{border-collapse:collapse;width:100%;font-size:13.5px}
+.doc th,.doc td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.doc th{background:var(--bg-muted);font-weight:700}
+.doc tr:last-child td{border-bottom:0}
+.empty{text-align:center;padding:48px 24px;color:var(--fg-muted)}
+.empty .ill{width:64px;height:64px;border-radius:20px;background:var(--accent-soft);display:grid;place-items:center;margin:0 auto 14px;color:var(--accent)}
+.empty h3{margin:0 0 6px;color:var(--fg);font-size:17px}
+.empty .ex{display:inline-block;margin-top:14px;font-size:13px;background:var(--bg-muted);border:1px dashed var(--border-strong);padding:10px 14px;border-radius:var(--r-md);color:var(--fg);max-width:520px}
+.side-card{padding:16px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
+.kv dt{color:var(--fg-subtle)}.kv dd{margin:0;font-weight:600}
+.admin-note{font-size:11.5px;color:var(--accent-strong);display:flex;gap:6px;align-items:center;margin:0 0 10px;font-weight:700}
+:root[data-theme="dark"] .admin-note{color:var(--accent)}
+/* дерево отделов */
+.tree details{margin-left:18px;border-left:1px dashed var(--border-strong);padding-left:14px}
+.tree>details{margin-left:0;border-left:0;padding-left:0}
+.tree summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-md);margin:4px 0;background:var(--bg-el);border:1px solid var(--border)}
+.tree summary:hover{border-color:var(--accent)}
+.tree summary::-webkit-details-marker{display:none}
+.tree .chev{transition:.15s;color:var(--fg-subtle)}
+.tree details[open]>summary .chev{transform:rotate(90deg)}
+.tree .leaf{visibility:hidden}
+.tree .dn{font-weight:700}
+.tree .head{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--fg-muted)}
+/* палитра, модалки, Юя */
+.overlay{position:fixed;inset:0;background:rgba(26,22,18,.35);backdrop-filter:blur(2px);display:none;z-index:40}
+.overlay.on{display:block}
+.palette{position:fixed;top:12vh;left:50%;transform:translateX(-50%);width:min(620px,92vw);background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-2xl);box-shadow:var(--shadow-pop);z-index:50;display:none;overflow:hidden}
+.palette.on{display:block}
+.palette .pi{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.palette input{flex:1;border:0;outline:0;background:transparent;font:inherit;font-size:16px;color:inherit}
+.palette .grp{padding:8px 16px 4px;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-subtle)}
+.palette .res{display:flex;gap:10px;align-items:center;padding:8px 16px;cursor:pointer}
+.palette .res.sel,.palette .res:hover{background:var(--bg-muted)}
+.palette .hint{padding:10px 16px;font-size:12px;color:var(--fg-subtle);border-top:1px solid var(--border)}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:var(--bg-el);border-left:1px solid var(--border);box-shadow:var(--shadow-pop);z-index:50;transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dr-head{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border)}
+.dr-head .yl{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#C9906F,#7A5340);display:grid;place-items:center;color:#fff}
+.dr-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:88%;padding:10px 12px;border-radius:14px;font-size:13.5px;line-height:1.5}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-on);border-bottom-right-radius:4px}
+.msg.ya{align-self:flex-start;background:var(--bg-muted);border-bottom-left-radius:4px}
+.pv{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--bg-el)}
+.pv-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--warning-soft);color:var(--warning-text);font-size:12px;font-weight:800;letter-spacing:.02em}
+.pv-b{padding:10px 12px;font-size:13px}
+.pv-b ul{margin:0;padding-left:18px}
+.pv-f{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}
+.dr-sugs{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.sug{text-align:left;border:1px solid var(--border);background:var(--bg);border-radius:var(--r-md);padding:8px 10px;font-size:12.5px}
+.sug:hover{border-color:var(--accent)}
+.dr-in{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border)}
+.dr-in input{flex:1;border:1px solid var(--border);border-radius:var(--r-md);padding:9px 10px;background:var(--bg);font:inherit;color:inherit}
+.typing{display:inline-flex;gap:3px}.typing i{width:6px;height:6px;border-radius:50%;background:var(--fg-subtle);animation:b 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.modal{position:fixed;inset:4vh 0 auto;margin:auto;width:min(900px,94vw);max-height:92vh;overflow:auto;background:var(--bg-muted);border-radius:var(--r-2xl);box-shadow:var(--shadow-pop);z-index:50;display:none}
+.modal.on{display:block}
+.modal-h{position:sticky;top:0;display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg-el);border-bottom:1px solid var(--border);z-index:2}
+.a4{width:min(794px,100%);margin:20px auto;background:#fff;color:#1A1612;box-shadow:0 8px 30px rgba(0,0,0,.15);padding:56px 64px 80px;position:relative;min-height:1000px}
+.a4 .doc{max-width:none;font-size:13.5px}
+.a4 .doc pre{background:#F5F0EA;border-color:#E8E0D6}.a4 .doc th{background:#F5F0EA}.a4 .doc blockquote{background:#F3E9E1}
+.a4-head{border-bottom:2px solid #1A1612;padding-bottom:12px;margin-bottom:22px;display:flex;justify-content:space-between;gap:20px;font-size:12px}
+.a4-head b{font-size:18px;display:block}
+.wm{position:absolute;left:64px;right:64px;bottom:24px;font-size:11px;color:#8A7F74;border-top:1px solid #E8E0D6;padding-top:8px;display:flex;justify-content:space-between}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%) translateY(20px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:70;box-shadow:var(--shadow-pop);max-width:92vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+/* переключатель «смотреть как» */
+.viewas{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;background:var(--fg);color:var(--bg);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:var(--shadow-pop);font-size:12.5px;max-width:96vw}
+.viewas .lbl{font-weight:700;opacity:.75;white-space:nowrap}
+.viewas .seg{display:flex;gap:2px;background:rgba(255,255,255,.08);border-radius:999px;padding:3px}
+:root[data-theme="dark"] .viewas .seg{background:rgba(0,0,0,.08)}
+.viewas .seg button{border:0;background:transparent;color:inherit;padding:6px 12px;border-radius:999px;font-weight:700;white-space:nowrap;opacity:.8}
+.viewas .seg button.on{background:var(--bg);color:var(--fg);opacity:1}
+.viewas .info{width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:inherit;font-weight:800}
+.who-panel{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);width:min(560px,94vw);background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-pop);padding:14px 16px;z-index:60;display:none;font-size:13px}
+.who-panel.on{display:block}
+.who-panel ul{margin:6px 0 0;padding-left:18px}
+.mock-flag{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:30;font-size:11.5px;background:var(--warning-soft);color:var(--warning-text);border-radius:999px;padding:3px 10px;font-weight:700;pointer-events:none}
+.four04{max-width:520px;margin:10vh auto;text-align:center}
+.four04 .n{font-size:64px;font-weight:800;letter-spacing:-.04em;color:var(--border-strong)}
+.hl{animation:hl 1.6s ease}
+@keyframes hl{0%{background:var(--warning-soft)}100%{background:transparent}}
+.mobile-top{display:none}
+.drawer.on ~ .viewas{left:calc((100vw - 440px)/2)}
+.modal.on ~ .viewas,.modal.on ~ .who-panel{display:none}
+@media (max-width:860px){
+  .drawer.on ~ .viewas{display:none}
+  .sidebar{position:fixed;inset:0 auto 0 0;z-index:45;transform:translateX(-102%);transition:transform .2s;box-shadow:var(--shadow-pop)}
+  .sidebar.open{transform:none}
+  .rail{display:none}
+  .mobile-top{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:5}
+  .page{padding:18px 16px 120px}
+  .grid2{grid-template-columns:1fr}
+  .doc-wrap{grid-template-columns:1fr;padding:16px}
+  .toc{position:static;border:1px solid var(--border);border-radius:var(--r-md);padding:8px}
+  .tbl .hide-m{display:none}
+  .viewas .lbl{display:none}
+  .viewas .seg button{padding:6px 9px}
+  .mock-flag{display:none}
+  .a4{padding:28px 22px 70px}
+}
+@media print{.sidebar,.rail,.viewas,.mock-flag,.toast,.overlay,.drawer,.who-panel,.modal-h{display:none!important}.modal{position:static;box-shadow:none;background:#fff;max-height:none;width:auto}.a4{box-shadow:none;margin:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main id="main"><div class="mobile-top"><button class="btn sm" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button><b>Суть ✕ Команда</b></div><div id="view"></div></main>
+  <nav class="rail" id="rail"></nav>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="palette" id="palette"></div>
+<aside class="drawer" id="drawer"></aside>
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast"></div>
+<div class="who-panel" id="whoPanel"></div>
+<div class="viewas" id="viewas"></div>
+
+<script>
+/* =========================================================================
+   Данные мокапа. Все люди и компании выдуманы.
+   ========================================================================= */
+const ICONS={
+ home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+ check:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/>',
+ mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+ spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
+ cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>',
+ video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',
+ eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M22 20a6.5 6.5 0 0 0-4.5-6.2"/>',
+ book:'<path d="M4 4h10a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M4 16a4 4 0 0 1 4-4h10"/>',
+ file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+ wallet:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',
+ team:'<rect x="9" y="2" width="6" height="5" rx="1.2"/><rect x="2" y="17" width="6" height="5" rx="1.2"/><rect x="16" y="17" width="6" height="5" rx="1.2"/><path d="M12 7v5M5 17v-2.5h14V17"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+ print:'<path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',
+ hist:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 3"/>',
+ chev:'<path d="m9 6 6 6-6 6"/>',
+ x:'<path d="M18 6 6 18M6 6l12 12"/>',
+ people:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ sitemap:'<rect x="3" y="3" width="7" height="6" rx="1.2"/><rect x="14" y="15" width="7" height="6" rx="1.2"/><rect x="14" y="3" width="7" height="6" rx="1.2"/><path d="M6.5 9v9H14M10 6h4"/>',
+ brief:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M17 6l3 3M14.5 8.5l2 2"/>',
+ lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+ moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>'
+};
+const ic=(n,s)=>`<svg class="i" viewBox="0 0 24 24" ${s?`style="width:${s}px;height:${s}px"`:''}>${ICONS[n]||''}</svg>`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const plural=(n,one,few,many)=>{const a=Math.abs(n)%100,b=a%10;return a>10&&a<20?many:b>1&&b<5?few:b===1?one:many};
+const people=n=>`${n} ${plural(n,'человек','человека','человек')}`;
+const norm=s=>String(s).toLowerCase().replace(/ё/g,'е');
+const PAL=['#8C6A57','#5C7E5A','#6B6E8E','#4A7B92','#B8623E','#C77A8A','#7A5340','#3F6B61','#8E6F3E','#6E5A8A'];
+function avatar(p,size=34){const ini=(p.last[0]+(p.first[0]||'')).toUpperCase();const col=PAL[(p.id*7)%PAL.length];return `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size*.36)}px;background:${col}">${ini}</span>`}
+
+let NEXT=1;
+function mk(c,last,first,mid,pos,dept,mgr,extra={}){const p=Object.assign({id:NEXT++,company:c,last,first,mid,pos,dept,mgr,status:'active',code:'Т-'+String(1000+NEXT).slice(1),email:null,account:false},extra);DB.people.push(p);return p}
+const DB={people:[],depts:[],positions:[],docs:[],views:[]};
+function dept(c,name,parent,extra={}){const d=Object.assign({id:DB.depts.length+1,company:c,name,parent,head:null,archived:false},extra);DB.depts.push(d);return d}
+function posi(c,name){let p=DB.positions.find(x=>x.company===c&&x.name===name);if(!p){p={id:DB.positions.length+1,company:c,name};DB.positions.push(p)}return p.id}
+
+const COMPANIES=[
+ {id:'rice',name:'«Рис и Нори»',sub:'сеть ресторанов · 3 филиала',color:'#B8623E',letter:'РН'},
+ {id:'mal',name:'«Малахит»',sub:'нутрицевтика и маркетплейсы',color:'#3F6B61',letter:'М'},
+ {id:'dot',name:'«Точка опоры»',sub:'центр · структуру ещё не завели',color:'#6B6E8E',letter:'ТО'}
+];
+
+/* ---------- «Рис и Нори» ---------- */
+(function(){
+ const C='rice';
+ const uk=dept(C,'Управляющая компания',null), fin=dept(C,'Финансы',uk.id), com=dept(C,'Коммерция и маркетинг',uk.id), hr=dept(C,'Персонал',uk.id);
+ const owner=mk(C,'Ковалёв','Сергей','Андреевич',posi(C,'Собственник'),uk.id,null,{email:'owner@example.test',account:true,code:'Т-001'});
+ const exec=mk(C,'Орлова','Марина','Викторовна',posi(C,'Исполнительный директор'),uk.id,owner.id,{email:'orlova@example.test',account:true,code:'Т-002'});
+ const cco=mk(C,'Лебедева','Анна','Игоревна',posi(C,'Коммерческий директор'),com.id,owner.id,{email:'lebedeva@example.test',account:true,code:'Т-003'});
+ uk.head=exec.id;com.head=cco.id;
+ const acc=mk(C,'Белова','Ирина','Павловна',posi(C,'Главный бухгалтер'),fin.id,exec.id,{email:'belova@example.test'});fin.head=acc.id;
+ mk(C,'Зайцева','Ксения','Олеговна',posi(C,'Бухгалтер'),fin.id,acc.id);
+ mk(C,'Ёлкина','Дарья','Сергеевна',posi(C,'Бухгалтер'),fin.id,acc.id);
+ const hrm=mk(C,'Тарасова','Юлия','Андреевна',posi(C,'Менеджер по персоналу'),hr.id,exec.id,{email:'hr@example.test',account:true});hr.head=hrm.id;
+ mk(C,'Соколов','Глеб','Романович',posi(C,'Маркетолог'),com.id,cco.id);
+ mk(C,'Павлова','Вера','Денисовна',posi(C,'SMM-менеджер'),com.id,cco.id);
+ mk(C,'Захаров','Олег','Ильич',posi(C,'Закупщик'),com.id,cco.id);
+ const branches=[['«Центральный»','Смирнов','Денис','Олегович','m'],['«Северный»','Кузнецова','Ольга','Петровна','f'],['«Речной»','Попов','Илья','Сергеевич','m']];
+ const FM=['Алексей','Дмитрий','Иван','Максим','Никита','Артём','Егор','Роман','Кирилл','Тимур','Фёдор','Степан','Руслан','Антон','Павел','Георгий','Семён','Лев'];
+ const FF=['Алина','Екатерина','Полина','Виктория','Софья','Ксения','Валерия','Мария','Ульяна','Таисия','Евгения','Анастасия','Диана','Милана'];
+ const LN=['Волков','Морозов','Новиков','Фёдоров','Медведев','Егоров','Комаров','Андреев','Макаров','Гусев','Титов','Кудрявцев','Баранов','Куликов','Алексеев','Степанов','Яковлев','Сорокин','Сергеев','Романов','Воробьёв','Фролов','Виноградов','Богданов','Воронцов','Щербаков'];
+ const MID_M=['Андреевич','Сергеевич','Игоревич','Олегович','Павлович'],MID_F=['Андреевна','Сергеевна','Игоревна','Олеговна','Павловна'];
+ let k=0;const person=(pos,d,m,extra)=>{const f=k%3===0,ln=LN[k%LN.length];const p=mk(C,f?ln+'а':ln,f?FF[k%FF.length]:FM[k%FM.length],f?MID_F[k%5]:MID_M[k%5],posi(C,pos),d,m,extra);k++;return p};
+ branches.forEach(([bn,l,fn,md,g],i)=>{
+  const b=dept(C,'Филиал '+bn,null);
+  const mgr=mk(C,l,fn,md,posi(C,'Управляющий филиалом'),b.id,exec.id,{email:['smirnov','kuznetsova','popov'][i]+'@example.test',account:i<2});b.head=mgr.id;
+  const kit=dept(C,'Кухня',b.id),hall=dept(C,'Зал',b.id),del=dept(C,'Доставка',b.id);
+  const chef=person('Су-шеф',kit.id,mgr.id);kit.head=chef.id;
+  for(let j=0;j<6;j++){const extra=(i===0&&j===0)?{}:{};const p=person('Повар',kit.id,chef.id,extra);if(i===0&&j===2){p.last='Жуков';p.first='Павел';p.mid='Андреевич';p.email='zhukov@example.test';p.account=true}}
+  const adm=person('Администратор зала',hall.id,mgr.id);hall.head=adm.id;
+  for(let j=0;j<6;j++)person('Официант',hall.id,adm.id);
+  const cur=person('Старший курьер',del.id,mgr.id);del.head=cur.id;
+  for(let j=0;j<4;j++)person('Курьер',del.id,cur.id);
+ });
+ const prod=dept(C,'Заготовочный цех',null);
+ const ph=mk(C,'Никитин','Олег','Васильевич',posi(C,'Начальник цеха'),prod.id,exec.id);prod.head=ph.id;
+ for(let j=0;j<8;j++)person('Заготовщик',prod.id,ph.id);
+ // уволенные — видны только администратору
+ const l1=person('Официант',hall_of(C,'«Центральный»'),null);l1.status='left';l1.leftAt='12.08.2026';
+ const l2=person('Курьер',null,null);l2.status='left';l2.leftAt='03.09.2026';l2.dept=DB.depts.find(d=>d.company===C&&d.name==='Доставка').id;
+ function hall_of(c,b){const br=DB.depts.find(d=>d.company===c&&d.name==='Филиал '+b);return DB.depts.find(d=>d.parent===br.id&&d.name==='Зал').id}
+})();
+
+/* ---------- «Малахит» ---------- */
+(function(){
+ const C='mal';
+ const top=dept(C,'Дирекция',null),sales=dept(C,'Маркетплейсы',top.id),wh=dept(C,'Склад и логистика',top.id),cont=dept(C,'Контент и бренд',top.id);
+ const owner=mk(C,'Ковалёв','Сергей','Андреевич',posi(C,'Собственник'),top.id,null,{email:'owner@example.test',account:true,code:'М-001'});
+ const exec=mk(C,'Лебедева','Анна','Игоревна',posi(C,'Исполнительный директор'),top.id,owner.id,{email:'lebedeva@example.test',account:true,code:'М-002'});top.head=exec.id;
+ const s1=mk(C,'Воронцов','Артём','Павлович',posi(C,'Руководитель маркетплейсов'),sales.id,exec.id);sales.head=s1.id;
+ [['Кравец','Марк'],['Лаптева','Нина'],['Гордеев','Лев'],['Осипова','Яна'],['Рябов','Тимофей']].forEach(([l,f],i)=>mk(C,l,f,i%2?'Игоревна':'Олегович',posi(C,'Менеджер маркетплейса'),sales.id,s1.id));
+ const w1=mk(C,'Шубин','Роман','Ильич',posi(C,'Заведующий складом'),wh.id,exec.id);wh.head=w1.id;
+ [['Панов','Денис'],['Лыкова','Ада'],['Серов','Игнат'],['Мухина','Лада']].forEach(([l,f],i)=>mk(C,l,f,i%2?'Павловна':'Петрович',posi(C,'Кладовщик'),wh.id,w1.id));
+ const c1=mk(C,'Миронова','Ева','Сергеевна',posi(C,'Бренд-менеджер'),cont.id,exec.id);cont.head=c1.id;
+ [['Кольцов','Ян'],['Чайкина','Лея'],['Дёмин','Савва']].forEach(([l,f],i)=>mk(C,l,f,i===1?'Андреевна':'Олегович',posi(C,i===2?'Дизайнер':'Контент-менеджер'),cont.id,c1.id));
+})();
+
+/* ---------- инструкции ---------- */
+const ASCII_ORLOVA=`             Ковалёв С. · собственник
+                        │
+   Лебедева А. ─────────┴────── ОРЛОВА М.  ← ты
+   коммерция                        │
+     ┌──────────────┬───────────────┴───┬───────────┐
+ Смирнов Д.     Кузнецова О.       Попов И.     Никитин О.
+ Центральный    Северный           Речной       цех
+
+   рядом с тобой: Белова И. (финансы) · Тарасова Ю. (персонал)`;
+const DOCS_SRC={
+ orlova_personal:{title:'Марина Орлова — исполнительный директор сети',md:[
+  ['quote','Про тебя и твою роль. В чём ты сильнее всех в сети, что мы сознательно с тебя снимаем, чтобы ты не распылялась, и как с тобой лучше работать. Открывай, когда нужно свериться: «то ли я делаю, на том ли мой фокус».'],
+  ['pre',ASCII_ORLOVA],
+  ['h2','Сильные стороны'],['ul',['Держит в голове три филиала сразу и видит, где провал, раньше цифр.','Собирает людей вокруг задачи: управляющие идут за ней, а не «к ней с проблемой».','Быстро наводит порядок там, где его не было: регламенты, графики, дежурства.']],
+  ['h2','Какие задачи поручать'],['table',[['Задача','Как ставить','Промежуточная проверка'],['Запуск нового филиала','Цель и срок, без пошагового плана','Через неделю — список рисков'],['Наведение порядка в смене','Показать цифры проблемы','Через 3 дня — что поменяла'],['Подбор управляющих','Портрет и потолок зарплаты','Два финалиста на встречу']]],
+  ['h2','Что нельзя поручать'],['ul',['Монотонную сверку цифр на неделю — выгорит к среде; это к Беловой.','Переговоры о цене с поставщиками — уступает, чтобы сохранить отношения.','Задачи «когда будет время»: без срока не начнёт.']],
+  ['h2','Мотивация'],['p','Заводит масштаб и признание результата при команде. Не заводит премия «по итогам года» — слишком далеко. Работает связка «цель на месяц → видимый итог → разбор при всех».'],
+  ['h2','Энергия: подъёмы и спады'],['p','Пик — первые две недели месяца: ставить сложное сюда. Спад — конец месяца: только доводка, без запусков. Перед спадом полезен короткий отпуск на 2–3 дня, а не длинный раз в год.'],
+  ['h2','Как взаимодействовать'],['ol',['Короткий созвон раз в неделю, повестка присылается заранее.','Решения — письменно, одной строкой в задачнике.','Критика — один на один и с цифрами; при команде — только признание.']]
+ ]},
+ lebedeva_on_orlova:{title:'Как Анне работать с Мариной Орловой',md:[
+  ['quote','Документ для тебя, Анна. Марина его не видит и о нём не знает.'],
+  ['h2','Как ставить ей задачи'],['ul',['Приходи с цифрой и сроком: «продажи доставки −12% за месяц, нужно вернуть к 1 ноября».','Не предлагай готовое решение с порога — предложи два варианта и спроси, какой ближе.']],
+  ['h2','Как договариваться'],['p','Марина защищает своих управляющих. Спор о человеке переводи в спор о цифре — так она соглашается быстрее.'],
+  ['h2','Чего избегать'],['ul',['Задач через её голову напрямую управляющим — воспримет как недоверие.','Сообщений в выходные: ответит, но запомнит.']],
+  ['h2','Как поддержать'],['p','Публично отмечай результат её филиалов на общей встрече. Для неё это весит больше бонуса.']
+ ]},
+ job_branch:{title:'Управляющий филиалом — должностная инструкция',md:[
+  ['h2','Общие положения'],['p','Управляющий отвечает за работу филиала целиком: выручку, людей, качество и чистоту. Подчиняется исполнительному директору сети.'],
+  ['h2','Трудовые функции'],['ol',['Организация работы кухни, зала и доставки.','Подбор и ввод в должность линейного персонала.','Контроль себестоимости и списаний.']],
+  ['h2','Должностные обязанности'],['table',[['Что','Как часто','Результат'],['Проверка открытия смены','Каждый день','Чек-лист в задачнике до 10:00'],['Разбор отзывов гостей','Раз в неделю','Ответ на каждый отзыв ≤ 24 ч'],['Инвентаризация','Раз в месяц','Акт и расхождения ≤ 1%']]],
+  ['h2','Права'],['ul',['Принимать и увольнять линейный персонал по согласованию с исполнительным директором.','Менять график смен внутри фонда оплаты.']],
+  ['h2','Ответственность'],['p','За выручку и себестоимость филиала, за соблюдение санитарных норм и за сохранность имущества.'],
+  ['h2','Взаимодействие'],['p','С заготовочным цехом — по заявкам на заготовки; с коммерцией — по акциям и меню; с финансами — по закрытию месяца.']
+ ]},
+ job_cook:{title:'Повар — должностная инструкция',md:[
+  ['h2','Общие положения'],['p','Повар готовит блюда по техкартам и подчиняется су-шефу филиала.'],
+  ['h2','Должностные обязанности'],['ul',['Готовить по техкартам без отклонений по весу и подаче.','Маркировать заготовки и соблюдать сроки годности.','Сдавать смену с чистым рабочим местом.']],
+  ['h2','Ответственность'],['p','За качество блюд, соблюдение санитарных норм и списания по своей вине.']
+ ]}
+};
+function personBy(c,last){return DB.people.find(p=>p.company===c&&p.last===last)}
+function posBy(c,name){return DB.positions.find(p=>p.company===c&&p.name===name)}
+(function(){
+ const o=personBy('rice','Орлова'),l=personBy('rice','Лебедева'),s=personBy('rice','Смирнов'),k=personBy('rice','Кузнецова'),z=personBy('rice','Жуков');
+ DB.docs.push({id:1,company:'rice',kind:'personal',subject:o.id,src:'orlova_personal',versions:[{n:1,date:'02.09.2026',by:'Сергей Ковалёв',agent:true},{n:2,date:'15.09.2026',by:'Сергей Ковалёв',agent:true},{n:3,date:'28.09.2026',by:'Сергей Ковалёв',agent:true}]});
+ DB.docs.push({id:2,company:'rice',kind:'pair',reader:l.id,subject:o.id,src:'lebedeva_on_orlova',versions:[{n:1,date:'20.09.2026',by:'Сергей Ковалёв',agent:true}]});
+ DB.docs.push({id:3,company:'rice',kind:'job',position:posBy('rice','Управляющий филиалом').id,src:'job_branch',versions:[{n:1,date:'10.09.2026',by:'Сергей Ковалёв',agent:true},{n:2,date:'25.09.2026',by:'Сергей Ковалёв',agent:false}]});
+ DB.docs.push({id:4,company:'rice',kind:'job',position:posBy('rice','Повар').id,src:'job_cook',versions:[{n:1,date:'11.09.2026',by:'Сергей Ковалёв',agent:true}]});
+ DB.docs.push({id:5,company:'rice',kind:'personal',subject:z.id,src:null,gen:true,versions:[{n:1,date:'26.09.2026',by:'Сергей Ковалёв',agent:true}]});
+ DB.docs.push({id:6,company:'rice',kind:'personal',subject:k.id,src:null,gen:true,versions:[{n:1,date:'22.09.2026',by:'Сергей Ковалёв',agent:true}]});
+ DB.views.push({doc:1,who:'Марина Орлова',when:'28.09.2026 09:14',agent:false},{doc:1,who:'Сергей Ковалёв',when:'28.09.2026 08:02',agent:true},{doc:2,who:'Анна Лебедева',when:'27.09.2026 18:40',agent:false});
+})();
+function genDoc(p){const n=`${p.first} ${p.last}`;return{title:`${n} — ${posName(p)}`,md:[
+ ['quote',`Про тебя, ${p.first}, и твою роль. Открывай, когда нужно свериться с фокусом.`],
+ ['h2','Сильные стороны'],['ul',['Надёжность в рутине: делает одинаково хорошо и в понедельник, и в пятницу.','Спокойствие в запаре — к нему приходят, когда горит.']],
+ ['h2','Какие задачи поручать'],['p','Понятные, повторяющиеся, с чётким стандартом результата.'],
+ ['h2','Что нельзя поручать'],['p','Переговоры с недовольным гостем один на один — лучше в паре со старшим.'],
+ ['h2','Мотивация'],['p','Признание мастерства и рост внутри кухни.'],
+ ['h2','Как взаимодействовать'],['p','Коротко и по делу; обратную связь — сразу после смены.']]}}
+
+/* =========================================================================
+   Роли просмотра
+   ========================================================================= */
+const PERSONAS=[
+ {id:'admin',label:'Администратор',name:'Сергей Ковалёв',role:'Собственник · администратор модуля',admin:true,links:{rice:'Ковалёв',mal:'Ковалёв',dot:null},
+  sees:['всех людей, включая уволенных, и закрытые поля карточки (код, почта, связь с аккаунтом)','все инструкции всех видов, в том числе парные','историю версий и «кто открывал»','экран «Доступы»; менять структуру через Юю']},
+ {id:'mgr',label:'Руководитель',name:'Марина Орлова',role:'Исполнительный директор сети «Рис и Нори»',admin:false,links:{rice:'Орлова'},
+  sees:['всю структуру и должностные инструкции','свою личную и личные инструкции всей своей ветки вниз — управляющих, поваров, официантов','НЕ видит парную «Как Анне работать с Мариной» — даже не знает, что она есть','в «Малахите» и «Точке опоры» её нет — модуля там для неё не существует']},
+ {id:'emp',label:'Сотрудник',name:'Павел Жуков',role:'Повар, филиал «Центральный»',admin:false,links:{rice:'Жуков'},
+  sees:['всю структуру и должностные инструкции','только СВОЮ личную инструкцию','не видит личные инструкции коллег и руководителей','не видит уволенных, истории и «Доступов»']},
+ {id:'top',label:'Топ · парная',name:'Анна Лебедева',role:'Коммерческий директор «Рис и Нори» · исп. директор «Малахита»',admin:false,links:{rice:'Лебедева',mal:'Лебедева'},
+  sees:['на карточке Марины Орловой — вкладку «Как мне с ней работать» (парная для неё)','личную инструкцию Орловой — НЕ видит: Марина ей не подчинена','в «Малахите» она руководитель — видит личные своей ветки там','человек из двух компаний: в каждой видит только то, что положено в ней']}
+];
+const S={company:'rice',persona:'admin',showLeft:false,page:1,q:'',deptFilter:''};
+const persona=()=>PERSONAS.find(p=>p.id===S.persona);
+function viewer(){const ln=(persona().links||{})[S.company];return ln?personBy(S.company,ln):null}
+const isAdmin=()=>persona().admin;
+function gateOpen(){if(isAdmin())return true;const v=viewer();return !!(v&&v.status==='active')}
+function P(id){return DB.people.find(p=>p.id===id)}
+function D(id){return DB.depts.find(d=>d.id===id)}
+function posName(p){const x=DB.positions.find(q=>q.id===p.pos);return x?x.name:'—'}
+function companyPeople(){return DB.people.filter(p=>p.company===S.company)}
+function chainUp(p){const out=[],seen=new Set([p.id]);let m=p.mgr?P(p.mgr):null,g=0;while(m&&g<50&&!seen.has(m.id)){seen.add(m.id);if(m.status==='active')out.unshift(m);m=m.mgr?P(m.mgr):null;g++}return out}
+function subtree(p){const out=[],q=[p.id],seen=new Set([p.id]);while(q.length){const id=q.shift();DB.people.filter(x=>x.mgr===id&&x.company===p.company).forEach(x=>{if(!seen.has(x.id)){seen.add(x.id);out.push(x);q.push(x.id)}})}return out}
+function inChainUp(v,s){if(!v||!s)return false;return subtree(v).some(x=>x.id===s.id)}
+function visiblePeople(){return companyPeople().filter(p=>p.status==='active'||(isAdmin()&&S.showLeft))}
+function canReadDoc(d){if(!gateOpen())return false;if(isAdmin())return true;const v=viewer();
+ const subj=d.subject?P(d.subject):null;
+ if(subj&&subj.status!=='active')return false;
+ if(d.kind==='job')return true;
+ if(d.kind==='personal')return !!v&&(v.id===d.subject||inChainUp(v,subj));
+ if(d.kind==='pair')return !!v&&v.id===d.reader;return false}
+function docsFor(p){return DB.docs.filter(d=>d.company===S.company&&((d.kind==='job'&&d.position===p.pos)||d.subject===p.id))}
+function docSrc(d){if(d.src)return DOCS_SRC[d.src];return genDoc(P(d.subject))}
+function lastV(d){return d.versions[d.versions.length-1]}
+
+/* =========================================================================
+   Отрисовка
+   ========================================================================= */
+const $=id=>document.getElementById(id);
+function toast(t){const el=$('toast');el.innerHTML=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2800)}
+function go(h){location.hash=h}
+function route(){const h=location.hash.replace(/^#\/?/,'')||'people';const [a,b]=h.split('/');return{a,b:b?+b:null}}
+
+function renderSidebar(){
+ const co=COMPANIES.find(c=>c.id===S.company),r=route();
+ const cnt=visiblePeople().length,dc=DB.depts.filter(d=>d.company===S.company).length,pc=DB.positions.filter(p=>p.company===S.company).length;
+ const on=k=>(r.a===k||(k==='people'&&r.a==='person')||(k==='positions'&&r.a==='position')||(k==='departments'&&r.a==='department'))?'on':'';
+ $('sidebar').innerHTML=`
+  <div class="sb-head">Суть <span class="x">✕</span> Команда</div>
+  <div class="ws"><span class="ws-logo" style="background:${co.color}">${co.letter}</span><div><div class="ws-name">${co.name}</div><div class="ws-sub">${co.sub}</div></div><span style="margin-left:auto" class="muted">${ic('chev',14)}</span>
+   <select aria-label="Компания" onchange="S.company=this.value;S.page=1;S.q='';go('people');render()">${COMPANIES.map(c=>`<option value="${c.id}" ${c.id===S.company?'selected':''}>${c.name}</option>`).join('')}</select></div>
+  <button class="search-btn" onclick="openPalette()">${ic('search',16)} Найти человека <kbd>⌘K</kbd></button>
+  ${gateOpen()?`<nav class="nav">
+   <a href="#/people" class="${on('people')}">${ic('people')} Люди <span class="count">${cnt}</span></a>
+   <a href="#/departments" class="${on('departments')}">${ic('sitemap')} Отделы <span class="count">${dc}</span></a>
+   <a href="#/positions" class="${on('positions')}">${ic('brief')} Должности <span class="count">${pc}</span></a>
+   ${viewer()?`<a href="#/person/${viewer().id}" class="${r.a==='person'&&r.b===viewer().id?'on':''}">${ic('people')} Моя карточка</a>`:''}
+   ${isAdmin()?`<div class="nav-sep">Администратору</div><a href="#/access" class="${on('access')}">${ic('key')} Доступы</a>`:''}
+  </nav>`:''}
+  <div class="sb-foot">
+   <div style="font-size:11px;color:var(--warning-text);background:var(--warning-soft);border-radius:8px;padding:6px 8px;margin-bottom:10px;font-weight:600">Мокап: люди и компании выдуманы, изменения живут до перезагрузки вкладки</div>
+   <button class="ask-yuia" onclick="openYuia()"><span style="color:var(--accent)">${ic('spark')}</span><span><b>Структуру и тексты вносит Юя</b>Скажите ей, что завести или изменить — экранов ввода нет.</span></button>
+  </div>`;
+}
+function renderRail(){
+ const items=[['home','Главная'],['check','Задачи · PM'],['mail','Почта'],['cal','Календарь'],['video','Видео'],['eye','Видеонаблюдение'],['users','CRM'],['team','Команда',true],['book','База знаний'],['wallet','Деньги']];
+ $('rail').innerHTML=`<button class="yuia" onclick="openYuia()">${ic('spark')}<span class="tip">Юя</span></button>`+
+  items.filter(x=>x[0]!=='team'||gateOpen()).map(([i,l,on])=>`<button class="${on?'on':''}" onclick="${on?"go('people')":"toast('В мокапе показан только модуль «Команда»')"}">${ic(i)}<span class="tip">${l}</span></button>`).join('')+
+  `<span class="sp"></span><button onclick="toggleTheme()">${ic('moon')}<span class="tip">Тема</span></button><button>${ic('bell')}<span class="tip">Уведомления</span></button><button>${ic('help')}<span class="tip">Помощь</span></button><div class="avatar-me" title="${esc(persona().name)}">${persona().name.split(' ').map(x=>x[0]).join('')}</div>`;
+}
+
+function page404(){const out=!gateOpen();return `<div class="four04"><div class="n">404</div><h2>Такой страницы нет</h2><p class="muted">${out?`${esc(persona().name)} не работает в компании ${COMPANIES.find(c=>c.id===S.company).name}, поэтому модуля «Команда» здесь для этого человека нет — ни вкладки в панели, ни страниц.`:'Эта страница этому человеку недоступна.'} Сервер отвечает так же, как на несуществующий адрес — по ответу нельзя понять, что страница вообще есть.</p><p style="margin-top:18px"><button class="btn" onclick="S.company='rice';go('people');render()">Вернуться в «Рис и Нори»</button></p><p class="muted" style="font-size:12px;margin-top:20px">Пояснение мокапа: в продукте эта страница выглядит как обычная 404.</p></div>`}
+
+function pagePeople(){
+ const all=visiblePeople();
+ if(!all.length)return emptyCompany();
+ let list=all.filter(p=>!S.deptFilter||deptBranch(+S.deptFilter).includes(p.dept));
+ if(S.q){const q=norm(S.q);list=list.filter(p=>norm(`${p.last} ${p.first} ${p.mid} ${posName(p)}`).includes(q))}
+ list.sort((a,b)=>a.last.localeCompare(b.last,'ru'));
+ const per=15,pages=Math.max(1,Math.ceil(list.length/per));S.page=Math.min(S.page,pages);
+ const slice=list.slice((S.page-1)*per,S.page*per);
+ const topDepts=DB.depts.filter(d=>d.company===S.company&&!d.parent);
+ return `<div class="page">
+  <div class="ph"><div><h1>Люди</h1><div class="sub">${people(all.length)} · ${COMPANIES.find(c=>c.id===S.company).name}</div></div>
+   <div class="actions">${isAdmin()?`<button class="btn" onclick="openYuia('bulk')">${ic('spark',16)} Залить список через Юю</button>`:''}</div></div>
+  <div class="toolbar">
+   <label class="input">${ic('search',16)}<input id="q" placeholder="ФИО или должность — «елкина» найдёт «Ёлкину»" value="${esc(S.q)}" oninput="S.q=this.value;S.page=1;renderMain(true)"></label>
+   <select class="select" onchange="S.deptFilter=this.value;S.page=1;renderMain()"><option value="">Все отделы</option>${topDepts.map(d=>`<option value="${d.id}" ${+S.deptFilter===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select>
+   ${isAdmin()?`<label class="check"><input type="checkbox" ${S.showLeft?'checked':''} onchange="S.showLeft=this.checked;renderMain();renderSidebar()"> Показать уволенных</label>`:''}
+  </div>
+  <div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Человек</th><th class="hide-m">Отдел</th><th class="hide-m">Руководитель</th>${isAdmin()?'<th class="hide-m">Аккаунт</th>':''}</tr></thead><tbody>
+   ${slice.map(p=>{const m=p.mgr?P(p.mgr):null;return `<tr class="${p.status==='left'?'left':''}" onclick="go('person/${p.id}')"><td><div class="who">${avatar(p)}<div><b>${esc(p.last)} ${esc(p.first)} ${esc(p.mid)}</b>${p.status==='left'?` <span class="badge danger">уволен ${p.leftAt}</span>`:''}<div class="muted" style="font-size:12.5px">${esc(posName(p))}</div></div></div></td>
+   <td class="hide-m">${p.dept?esc(D(p.dept).name):'—'}${p.dept&&D(p.dept).parent?`<div class="muted" style="font-size:12px">${esc(D(D(p.dept).parent).name)}</div>`:''}</td>
+   <td class="hide-m">${m?`${esc(m.last)} ${m.first[0]}.`:'<span class="muted">—</span>'}</td>
+   ${isAdmin()?`<td class="hide-m">${p.account?'<span class="badge ok">связан</span>':'<span class="muted">—</span>'}</td>`:''}</tr>`}).join('')||`<tr><td colspan="4"><div class="empty" style="padding:28px">Никого не нашли по «${esc(S.q)}»</div></td></tr>`}
+  </tbody></table>
+  <div class="pager">${people(list.length)} · страница ${S.page} из ${pages} <button class="btn sm" ${S.page<=1?'disabled':''} onclick="S.page--;renderMain()">←</button><button class="btn sm" ${S.page>=pages?'disabled':''} onclick="S.page++;renderMain()">→</button></div></div>
+ </div>`;
+}
+function deptBranch(id){const out=[id];DB.depts.filter(d=>d.parent===id).forEach(d=>out.push(...deptBranch(d.id)));return out}
+
+function emptyCompany(){return `<div class="page"><div class="ph"><div><h1>Команда</h1><div class="sub">${COMPANIES.find(c=>c.id===S.company).name}</div></div></div>
+ <div class="card empty"><div class="ill">${ic('team',30)}</div><h3>Структуру ещё не завели</h3>
+ ${isAdmin()?`<p>Людей, отделы и инструкции вносит Юя по вашему заданию — экранов ввода нет.</p><div class="ex">Например: «заведи структуру центра: директор Зорина Вера, отдел «Практика» — три психолога, «Администрация» — администратор и бухгалтер»</div><p style="margin-top:16px"><button class="btn primary" onclick="openYuia('dot')">${ic('spark',16)} Попросить Юю</button></p>`:'<p>Когда администратор заведёт структуру, она появится здесь.</p>'}</div></div>`}
+
+function pagePerson(id){
+ const p=P(id);if(!p||p.company!==S.company||(p.status!=='active'&&!isAdmin()))return page404();
+ const chain=chainUp(p),subs=DB.people.filter(x=>x.mgr===p.id&&(x.status==='active'||isAdmin()&&S.showLeft));
+ const docs=docsFor(p),v=viewer();
+ const job=docs.find(d=>d.kind==='job'),personal=docs.find(d=>d.kind==='personal');
+ const myPair=v?DB.docs.find(d=>d.kind==='pair'&&d.reader===v.id&&d.subject===p.id):null;
+ const tabs=[];
+ tabs.push({k:'job',label:'Должностная инструкция',doc:job,always:true});
+ if(personal?canReadDoc(personal):(isAdmin()||(v&&(v.id===p.id||inChainUp(v,p)))))tabs.push({k:'personal',label:v&&v.id===p.id?'Моя личная инструкция':'Личная инструкция',doc:personal});
+ if(myPair&&canReadDoc(myPair))tabs.push({k:'pair',label:`Как мне с ${p.first.endsWith('а')||p.first.endsWith('я')?'ней':'ним'} работать`,doc:myPair,lock:'только вам'});
+ if(isAdmin())DB.docs.filter(x=>x.kind==='pair'&&x.subject===p.id&&x.company===S.company).forEach(x=>tabs.push({k:'pair'+x.id,label:`Парная · читает ${P(x.reader).first} ${P(x.reader).last}`,doc:x,lock:`видит только ${P(x.reader).first}`}));
+ const cur=tabs.find(t=>t.k===S.tab)||tabs.find(t=>t.doc)||tabs[0];
+ const adminPairs=isAdmin()?DB.docs.filter(d=>d.kind==='pair'&&(d.subject===p.id||d.reader===p.id)):[];
+ const d=p.dept?D(p.dept):null;
+ return `<div class="page">
+ <div class="card">
+  <div class="hero">${avatar(p,72)}<div style="flex:1;min-width:220px"><h1>${esc(p.last)} ${esc(p.first)} ${esc(p.mid)}</h1>
+   <div class="chips"><a class="chip" href="#/position/${p.pos}">${ic('brief',14)} ${esc(posName(p))}</a>${d?`<a class="chip" href="#/department/${d.id}">${ic('sitemap',14)} ${esc(d.name)}${d.parent?' · '+esc(D(d.parent).name):''}</a>`:''}${p.status==='left'?`<span class="badge danger">уволен ${p.leftAt}</span>`:''}</div></div>
+   <div class="actions" style="display:flex;gap:8px">${isAdmin()?`<button class="btn" onclick="openYuia('dismiss',${p.id})">${ic('spark',16)} Изменить через Юю</button>`:''}</div></div>
+  <div class="crumbs"><span class="muted" style="margin-right:4px">Руководители:</span>${chain.length?chain.map(m=>`<a href="#/person/${m.id}">${avatar(m,22)} ${esc(m.last)} ${m.first[0]}.</a><span class="arr">›</span>`).join(''):'<span class="muted">верхний уровень</span>'}${chain.length?`<b>${esc(p.last)} ${p.first[0]}.</b>`:''}</div>
+ </div>
+ <div class="grid2">
+  <div>
+   ${subs.length?`<div class="card side-card" style="margin-bottom:18px"><p class="sec-t">Подчинённые · ${subs.length}</p><div class="subs">${subs.map(s=>{const n=subtree(s).filter(x=>x.status==='active').length;return `<a class="pc" href="#/person/${s.id}">${avatar(s,36)}<div><b>${esc(s.last)} ${esc(s.first)}</b><span>${esc(posName(s))}${n?' · в ветке '+people(n):''}</span></div></a>`}).join('')}</div></div>`:''}
+   <div class="card" style="overflow:hidden">
+    <div class="tabs">${tabs.map(t=>`<button class="tab ${t===cur?'on':''}" onclick="S.tab='${t.k}';renderMain()">${t.label}${t.lock?`<span class="lock">${ic('lock',11)} ${t.lock}</span>`:''}</button>`).join('')}</div>
+    ${cur.doc?docView(cur.doc,p):`<div class="empty"><div class="ill">${ic('file',28)}</div><h3>Инструкцию ещё не записали</h3>${isAdmin()?`<p>Пришлите Юе готовый текст — она положит его как есть.</p><button class="btn primary" onclick="openYuia('write',${p.id})">${ic('spark',16)} Записать через Юю</button>`:'<p>Когда её запишут, она появится здесь.</p>'}</div>`}
+   </div>
+  </div>
+  <div>
+   <div class="card side-card"><p class="sec-t">Карточка</p><dl class="kv"><dt>Должность</dt><dd>${esc(posName(p))}</dd><dt>Отдел</dt><dd>${d?esc(d.name):'—'}</dd><dt>Руководитель</dt><dd>${p.mgr?`<a href="#/person/${p.mgr}">${esc(P(p.mgr).last)} ${P(p.mgr).first[0]}.</a>`:'—'}</dd><dt>В ветке</dt><dd>${people(subtree(p).filter(x=>x.status==='active').length)}</dd></dl>
+   ${isAdmin()?`<hr style="border:0;border-top:1px solid var(--border);margin:14px 0"><p class="admin-note">${ic('lock',13)} Видит только администратор</p><dl class="kv"><dt>Табельный код</dt><dd>${p.code}</dd><dt>Рабочая почта</dt><dd>${p.email||'—'}</dd><dt>Аккаунт</dt><dd>${p.account?'<span class="badge ok">связан</span>':'не связан'}</dd><dt>Статус</dt><dd>${p.status==='left'?'уволен '+p.leftAt:'работает'}</dd><dt>Зарплата</dt><dd class="muted" style="font-weight:500">место заложено, v1 без неё</dd></dl>`:''}
+   </div>
+   ${adminPairs.length?`<div class="card side-card" style="margin-top:14px"><p class="admin-note">${ic('lock',13)} Парные с участием этого человека</p>${adminPairs.map(x=>`<div style="font-size:13px;margin:6px 0">Читает: <b>${esc(P(x.reader).first)} ${esc(P(x.reader).last)}</b><br>О ком: <b>${esc(P(x.subject).first)} ${esc(P(x.subject).last)}</b><div class="muted" style="font-size:12px">кроме читателя и администратора, её не видит никто; тот, о ком она, о ней не знает</div></div>`).join('')}</div>`:''}
+   <div class="card side-card" style="margin-top:14px;font-size:12.5px;color:var(--fg-muted)"><p class="sec-t">Как это устроено</p>Должностную видят все в компании. Личную — сам человек, его руководители вверх и администратор. Парную — только тот, для кого она написана.</div>
+  </div>
+ </div></div>`;
+}
+function renderDocMd(md){const ids={};let h='';for(const [t,c] of md){
+ if(t==='h2'){let id=translit(c);ids[id]=(ids[id]||0)+1;if(ids[id]>1)id+='-'+ids[id];h+=`<h2 id="${id}">${esc(c)}</h2>`}
+ else if(t==='p')h+=`<p>${esc(c)}</p>`;else if(t==='quote')h+=`<blockquote>${esc(c)}</blockquote>`;
+ else if(t==='pre')h+=`<pre>${esc(c)}</pre>`;
+ else if(t==='ul'||t==='ol')h+=`<${t}>${c.map(x=>`<li>${esc(x)}</li>`).join('')}</${t}>`;
+ else if(t==='table')h+=`<div class="tw"><table><thead><tr>${c[0].map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${c.slice(1).map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+ return h}
+function translit(s){const m={а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'ch',ш:'sh',щ:'sch',ы:'y',э:'e',ю:'yu',я:'ya'};return s.toLowerCase().split('').map(c=>m[c]??(/[a-z0-9]/.test(c)?c:'-')).join('').replace(/-+/g,'-').replace(/^-|-$/g,'')}
+function docView(d,p){const src=docSrc(d),v=lastV(d);const kindL={job:'Должностная',personal:'Личная',pair:'Парная'}[d.kind];
+ const heads=src.md.filter(x=>x[0]==='h2').map(x=>x[1]);
+ return `<div class="meta-line">${ic('file',15)} <b style="color:var(--fg)">${kindL}</b> · версия ${v.n} от ${v.date} · записал${v.agent?'а Юя по заданию':''} ${esc(v.by)}${v.agent?' <span class="badge accent">через Юю</span>':''}<span class="sp"></span>
+  <button class="btn sm" onclick="openPdf(${d.id},${p.id})">${ic('print',14)} Печать / PDF</button>${isAdmin()?`<button class="btn sm" onclick="go('history/${d.id}')">${ic('hist',14)} История · ${d.versions.length}</button>`:''}</div>
+  <div class="doc-wrap"><nav class="toc"><p class="sec-t">Содержание</p>${heads.map(h=>`<a href="javascript:void 0" onclick="document.getElementById('${translit(h)}').scrollIntoView({behavior:'smooth'})">${esc(h)}</a>`).join('')}</nav>
+  <article class="doc"><h2 style="font-size:22px;margin-bottom:14px">${esc(src.title)}</h2>${renderDocMd(src.md)}</article></div>`}
+
+function pageDepartments(){
+ const tops=DB.depts.filter(d=>d.company===S.company&&!d.parent);
+ if(!tops.length)return emptyCompany();
+ const cnt=d=>companyPeople().filter(p=>p.status==='active'&&deptBranch(d.id).includes(p.dept)).length;
+ const node=(d,lvl)=>{const kids=DB.depts.filter(x=>x.parent===d.id);const h=d.head?P(d.head):null;
+  return `<details ${lvl<1?'open':''}><summary><span class="chev ${kids.length?'':'leaf'}">${ic('chev',14)}</span><span class="dn">${esc(d.name)}</span><span class="head">${h?`<span onclick="event.preventDefault();go('person/${h.id}')" style="display:inline-flex;gap:6px;align-items:center;cursor:pointer">${avatar(h,22)} ${esc(h.last)} ${h.first[0]}.</span>`:'<span class="muted">без главы</span>'}<span class="badge">${people(cnt(d))}</span><a class="btn sm ghost" href="#/department/${d.id}" onclick="event.stopPropagation()">Открыть</a></span></summary>${kids.map(k=>node(k,lvl+1)).join('')}</details>`};
+ return `<div class="page"><div class="ph"><div><h1>Отделы</h1><div class="sub">Дерево подразделений · нажмите, чтобы раскрыть</div></div></div><div class="tree">${tops.map(t=>node(t,0)).join('')}</div></div>`}
+function pageDepartment(id){const d=D(id);if(!d||d.company!==S.company)return page404();
+ const kids=DB.depts.filter(x=>x.parent===d.id),ppl=companyPeople().filter(p=>p.dept===d.id&&p.status==='active');
+ return `<div class="page"><div class="ph"><div><div class="sub"><a href="#/departments">Отделы</a>${d.parent?' › '+esc(D(d.parent).name):''}</div><h1>${esc(d.name)}</h1></div></div>
+ ${kids.length?`<p class="sec-t">Подотделы</p><div class="subs" style="margin-bottom:18px">${kids.map(k=>`<a class="pc" href="#/department/${k.id}"><span class="av" style="width:36px;height:36px;border-radius:10px;background:var(--accent-soft);color:var(--accent)">${ic('sitemap',18)}</span><div><b>${esc(k.name)}</b><span>${people(companyPeople().filter(p=>p.status==='active'&&deptBranch(k.id).includes(p.dept)).length)}</span></div></a>`).join('')}</div>`:''}
+ <p class="sec-t">Люди отдела · ${ppl.length}</p><div class="subs">${ppl.map(s=>`<a class="pc" href="#/person/${s.id}">${avatar(s,36)}<div><b>${esc(s.last)} ${esc(s.first)}</b><span>${esc(posName(s))}${d.head===s.id?' · глава':''}</span></div></a>`).join('')}</div></div>`}
+function pagePositions(){const ps=DB.positions.filter(p=>p.company===S.company);if(!ps.length)return emptyCompany();
+ return `<div class="page"><div class="ph"><div><h1>Должности</h1><div class="sub">У каждой должности — одна должностная инструкция</div></div></div><div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Должность</th><th>Занимают</th><th>Инструкция</th></tr></thead><tbody>${ps.map(x=>{const n=companyPeople().filter(p=>p.pos===x.id&&p.status==='active').length;const doc=DB.docs.find(d=>d.kind==='job'&&d.position===x.id);return `<tr onclick="go('position/${x.id}')"><td><b>${esc(x.name)}</b></td><td>${people(n)}</td><td>${doc?`<span class="badge ok">версия ${lastV(doc).n}</span>`:'<span class="muted">не записана</span>'}</td></tr>`}).join('')}</tbody></table></div></div>`}
+function pagePosition(id){const x=DB.positions.find(p=>p.id===id&&p.company===S.company);if(!x)return page404();const doc=DB.docs.find(d=>d.kind==='job'&&d.position===x.id);const ppl=companyPeople().filter(p=>p.pos===x.id&&p.status==='active');
+ return `<div class="page"><div class="ph"><div><div class="sub"><a href="#/positions">Должности</a></div><h1>${esc(x.name)}</h1><div class="sub">${people(ppl.length)} на этой должности</div></div></div>
+ <div class="card" style="overflow:hidden">${doc?docView(doc,ppl[0]||{id:0}):`<div class="empty"><div class="ill">${ic('file',28)}</div><h3>Должностную ещё не записали</h3>${isAdmin()?'<p>Пришлите Юе текст — она положит его как есть.</p>':''}</div>`}</div>
+ <p class="sec-t" style="margin-top:18px">Кто на должности</p><div class="subs">${ppl.slice(0,24).map(s=>`<a class="pc" href="#/person/${s.id}">${avatar(s,36)}<div><b>${esc(s.last)} ${esc(s.first)}</b><span>${s.dept?esc(D(s.dept).name)+(D(s.dept).parent?' · '+esc(D(D(s.dept).parent).name):''):''}</span></div></a>`).join('')}</div></div>`}
+
+const ACCESS={roles:{},suggest:null};
+function pageAccess(){if(!isAdmin())return page404();
+ const members=companyPeople().filter(p=>p.email);
+ if(!ACCESS.suggest)ACCESS.suggest=members.filter(p=>!p.account).map(p=>({id:p.id,on:true}));
+ const role=p=>ACCESS.roles[p.id]||(p.last==='Ковалёв'?'admin':p.last==='Тарасова'?'member':'');
+ return `<div class="page"><div class="ph"><div><h1>Доступы</h1><div class="sub">Роли в модуле и связь «аккаунт ↔ карточка». Меняет только человек — Юе это запрещено.</div></div></div>
+ ${ACCESS.suggest.filter(s=>!P(s.id).account).length?`<div class="card" style="padding:18px;margin-bottom:18px;border-color:var(--accent)"><p class="sec-t" style="color:var(--accent)">Предложенные связи · по рабочей почте</p><p class="muted" style="margin:0 0 10px;font-size:13px">Почта в карточке совпала с почтой аккаунта участника. Проверьте пары и подтвердите одной кнопкой — человек сразу увидит свою карточку и свою личную инструкцию.</p>
+  ${ACCESS.suggest.filter(s=>!P(s.id).account).map(s=>{const p=P(s.id);return `<label class="who" style="padding:8px 0;border-top:1px solid var(--border);cursor:pointer"><input type="checkbox" ${s.on?'checked':''} onchange="ACCESS.suggest.find(x=>x.id===${p.id}).on=this.checked;renderMain()">${avatar(p,28)}<div style="flex:1"><b>${esc(p.last)} ${esc(p.first)}</b> <span class="muted">· ${esc(posName(p))}</span></div><span class="muted" style="font-family:var(--mono);font-size:12px">${p.email}</span>${ic('link',15)}<span class="badge">аккаунт ${p.email}</span></label>`}).join('')}
+  <div style="margin-top:12px"><button class="btn primary" onclick="linkSelected()">${ic('link',16)} Связать выбранные · ${ACCESS.suggest.filter(s=>s.on&&!P(s.id).account).length}</button></div></div>`:''}
+ <div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Участник компании</th><th>Роль в модуле</th><th class="hide-m">Карточка</th></tr></thead><tbody>
+ ${members.map(p=>`<tr style="cursor:default"><td><div class="who">${avatar(p,30)}<div><b>${esc(p.first)} ${esc(p.last)}</b><div class="muted" style="font-size:12px;font-family:var(--mono)">${p.email}</div></div></div></td>
+ <td><select class="select" onchange="ACCESS.roles[${p.id}]=this.value;toast('Роль изменена · запись в журнале доступа')"><option value="">— (видит по своей карточке)</option><option value="member" ${role(p)==='member'?'selected':''}>Участник модуля</option><option value="admin" ${role(p)==='admin'?'selected':''}>Администратор модуля</option></select></td>
+ <td class="hide-m">${p.account?`<a href="#/person/${p.id}" class="chip">${ic('link',13)} связана</a>`:'<span class="muted">не связана</span>'}</td></tr>`).join('')}
+ </tbody></table></div>
+ <p class="muted" style="font-size:12.5px;margin-top:12px">Админ компании в платформе — администратор модуля автоматически. Сотрудники «Сути» без роли здесь инструкций не видят.</p></div>`}
+function linkSelected(){let n=0;ACCESS.suggest.forEach(s=>{if(s.on&&!P(s.id).account){P(s.id).account=true;n++}});toast(`Связано: ${people(n)} · каждое изменение записано в журнал доступа`);render()}
+
+function pageHistory(id){const d=DB.docs.find(x=>x.id===id);if(!d||!isAdmin())return page404();const src=docSrc(d);const subj=d.subject?P(d.subject):null;
+ const sel=S.hv||lastV(d).n;const views=DB.views.filter(v=>v.doc===d.id);
+ return `<div class="page"><div class="ph"><div><div class="sub">${subj?`<a href="#/person/${subj.id}">${esc(subj.last)} ${esc(subj.first)}</a> › `:''}История</div><h1>${esc(src.title)}</h1><div class="sub">${{job:'Должностная',personal:'Личная',pair:'Парная'}[d.kind]} инструкция · видит только администратор</div></div></div>
+ <div class="grid2" style="margin-top:0"><div class="card" style="overflow:hidden">
+  ${sel!==lastV(d).n?`<div class="meta-line" style="background:var(--warning-soft);color:var(--warning-text)">Вы смотрите версию ${sel} — не последнюю.<span class="sp"></span><button class="btn sm" onclick="restoreV(${d.id},${sel})">Вернуть эту версию</button></div>`:''}
+  <div class="doc-wrap" style="grid-template-columns:1fr"><article class="doc">${renderDocMd(src.md)}</article></div></div>
+  <div><div class="card side-card"><p class="sec-t">Версии</p>${[...d.versions].reverse().map(v=>`<div onclick="S.hv=${v.n};renderMain()" style="cursor:pointer;padding:8px 10px;border-radius:10px;margin:2px 0;${v.n===sel?'background:var(--accent-soft)':''}"><b>Версия ${v.n}</b>${v.n===lastV(d).n?' <span class="badge ok">текущая</span>':''}<div class="muted" style="font-size:12px">${v.date} · ${esc(v.by)}${v.agent?' · через Юю':''}</div></div>`).join('')}</div>
+  <div class="card side-card" style="margin-top:14px"><p class="sec-t">Кто открывал</p>${views.length?views.map(v=>`<div style="font-size:13px;margin:6px 0"><b>${esc(v.who)}</b>${v.agent?' <span class="badge accent">через Юю</span>':''}<div class="muted" style="font-size:12px">${v.when}</div></div>`).join(''):'<span class="muted">пока никто</span>'}</div></div>
+ </div></div>`}
+function restoreV(id,n){const d=DB.docs.find(x=>x.id===id);d.versions.push({n:lastV(d).n+1,date:'28.09.2026',by:'Сергей Ковалёв',agent:false,restoredFrom:n});S.hv=null;toast(`Создана версия ${lastV(d).n}, равная версии ${n}. Прежние версии остались.`);renderMain()}
+
+/* ---------- PDF ---------- */
+function openPdf(id,pid){const d=DB.docs.find(x=>x.id===id),src=docSrc(d),v=lastV(d);const p=P(d.subject||pid)||{};const pos=d.kind==='job'?DB.positions.find(x=>x.id===d.position).name:posName(p);
+ const reader=d.kind==='pair'?P(d.reader):null;
+ $('modal').innerHTML=`<div class="modal-h"><b>Предпросмотр PDF</b><span class="muted" style="font-size:12.5px">«${esc(src.title)} — v${v.n}.pdf»</span><span style="flex:1"></span><button class="btn sm" onclick="window.print()">${ic('print',14)} Печать</button><button class="btn sm primary" onclick="toast('Файл «${esc(src.title)} — v${v.n}.pdf» · в журнал просмотров добавлена выгрузка')">Скачать PDF</button><button class="btn sm ghost" onclick="closeAll()">${ic('x',16)}</button></div>
+ <div class="a4"><div class="a4-head"><div><b>${d.kind==='job'?esc(pos):esc(`${p.last} ${p.first} ${p.mid}`)}</b>${d.kind==='job'?'Должностная инструкция':esc(pos)}</div><div style="text-align:right">${{job:'Должностная',personal:'Личная',pair:'Парная'}[d.kind]} инструкция<br>версия ${v.n} · ${v.date}<br>${COMPANIES.find(c=>c.id===S.company).name}</div></div>
+ <div class="doc">${renderDocMd(src.md)}</div>
+ <div class="wm">${reader?`<span>Для: ${esc(reader.last)} ${reader.first[0]}. ${reader.mid[0]}. · выгружено 28.09.2026 14:05</span><span>на каждой странице</span>`:`<span>${COMPANIES.find(c=>c.id===S.company).name}</span><span>стр. 1</span>`}</div></div>`;
+ $('modal').classList.add('on');$('overlay').classList.add('on')}
+
+/* ---------- палитра ⌘K ---------- */
+let palSel=0;
+function openPalette(){if(!gateOpen()){toast('Модуль «Команда» в этой компании вам недоступен');return}
+ $('palette').innerHTML=`<div class="pi">${ic('search')}<input id="pq" placeholder="Кого ищем? Фамилия, имя или должность" oninput="palSel=0;palRender()" onkeydown="palKey(event)"><kbd style="font-family:var(--mono);font-size:11px;color:var(--fg-subtle)">Esc</kbd></div><div id="pres"></div><div class="hint">Поиск по всем вашим компаниям · только люди, тексты инструкций в поиск не попадают · ↑↓ и Enter</div>`;
+ $('palette').classList.add('on');$('overlay').classList.add('on');palRender();setTimeout(()=>$('pq').focus(),30)}
+function palResults(){const q=norm(($('pq')||{}).value||'');if(q.length<2)return[];const out=[];
+ for(const c of COMPANIES){const pr=persona();const ln=(pr.links||{})[c.id];const gate=pr.admin||!!ln;if(!gate)continue;
+  DB.people.filter(p=>p.company===c.id&&(p.status==='active'||pr.admin)&&norm(`${p.last} ${p.first} ${posName(p)}`).includes(q)).slice(0,6).forEach(p=>out.push({p,c}))}return out}
+function palRender(){const r=palResults();$('pres').innerHTML=r.length?`<div class="grp">Люди</div>`+r.map((x,i)=>`<div class="res ${i===palSel?'sel':''}" onclick="palGo(${i})">${avatar(x.p,28)}<div style="flex:1"><b>${esc(x.p.last)} ${esc(x.p.first)}</b><div class="muted" style="font-size:12px">${esc(posName(x.p))}${x.p.dept?' · '+esc(D(x.p.dept).name):''}</div></div><span class="badge">${x.c.name}</span></div>`).join(''):`<div class="res muted" style="cursor:default">${(($('pq')||{}).value||'').length<2?'Начните вводить — например «жуков» или «елкина»':'Никого не нашли'}</div>`}
+function palKey(e){const r=palResults();if(e.key==='ArrowDown'){palSel=Math.min(palSel+1,r.length-1);palRender();e.preventDefault()}else if(e.key==='ArrowUp'){palSel=Math.max(palSel-1,0);palRender();e.preventDefault()}else if(e.key==='Enter'&&r[palSel])palGo(palSel);else if(e.key==='Escape')closeAll()}
+function palGo(i){const x=palResults()[i];closeAll();S.company=x.c.id;S.tab=null;go('person/'+x.p.id);render()}
+
+/* ---------- Юя ---------- */
+const CHAT=[];
+function openYuia(scn,arg){$('drawer').classList.add('on');$('overlay').classList.add('on');if(!CHAT.length)CHAT.push({ya:true,t:`Я вношу структуру и тексты инструкций по вашему заданию — с вашими правами. Перед изменением всегда показываю предпросмотр: пока вы не нажмёте «Выполнить», ничего не сохраняется.`});renderYuia();if(scn)setTimeout(()=>runScn(scn,arg),250)}
+function renderYuia(){const sugs=suggestions();
+ $('drawer').innerHTML=`<div class="dr-head"><span class="yl">${ic('spark',18)}</span><div><b>Юя</b><div class="muted" style="font-size:12px">работает с правами: ${esc(persona().name)}</div></div><span style="flex:1"></span><button class="btn sm ghost" onclick="closeAll()">${ic('x',16)}</button></div>
+ <div class="dr-body" id="chat">${CHAT.map(m=>m.pv?previewCard(m):`<div class="msg ${m.ya?'ya':'me'}">${m.html||esc(m.t)}</div>`).join('')}</div>
+ <div class="dr-sugs"><span class="muted" style="font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Попробуйте</span>${sugs.map(s=>`<button class="sug" onclick="runScn('${s[0]}')">${esc(s[1])}</button>`).join('')}</div>
+ <div class="dr-in"><input placeholder="Напишите Юе…" onkeydown="if(event.key==='Enter'&&this.value.trim()){CHAT.push({t:this.value});CHAT.push({ya:true,t:'В мокапе я понимаю только подсказки выше 🙂'});renderYuia()}"><button class="btn primary sm">${ic('send',15)}</button></div>`;
+ const ch=$('chat');ch.scrollTop=ch.scrollHeight}
+function suggestions(){const s=[];if(S.company==='dot')s.push(['dot','Заведи структуру центра: директор, два отдела, шесть человек']);
+ if(S.company==='rice'){if(P(personBy('rice','Попов').id).status==='active')s.push(['dismiss','Уволь Попова Илью, управляющего «Речным»']);s.push(['bulk','Залей список: 12 новых официантов в «Северный»']);if(!DB.docs.find(d=>d.subject===personBy('rice','Смирнов').id))s.push(['write','Запиши личную инструкцию Смирнову — текст во вложении'])}
+ if(S.company==='mal')s.push(['bulk','Залей список: 5 новых кладовщиков']);return s}
+function previewCard(m){return `<div class="pv"><div class="pv-h">${ic('eye',14)} ПРЕДПРОСМОТР — НИЧЕГО НЕ СОХРАНЕНО</div><div class="pv-b">${m.body}</div>${m.done?`<div class="pv-f"><span class="badge ok">✓ Выполнено · в истории: «${esc(persona().name)} · через Юю»</span></div>`:m.cancel?`<div class="pv-f"><span class="badge">Отменено</span></div>`:`<div class="pv-f"><button class="btn primary sm" onclick="execScn(${CHAT.indexOf(m)})">Выполнить</button><button class="btn sm" onclick="CHAT[${CHAT.indexOf(m)}].cancel=true;renderYuia()">Отмена</button></div>`}</div>`}
+function say(t,html){CHAT.push({ya:true,t,html});renderYuia()}
+function typing(cb){CHAT.push({ya:true,html:'<span class="typing"><i></i><i></i><i></i></span>',tmp:true});renderYuia();setTimeout(()=>{const i=CHAT.findIndex(x=>x.tmp);if(i>=0)CHAT.splice(i,1);cb()},700)}
+function runScn(scn,arg){const texts={dot:'Заведи структуру центра: директор Зорина Вера, отдел «Практика» — три психолога, «Администрация» — администратор и бухгалтер',dismiss:'Уволь Попова Илью, управляющего «Речным»',bulk:S.company==='mal'?'Залей список: 5 новых кладовщиков':'Залей список: 12 новых официантов в «Северный» (таблица во вложении)',write:'Запиши личную инструкцию Смирнову Денису — текст во вложении, положи как есть'};
+ if(scn==='dismiss'&&arg){const p=P(arg);if(p.last!=='Попов'){CHAT.push({t:`Что можно изменить у ${p.first} ${p.last}?`});typing(()=>say('','Скажите, что поменять: должность, отдел, руководителя, код, почту — или «уволь». Например: «переведи его в «Северный» к Кузнецовой». Перед изменением покажу предпросмотр.'));return}}
+ CHAT.push({t:texts[scn]});renderYuia();
+ if(!isAdmin()){typing(()=>say('У вас нет прав менять структуру и тексты — это может только администратор модуля. Я работаю вашими правами и не могу больше, чем вы.'));return}
+ typing(()=>{let body='';
+  if(scn==='dot')body=`<b>Будет создано в «Точке опоры»:</b><ul><li>отделы: «Практика», «Администрация»</li><li>должности: Директор центра, Психолог, Администратор, Бухгалтер</li><li>6 человек: Зорина Вера (директор, верхний уровень), 3 психолога → Зориной, администратор и бухгалтер → Зориной</li></ul><p class="muted" style="margin:6px 0 0">создано 6 · обновлено 0 · без изменений 0</p>`;
+  if(scn==='dismiss'){const p=personBy('rice','Попов'),subs=DB.people.filter(x=>x.mgr===p.id&&x.status==='active');body=`<b>Попов Илья Сергеевич → уволен с 28.09.2026</b><ul><li>${subs.length} ${plural(subs.length,'прямой подчинённый перейдёт','прямых подчинённых перейдут','прямых подчинённых перейдут')} к его руководителю — <b>Орловой М. В.</b>: ${subs.map(s=>s.last+' '+s.first[0]+'.').join(', ')}</li><li>отдел Филиал «Речной» останется <b>без главы</b></li><li>карточка и инструкции сохранятся; доступ к модулю закроется на следующем запросе</li></ul>`}
+  if(scn==='bulk'){const n=S.company==='mal'?5:12;body=`<b>Пакет из ${n} строк</b> — всё или ничего<ul><li>должность: ${S.company==='mal'?'Кладовщик · отдел «Склад и логистика»':'Официант · отдел «Зал», филиал «Северный»'}</li><li>руководитель: ${S.company==='mal'?'Шубин Р.':'администратор зала «Северного»'}</li><li>сопоставление по коду и ФИО (регистр и «ё» не важны) — дублей нет</li></ul><p class="muted" style="margin:6px 0 0">создано ${n} · обновлено 0 · без изменений 0 · ошибок 0</p>`}
+  if(scn==='write')body=`<b>Личная инструкция · Смирнов Денис → версия 1</b><ul><li>текст кладу как есть, ничего не переписываю</li><li>оглавление: Сильные стороны · Какие задачи поручать · Что нельзя поручать · Мотивация · Как взаимодействовать</li><li>18,4 тыс. знаков · таблиц 2 · схема подчинения 1</li><li>читать смогут: сам Денис, Орлова М., Ковалёв С., администратор</li></ul>`;
+  CHAT.push({pv:true,scn,body});say('Проверьте предпросмотр. Нажмите «Выполнить», и я сохраню.')})}
+function execScn(i){const m=CHAT[i];m.done=true;const scn=m.scn;
+ if(scn==='dot'){const C='dot';const pr=dept(C,'Практика',null),ad=dept(C,'Администрация',null);const dir=mk(C,'Зорина','Вера','Андреевна',posi(C,'Директор центра'),null,null,{email:'zorina@example.test'});pr.head=dir.id;ad.head=dir.id;
+  [['Левин','Марк'],['Гаврилова','Ника'],['Ушаков','Тимофей']].forEach(([l,f])=>mk(C,l,f,f==='Ника'?'Олеговна':'Игоревич',posi(C,'Психолог'),pr.id,dir.id));mk(C,'Сизова','Лада','Павловна',posi(C,'Администратор'),ad.id,dir.id);mk(C,'Краснов','Ян','Олегович',posi(C,'Бухгалтер'),ad.id,dir.id);
+  COMPANIES[2].sub='центр · 6 человек';say('Готово: 6 человек, 2 отдела. Откройте «Люди» или «Отделы» — всё уже там.');}
+ if(scn==='dismiss'){const p=personBy('rice','Попов'),o=personBy('rice','Орлова');DB.people.filter(x=>x.mgr===p.id).forEach(x=>x.mgr=o.id);p.status='left';p.leftAt='28.09.2026';p.mgr=o.id;const d=DB.depts.find(x=>x.head===p.id);if(d)d.head=null;say('Готово. Подчинённые переведены к Орловой, отдел без главы. Вернуть Попова можно одной командой — «верни Попова».')}
+ if(scn==='bulk'){const mal=S.company==='mal';const dd=mal?DB.depts.find(x=>x.company==='mal'&&x.name==='Склад и логистика'):(()=>{const br=DB.depts.find(x=>x.company==='rice'&&x.name==='Филиал «Северный»');return DB.depts.find(x=>x.parent===br.id&&x.name==='Зал')})();
+  const names=[['Белкин','Игорь'],['Рыбакова','Злата'],['Носов','Остап'],['Фомина','Лиана'],['Ершов','Прохор'],['Панкова','Ия'],['Ларин','Вадим'],['Котова','Эмма'],['Шестаков','Марат'],['Уварова','Нелли'],['Хромов','Ефим'],['Цветкова','Инна']];
+  const n=mal?5:12;for(let i=0;i<n;i++){const [l,f]=names[i];mk(S.company,l,f,l.endsWith('а')?'Ивановна':'Иванович',posi(S.company,mal?'Кладовщик':'Официант'),dd.id,dd.head)}say(`Готово: создано ${n}. Повторная заливка того же списка ничего не задвоит.`)}
+ if(scn==='write'){const s=personBy('rice','Смирнов');DB.docs.push({id:DB.docs.length+1,company:'rice',kind:'personal',subject:s.id,src:null,gen:true,versions:[{n:1,date:'28.09.2026',by:persona().name,agent:true}]});say('Готово: версия 1. Инструкция уже на карточке Смирнова, вкладка «Личная».')}
+ renderYuia();renderSidebar();renderMain()}
+
+/* ---------- «смотреть как» ---------- */
+function renderViewAs(){const p=persona();
+ $('viewas').innerHTML=`<span class="lbl">Смотреть как</span><div class="seg">${PERSONAS.map(x=>`<button class="${x.id===S.persona?'on':''}" onclick="setPersona('${x.id}')">${x.label}</button>`).join('')}</div><button class="info" onclick="$('whoPanel').classList.toggle('on')" title="Что видит эта роль">?</button>`;
+ $('whoPanel').innerHTML=`<div class="who">${avatar({id:9,last:p.name.split(' ')[1],first:p.name.split(' ')[0]},36)}<div><b>${esc(p.name)}</b><div class="muted" style="font-size:12.5px">${esc(p.role)}</div></div></div><ul>${p.sees.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`}
+function setPersona(id){S.persona=id;S.tab=null;S.showLeft=false;const p=persona();if(!(p.links||{})[S.company]&&!p.admin)S.company='rice';
+ if(!p.admin)S.company='rice';const v=viewer();CHAT.length=0;$('whoPanel').classList.add('on');setTimeout(()=>$('whoPanel').classList.remove('on'),4200);
+ if(v&&!p.admin)go('person/'+(p.id==='top'?personBy('rice','Орлова').id:v.id));else go('people');render()}
+
+/* ---------- общий цикл ---------- */
+function closeAll(){['overlay','palette','drawer','modal'].forEach(i=>$(i).classList.remove('on'))}
+$('overlay').onclick=closeAll;
+document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette()}if(e.key==='Escape')closeAll()});
+function toggleTheme(){const r=document.documentElement,cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.setAttribute('data-theme',cur==='dark'?'light':'dark')}
+function renderMain(keepFocus){const r=route();let h;
+ if(!gateOpen())h=page404();
+ else if(r.a==='person')h=pagePerson(r.b);else if(r.a==='departments')h=pageDepartments();else if(r.a==='department')h=pageDepartment(r.b);
+ else if(r.a==='positions')h=pagePositions();else if(r.a==='position')h=pagePosition(r.b);else if(r.a==='access')h=pageAccess();else if(r.a==='history')h=pageHistory(r.b);else h=pagePeople();
+ const pos=keepFocus&&document.activeElement&&document.activeElement.id==='q'?document.activeElement.selectionStart:null;
+ $('view').innerHTML=h;if(pos!==null){const q=$('q');q.focus();q.setSelectionRange(pos,pos)}}
+function render(){renderSidebar();renderRail();renderMain();renderViewAs()}
+let lastRoute='';window.addEventListener('hashchange',()=>{const r=location.hash;if(!r.startsWith('#/person/')||r!==lastRoute)S.tab=null;if(!r.startsWith('#/history'))S.hv=null;lastRoute=r;$('sidebar').classList.remove('open');renderSidebar();renderMain();document.querySelector('main').scrollTop=0});
+if(!location.hash)location.hash='#/person/'+personBy('rice','Орлова').id;
+render();
+setTimeout(()=>{$('whoPanel').classList.add('on');setTimeout(()=>$('whoPanel').classList.remove('on'),5000)},600);
+</script>
+</body>
+</html>
