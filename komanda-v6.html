@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Суть ✕ Команда — мокап v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#7A5340;--accent-strong:#5C3D29;--accent-soft:#EADCD2;--accent-on:#fff;
+  --bg:#FFFCF9;--bg-el:#FFFFFF;--bg-muted:#F5F0EA;--fg:#1A1612;--fg-muted:#5C534B;--fg-subtle:#756C64;
+  --border:#E8E0D6;--border-strong:#C9BCAB;--line:#CDBFAE;
+  --ok:#2F7A4F;--ok-soft:#E3F2E8;--ok-text:#1F6B41;
+  --no:#B7392E;--no-soft:#F8E1DE;--no-text:#9F2C23;
+  --amb:#B17A23;--amb-soft:#F8EDCF;--amb-text:#8A5D17;
+  --info-soft:#DCE9F2;--info-text:#2C5678;
+  --shadow-soft:0 1px 2px rgba(26,22,18,.05);--shadow-card:0 6px 20px rgba(26,22,18,.08);--shadow-pop:0 26px 64px rgba(26,22,18,.16);
+  --r-md:10px;--r-lg:12px;--r-xl:14px;--r-2xl:18px;
+  --font:"Manrope",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+  --canvas:#F7F2EC;
+}
+:root[data-theme="dark"]{
+  --accent:#E8B898;--accent-strong:#F0C9AE;--accent-soft:#3A2B20;--accent-on:#0F0D08;
+  --bg:#0F0D08;--bg-el:#1A1610;--bg-muted:#211C14;--fg:#F4EFE7;--fg-muted:#B5AB9D;--fg-subtle:#948A80;
+  --border:#2A241C;--border-strong:#4A4135;--line:#4A4135;--canvas:#13100B;
+  --ok-soft:#1B3A26;--ok-text:#88D6AB;--no-soft:#3B1714;--no-text:#F1A19A;--amb-soft:#3A2C0E;--amb-text:#E8C271;--info-soft:#17293A;--info-text:#9CC6E6;
+  --shadow-card:0 6px 20px rgba(0,0,0,.45);--shadow-pop:0 26px 70px rgba(0,0,0,.6);}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:flex;height:100vh;overflow:hidden}
+/* шторка */
+.sidebar{width:250px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--bg)}
+.sb-head{padding:18px 18px 10px;font-weight:800;font-size:15px}.sb-head span{color:var(--fg-subtle);font-weight:500}
+.ws{margin:4px 12px 10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-el);padding:8px 10px;display:flex;align-items:center;gap:10px;position:relative}
+.ws-logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff}
+.ws b{display:block;font-size:13px;line-height:1.2}.ws small{font-size:11.5px;color:var(--fg-subtle)}
+.ws select{position:absolute;inset:0;opacity:0;cursor:pointer}
+.search-btn{margin:0 12px 12px;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-muted);color:var(--fg-subtle);text-align:left}
+.search-btn kbd{margin-left:auto;font-family:var(--mono);font-size:11px;background:var(--bg-el);border:1px solid var(--border);border-radius:5px;padding:0 5px}
+.nav{padding:0 8px;display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;text-decoration:none;color:var(--fg-muted);font-weight:600}
+.nav a:hover{background:var(--bg-muted);color:var(--fg)}
+.nav a.on{background:var(--accent-soft);color:var(--accent-strong)}
+:root[data-theme="dark"] .nav a.on{color:var(--accent)}
+.nav .count{margin-left:auto;font-size:11.5px;color:var(--fg-subtle)}
+.nav-sep{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-subtle);padding:14px 10px 4px;font-weight:700}
+.sb-foot{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.mock-note{font-size:11px;color:var(--amb-text);background:var(--amb-soft);border-radius:8px;padding:6px 8px;margin-bottom:10px;font-weight:600}
+.ask-yuia{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px solid var(--border);text-align:left;width:100%;font-size:12px;color:var(--fg-muted)}
+.ask-yuia b{display:block;color:var(--fg);font-size:12.5px}
+/* рельс */
+.rail{width:56px;flex:none;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;background:var(--bg)}
+.rail button{width:40px;height:40px;border-radius:var(--r-md);border:0;background:transparent;display:grid;place-items:center;color:var(--fg-subtle);position:relative}
+.rail button:hover{background:var(--bg-muted);color:var(--fg)}
+.rail button.on{background:var(--accent);color:var(--accent-on)}
+.rail button.yu{color:var(--accent)}
+.rail .tip{position:absolute;right:48px;white-space:nowrap;background:var(--fg);color:var(--bg);font-size:12px;padding:3px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:.15s;z-index:5}
+.rail button:hover .tip{opacity:1}
+.rail .sp{flex:1}
+main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.scroll{flex:1;overflow-y:auto}
+.page{max-width:1180px;margin:0 auto;padding:26px 32px 120px}
+/* аватар с фото */
+.av{position:relative;border-radius:50%;overflow:hidden;display:inline-grid;place-items:center;color:#fff;font-weight:800;flex:none;box-shadow:0 0 0 2px var(--bg-el)}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.av.left{filter:grayscale(1);opacity:.6}
+/* дерево */
+.tb{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg);flex-wrap:wrap;z-index:3}
+.tb h1{margin:0 8px 0 0;font-size:20px;letter-spacing:-.02em}
+.tb .sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--bg-el);font-weight:600;font-size:13px;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--border-strong)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-on)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn.icon{padding:7px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;background:var(--bg-el)}
+.seg button{border:0;background:transparent;padding:6px 11px;font-weight:700;font-size:12.5px;color:var(--fg-subtle)}
+.seg button.on{background:var(--accent-soft);color:var(--accent-strong)}
+.find{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--bg-el);border-radius:var(--r-md);padding:6px 10px;min-width:230px}
+.find input{border:0;outline:0;background:transparent;font:inherit;color:inherit;width:100%}
+.canvas{flex:1;position:relative;overflow:hidden;background:var(--canvas);background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:22px 22px;cursor:grab;touch-action:none}
+.canvas.drag{cursor:grabbing}
+.stage{position:absolute;left:0;top:0;transform-origin:0 0;padding:40px 60px 160px}
+.stage.anim{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.legend{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px}
+.legend span{display:flex;align-items:center;gap:8px;color:var(--fg-muted)}.legend i{width:10px;height:10px;border-radius:3px}
+.zoom{position:absolute;right:14px;bottom:78px;display:flex;flex-direction:column;background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-soft);z-index:2}
+.zoom button{border:0;background:transparent;width:36px;height:34px;font-weight:800;font-size:16px}
+.zoom button:hover{background:var(--bg-muted)}
+.oc ul{padding-top:26px;position:relative;display:flex;justify-content:center;margin:0;padding-left:0}
+.oc li{list-style:none;position:relative;padding:26px 8px 0;display:flex;flex-direction:column;align-items:center}
+.oc li::before,.oc li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid var(--line);width:50%;height:26px}
+.oc li::after{right:auto;left:50%;border-left:2px solid var(--line)}
+.oc li:only-child::before,.oc li:only-child::after{display:none}
+.oc li:only-child{padding-top:0}
+.oc li:first-child::before,.oc li:last-child::after{border:0 none}
+.oc li:last-child::before{border-right:2px solid var(--line);border-radius:0 10px 0 0}
+.oc li:first-child::after{border-radius:10px 0 0 0}
+.oc ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid var(--line);height:26px}
+.oc>ul{padding-top:0}
+.node{position:relative;width:196px;background:var(--bg-el);border:1px solid var(--border);border-radius:16px;padding:14px 12px 12px;box-shadow:var(--shadow-soft);text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+.node::before{content:'';position:absolute;left:12px;right:12px;top:0;height:3px;border-radius:0 0 3px 3px;background:var(--dc,var(--border-strong))}
+.node:hover{transform:translateY(-2px);box-shadow:var(--shadow-card);border-color:var(--dc,var(--accent))}
+.node .nm{font-weight:800;font-size:13.5px;line-height:1.25;margin-top:8px}
+.node .rl{font-size:12px;color:var(--fg-subtle);line-height:1.3;margin-top:2px}
+.node .dp{font-size:11px;color:var(--fg-subtle);margin-top:4px;display:inline-flex;gap:5px;align-items:center}
+.node .dp i{width:7px;height:7px;border-radius:2px;background:var(--dc)}
+.node.path{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklch,var(--accent) 22%,transparent)}
+.node.me{border-color:var(--ok)}
+.node.pulse{animation:pulse 1.8s ease 2}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in oklch,var(--accent) 55%,transparent)}100%{box-shadow:0 0 0 18px transparent}}
+.node.new{animation:pop .5s ease both}
+@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.node.left{opacity:.55}
+.tag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:var(--shadow-soft)}
+.tag.me{background:var(--ok);color:#fff}
+.tag.pair{background:linear-gradient(135deg,#C9906F,#7A5340);color:#fff}
+.tog{margin-top:10px;border:1px solid var(--border);background:var(--bg-muted);border-radius:999px;padding:2px 10px 2px 4px;font-size:11.5px;font-weight:700;color:var(--fg-muted);display:inline-flex;align-items:center;gap:6px}
+.tog:hover{border-color:var(--accent);color:var(--fg)}
+.stackav{display:inline-flex}.stackav .av{margin-left:-6px;box-shadow:0 0 0 2px var(--bg-muted)}.stackav .av:first-child{margin-left:0}
+.team{width:220px;background:var(--bg-el);border:1px solid var(--border);border-radius:14px;padding:6px;box-shadow:var(--shadow-soft);text-align:left}
+.team .ti{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:9px;cursor:pointer}
+.team .ti:hover{background:var(--bg-muted)}
+.team .ti b{display:block;font-size:12.5px;line-height:1.2}.team .ti small{font-size:11px;color:var(--fg-subtle)}
+.team .more{font-size:12px;font-weight:700;color:var(--accent);padding:5px 8px;cursor:pointer}
+.team-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-subtle);padding:4px 6px 2px}
+/* боковой лист профиля */
+.sheet{position:absolute;top:0;right:0;height:100%;width:min(500px,100%);background:var(--bg);border-left:1px solid var(--border);box-shadow:var(--shadow-pop);transform:translateX(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:6;display:flex;flex-direction:column}
+.sheet.on{transform:none}
+.sh-top{position:relative;padding:22px 20px 16px;background:linear-gradient(180deg,color-mix(in oklch,var(--dc,var(--accent)) 16%,var(--bg)),var(--bg));border-bottom:1px solid var(--border)}
+.sh-close{position:absolute;right:12px;top:12px}
+.sh-hero{display:flex;gap:16px;align-items:center}
+.sh-hero h2{margin:0;font-size:21px;letter-spacing:-.02em;line-height:1.2}
+.sh-hero .rl{color:var(--fg-muted);font-weight:600;margin-top:3px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--bg-el);border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--fg-muted);text-decoration:none;cursor:pointer}
+.chip i{width:8px;height:8px;border-radius:2px;background:var(--dc)}
+.sh-body{flex:1;overflow-y:auto;padding:16px 20px 120px;display:flex;flex-direction:column;gap:14px}
+.sec{background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-xl);padding:14px}
+.sec-h{display:flex;align-items:center;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-subtle);font-weight:800;margin:0 0 10px}
+.sec-h .sp{flex:1}
+.for-you{border:0;background:linear-gradient(135deg,#8A5E47,#5C3D29);color:#FFF7F0;box-shadow:var(--shadow-card)}
+.for-you .sec-h{color:#F3D9C8}
+.for-you .lk{font-size:10.5px;background:rgba(255,255,255,.16);padding:2px 8px;border-radius:999px;text-transform:none;letter-spacing:0}
+.fy-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fy-cols div{background:rgba(255,255,255,.09);border-radius:12px;padding:10px}
+.fy-cols h4{margin:0 0 6px;font-size:12.5px}
+.fy-cols ul{margin:0;padding-left:16px;font-size:12.5px;line-height:1.45}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45}
+.tile h4{margin:0 0 6px;font-size:12.5px;display:flex;gap:6px;align-items:center}
+.tile ul{margin:0;padding-left:0;list-style:none}.tile li{margin:3px 0;display:flex;gap:6px}.tile li::before{content:attr(data-m);font-weight:800}
+.tile.ok{background:var(--ok-soft);color:var(--ok-text)}.tile.no{background:var(--no-soft);color:var(--no-text)}.tile.amb{background:var(--amb-soft);color:var(--amb-text)}.tile.inf{background:var(--info-soft);color:var(--info-text)}
+.tile.wide{grid-column:1/-1}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{background:var(--bg-muted);border:1px solid var(--border);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600}
+.pill::before{content:'✦ ';color:var(--accent)}
+.energy{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-items:end;height:112px;margin-top:4px}
+.energy div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.energy b{width:100%;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,var(--c1),var(--c2))}
+.energy small{font-size:11px;color:var(--fg-subtle);text-align:center;line-height:1.2}
+.steps{display:flex;flex-direction:column;gap:6px;counter-reset:s}
+.steps div{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.steps div::before{counter-increment:s;content:counter(s);width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent-strong);font-weight:800;font-size:12px;display:grid;place-items:center;flex:none}
+.cadence{display:flex;flex-direction:column;gap:6px}
+.cad{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;padding:8px 10px;border-radius:10px;background:var(--bg-muted)}
+.cad span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);width:110px;flex:none;padding-top:1px}
+.mini-chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mini-chain a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12.5px;font-weight:700;background:var(--bg-muted);padding:3px 10px 3px 3px;border-radius:999px;cursor:pointer}
+.mini-chain .ar{color:var(--fg-subtle)}
+.doclink{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:12px;cursor:pointer;background:var(--bg)}
+.doclink:hover{border-color:var(--accent)}
+.doclink b{font-size:13px}.doclink small{display:block;font-size:11.5px;color:var(--fg-subtle)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--bg-muted);color:var(--fg-muted);white-space:nowrap}
+.badge.acc{background:var(--accent-soft);color:var(--accent-strong)}.badge.no{background:var(--no-soft);color:var(--no-text)}.badge.ok{background:var(--ok-soft);color:var(--ok-text)}
+.hint{font-size:12px;color:var(--fg-subtle)}
+/* галерея людей */
+.gal-h{display:flex;align-items:center;gap:10px;margin:26px 0 12px}
+.gal-h h3{margin:0;font-size:15px}.gal-h i{width:12px;height:12px;border-radius:4px;background:var(--dc)}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.face{background:var(--bg-el);border:1px solid var(--border);border-radius:16px;padding:16px 12px 12px;text-align:center;cursor:pointer;transition:.15s;position:relative}
+.face:hover{transform:translateY(-2px);box-shadow:var(--shadow-card);border-color:var(--dc)}
+.face b{display:block;font-size:13.5px;margin-top:8px;line-height:1.25}.face small{display:block;font-size:12px;color:var(--fg-subtle);margin-top:2px}
+.face .mg{font-size:11px;color:var(--fg-subtle);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.fchip{border:1px solid var(--border);background:var(--bg-el);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;color:var(--fg-muted);display:inline-flex;gap:6px;align-items:center}
+.fchip i{width:8px;height:8px;border-radius:2px;background:var(--dc)}
+.fchip.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+/* документ целиком */
+.overlay{position:fixed;inset:0;background:rgba(26,22,18,.38);backdrop-filter:blur(2px);display:none;z-index:40}.overlay.on{display:block}
+.modal{position:fixed;inset:5vh 0 auto;margin:auto;width:min(860px,94vw);max-height:90vh;overflow:auto;background:var(--bg);border-radius:var(--r-2xl);box-shadow:var(--shadow-pop);z-index:50;display:none}
+.modal.on{display:block}
+.modal-h{position:sticky;top:0;display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg-el);border-bottom:1px solid var(--border);z-index:2}
+.doc{font-size:15px;line-height:1.65;padding:24px 34px 34px;max-width:760px}
+.doc h2{font-size:18px;margin:24px 0 8px}.doc h2:first-child{margin-top:0}
+.doc p{margin:0 0 12px}.doc ul,.doc ol{margin:0 0 12px;padding-left:22px}
+.doc blockquote{margin:0 0 16px;padding:12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+.doc pre{font-family:var(--mono);font-size:12.5px;line-height:1.45;background:var(--bg-muted);border:1px solid var(--border);border-radius:10px;padding:14px;overflow-x:auto;white-space:pre}
+.doc table{border-collapse:collapse;width:100%;font-size:13.5px;margin-bottom:14px}.doc th,.doc td{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}.doc th{background:var(--bg-muted)}
+.wm{margin:0 34px 24px;padding-top:8px;border-top:1px solid var(--border);font-size:11.5px;color:var(--fg-subtle);display:flex;justify-content:space-between}
+/* палитра, Юя, тосты, «смотреть как» */
+.palette{position:fixed;top:12vh;left:50%;transform:translateX(-50%);width:min(620px,92vw);background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-2xl);box-shadow:var(--shadow-pop);z-index:50;display:none;overflow:hidden}
+.palette.on{display:block}
+.palette .pi{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.palette input{flex:1;border:0;outline:0;background:transparent;font:inherit;font-size:16px;color:inherit}
+.palette .res{display:flex;gap:10px;align-items:center;padding:8px 16px;cursor:pointer}
+.palette .res.sel,.palette .res:hover{background:var(--bg-muted)}
+.palette .grp{padding:8px 16px 4px;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-subtle)}
+.palette .ft{padding:10px 16px;font-size:12px;color:var(--fg-subtle);border-top:1px solid var(--border)}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:var(--bg-el);border-left:1px solid var(--border);box-shadow:var(--shadow-pop);z-index:55;transform:translateX(105%);transition:transform .25s;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dr-head{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border)}
+.yl{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#C9906F,#7A5340);display:grid;place-items:center;color:#fff}
+.dr-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:88%;padding:10px 12px;border-radius:14px;font-size:13.5px}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-on);border-bottom-right-radius:4px}
+.msg.ya{align-self:flex-start;background:var(--bg-muted);border-bottom-left-radius:4px}
+.pv{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.pv-h{padding:8px 12px;background:var(--amb-soft);color:var(--amb-text);font-size:12px;font-weight:800}
+.pv-b{padding:10px 12px;font-size:13px}.pv-b ul{margin:0;padding-left:18px}
+.pv-f{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}
+.dr-sugs{padding:12px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.sug{text-align:left;border:1px solid var(--border);background:var(--bg);border-radius:var(--r-md);padding:8px 10px;font-size:12.5px}
+.sug:hover{border-color:var(--accent)}
+.typing{display:inline-flex;gap:3px}.typing i{width:6px;height:6px;border-radius:50%;background:var(--fg-subtle);animation:b 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%) translateY(20px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:70;max-width:92vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.viewas{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;background:#1A1612;color:#FFFCF9;border-radius:999px;padding:6px 6px 6px 16px;box-shadow:var(--shadow-pop);font-size:12.5px;max-width:96vw}
+.viewas .lbl{font-weight:700;opacity:.75;white-space:nowrap}
+.viewas .vs{display:flex;gap:2px;background:rgba(255,255,255,.08);border-radius:999px;padding:3px}
+.viewas .vs button{border:0;background:transparent;color:inherit;padding:6px 12px;border-radius:999px;font-weight:700;white-space:nowrap;opacity:.8}
+.viewas .vs button.on{background:#FFFCF9;color:#1A1612;opacity:1}
+.viewas .q{width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:inherit;font-weight:800}
+.who-panel{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);width:min(560px,94vw);background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-pop);padding:14px 16px;z-index:60;display:none;font-size:13px}
+.who-panel.on{display:block}.who-panel ul{margin:6px 0 0;padding-left:18px}
+.drawer.on ~ .viewas{left:calc((100vw - 440px)/2)}
+.modal.on ~ .viewas,.modal.on ~ .who-panel{display:none}
+.four04{max-width:520px;margin:12vh auto;text-align:center;padding:0 20px}
+.four04 .n{font-size:64px;font-weight:800;color:var(--border-strong)}
+.empty{text-align:center;padding:60px 24px;color:var(--fg-muted)}
+.empty .ill{width:72px;height:72px;border-radius:22px;background:var(--accent-soft);display:grid;place-items:center;margin:0 auto 14px;color:var(--accent)}
+.empty h3{margin:0 0 6px;color:var(--fg);font-size:18px}
+.empty .ex{display:inline-block;margin-top:14px;font-size:13px;background:var(--bg-muted);border:1px dashed var(--border-strong);padding:10px 14px;border-radius:var(--r-md);color:var(--fg);max-width:520px}
+.tbl{width:100%;border-collapse:collapse}.tbl th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-subtle);text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}.tbl td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.card{background:var(--bg-el);border:1px solid var(--border);border-radius:var(--r-xl)}
+.select{border:1px solid var(--border);background:var(--bg-el);border-radius:var(--r-md);padding:7px 10px;font:inherit;color:inherit}
+.mobile-top{display:none}
+@media (max-width:860px){
+ .sidebar{position:fixed;inset:0 auto 0 0;z-index:45;transform:translateX(-102%);transition:transform .2s;box-shadow:var(--shadow-pop)}
+ .sidebar.open{transform:none}.rail{display:none}
+ .mobile-top{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+ .tb h1{font-size:17px}.find{min-width:0;flex:1}.legend{display:none}
+ .page{padding:18px 16px 120px}
+ .viewas .lbl{display:none}.viewas .vs button{padding:6px 9px}
+ .drawer.on ~ .viewas{display:none}
+ .fy-cols,.tiles{grid-template-columns:1fr}
+}
+
+/* ===== v3 ===== */
+body.full .sidebar,body.full .rail{display:none}
+.tb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%}
+.lvl{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--fg-subtle);font-weight:700}
+.legend span{cursor:pointer;padding:2px 8px;border-radius:999px;border:1px solid transparent}
+.legend span:hover{border-color:var(--border)}
+.legend span.on{background:var(--fg);color:var(--bg)}
+.node.dim,.team.dim,.vac.dim{opacity:.22;filter:grayscale(.6)}
+.oc.compact .node{width:150px;padding:10px 8px 8px}
+.oc.compact .node .av{width:38px!important;height:38px!important}
+.oc.compact .node .dp,.oc.compact .node .rl{display:none}
+.oc.compact .node .nm{font-size:12.5px;margin-top:6px}
+.badges{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.nb{font-size:10px;font-weight:800;padding:1px 6px;border-radius:999px;white-space:nowrap}
+.nb.new{background:var(--info-soft);color:var(--info-text)}
+.nb.x{background:var(--bg-muted);color:var(--fg-muted);border:1px solid var(--border)}
+.en{position:absolute;top:8px;left:8px;font-size:10px;font-weight:800;padding:1px 6px;border-radius:999px}
+.en.hi{background:var(--ok-soft);color:var(--ok-text)}.en.mid{background:var(--amb-soft);color:var(--amb-text)}.en.lo{background:var(--no-soft);color:var(--no-text)}
+.vac{width:196px;border:2px dashed var(--border-strong);border-radius:16px;padding:14px 12px;text-align:center;background:color-mix(in oklch,var(--bg-el) 60%,transparent);color:var(--fg-muted);cursor:pointer}
+.vac:hover{border-color:var(--accent);color:var(--fg)}
+.vac .vi{width:52px;height:52px;border-radius:50%;border:2px dashed var(--border-strong);display:grid;place-items:center;margin:0 auto 8px;font-size:22px}
+.vac b{display:block;color:var(--fg);font-size:13px}.vac small{font-size:11.5px}
+.focusbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 18px;background:var(--accent-soft);border-bottom:1px solid var(--border);font-size:12.5px;font-weight:600}
+.focusbar a{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--border);border-radius:5px;padding:0 4px;background:var(--bg-el);color:var(--fg-subtle)}
+/* обзор холдинга */
+.hold-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:18px}
+.co{background:var(--bg-el);border:1px solid var(--border);border-radius:20px;padding:18px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.co::before{content:'';position:absolute;inset:0 0 auto 0;height:4px;background:var(--cc)}
+.co:hover{transform:translateY(-2px);box-shadow:var(--shadow-card);border-color:var(--cc)}
+.co-h{display:flex;align-items:center;gap:12px}
+.co-logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-weight:800;color:#fff;background:var(--cc)}
+.co-h b{font-size:17px;display:block}.co-h small{color:var(--fg-subtle)}
+.co-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.co-stats div{background:var(--bg-muted);border-radius:12px;padding:8px 10px}
+.co-stats b{display:block;font-size:18px}.co-stats span{font-size:11.5px;color:var(--fg-subtle)}
+.co-depts{display:flex;flex-wrap:wrap;gap:6px}
+.co-depts span{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--bg-muted);display:inline-flex;gap:6px;align-items:center}
+.co-depts i{width:7px;height:7px;border-radius:2px;background:var(--dc)}
+.co-f{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:12.5px;color:var(--fg-muted)}
+.hmap{margin-top:26px;background:var(--canvas);background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:22px 22px;border:1px solid var(--border);border-radius:20px;padding:26px 10px;overflow-x:auto}
+.cnode{width:210px;background:var(--bg-el);border:1px solid var(--border);border-radius:16px;padding:12px;text-align:left;cursor:pointer;display:flex;gap:10px;align-items:center;position:relative}
+.cnode::before{content:'';position:absolute;left:12px;right:12px;top:0;height:3px;border-radius:0 0 3px 3px;background:var(--cc)}
+.cnode:hover{box-shadow:var(--shadow-card);border-color:var(--cc)}
+.cnode b{display:block;font-size:13.5px}.cnode small{font-size:11.5px;color:var(--fg-subtle)}
+.shared{margin-top:22px}
+.shared-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-el);margin-bottom:8px;flex-wrap:wrap}
+.shared-row b{font-size:13.5px}
+.cochip{display:inline-flex;gap:6px;align-items:center;padding:3px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;background:var(--bg)}
+.cochip i{width:8px;height:8px;border-radius:3px;background:var(--cc)}
+.cochip:hover{border-color:var(--cc)}
+/* отделы */
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:16px}
+.dcard{background:var(--bg-el);border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:.15s}
+.dcard:hover{box-shadow:var(--shadow-card);border-color:var(--dc)}
+.dcard-h{padding:14px 16px;background:linear-gradient(135deg,color-mix(in oklch,var(--dc) 20%,var(--bg-el)),var(--bg-el));display:flex;gap:12px;align-items:center}
+.dcard-h b{font-size:15.5px;display:block}.dcard-h small{color:var(--fg-subtle);font-size:12px}
+.dcard-b{padding:12px 16px 16px}
+.sub-d{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px dashed var(--border);font-size:13px}
+.sub-d:first-child{border-top:0}
+.sub-d span{margin-left:auto;font-size:12px;color:var(--fg-subtle)}
+/* моя команда */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-top:16px}
+.tcard{background:var(--bg-el);border:1px solid var(--border);border-radius:18px;padding:14px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:10px}
+.tcard:hover{box-shadow:var(--shadow-card);border-color:var(--accent)}
+.tcard-h{display:flex;gap:12px;align-items:center}
+.tcard-h b{display:block;font-size:14px}.tcard-h small{color:var(--fg-subtle);font-size:12px}
+.tline{font-size:12.5px;display:flex;gap:6px;align-items:flex-start;padding:6px 8px;border-radius:10px}
+.tline.ok{background:var(--ok-soft);color:var(--ok-text)}.tline.no{background:var(--no-soft);color:var(--no-text)}
+.sumbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.sumbar div{background:var(--bg-el);border:1px solid var(--border);border-radius:14px;padding:10px 14px;min-width:150px}
+.sumbar b{font-size:20px;display:block}.sumbar span{font-size:12px;color:var(--fg-subtle)}
+/* лента */
+.feed{margin-top:16px;display:flex;flex-direction:column;gap:0}
+.fitem{display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--border);align-items:flex-start}
+.fitem:first-child{border-top:0}
+.fdot{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;flex:none;font-size:15px}
+.fdot.in{background:var(--ok-soft)}.fdot.out{background:var(--no-soft)}.fdot.move{background:var(--info-soft)}.fdot.doc{background:var(--accent-soft)}.fdot.vac{background:var(--amb-soft)}
+.fitem b{font-size:13.5px}.fitem .hint{margin-top:2px}
+/* профиль: якоря, «сейчас», кто видит, факты */
+.anchors{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.anchors a{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--bg-el);border:1px solid var(--border);cursor:pointer;text-decoration:none}
+.anchors a:hover{border-color:var(--accent)}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.now{display:flex;gap:10px;align-items:center;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.now.hi{background:var(--ok-soft);color:var(--ok-text)}.now.mid{background:var(--amb-soft);color:var(--amb-text)}.now.lo{background:var(--no-soft);color:var(--no-text)}
+.now b{display:block}
+.energy div.cur b{outline:3px solid var(--fg);outline-offset:2px}
+.who-sees{position:relative;display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--bg-muted);color:var(--fg-subtle);font-size:11px;cursor:help;text-transform:none;letter-spacing:0}
+.who-sees .pop{display:none;position:absolute;right:0;top:24px;width:250px;background:var(--fg);color:var(--bg);font-size:12px;font-weight:600;padding:8px 10px;border-radius:10px;z-index:9;line-height:1.4}
+.who-sees:hover .pop{display:block}
+.for-you .who-sees{background:rgba(255,255,255,.18);color:#fff}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
+.facts dt{color:var(--fg-subtle)}.facts dd{margin:0;font-weight:600}
+.copy{cursor:pointer;border-bottom:1px dashed var(--border-strong)}
+/* мобильная «проходка» по дереву */
+.drill{padding:12px 16px 120px}
+.drill .crumb{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px}
+.drill .crumb a{padding:3px 10px;border-radius:999px;background:var(--bg-muted);font-weight:700;cursor:pointer}
+.drill .me-card{background:var(--bg-el);border:1px solid var(--border);border-radius:18px;padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.drill .row{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-el);margin-top:8px;cursor:pointer}
+.drill .row .go{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:12px;color:var(--fg-subtle);font-weight:700}
+@media (max-width:860px){.co-stats b{font-size:16px}.tb .hide-m{display:none}}
+
+/* переключатель пространств — как в «Задачах» */
+.sidebar .shell-ws{position:relative;border-top:1px solid var(--border);padding:10px 12px;flex:none;margin-top:10px}
+.shell-ws__current{width:100%;display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:8px 10px;background:var(--bg-el);text-align:left}
+.shell-ws__current:hover{border-color:var(--border-strong)}
+.shell-ws__logo{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}
+.shell-ws__logo--sm{width:26px;height:26px;font-size:11px}
+.shell-ws__info{flex:1;min-width:0;display:flex;flex-direction:column}
+.shell-ws__name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shell-ws__role{font-size:10.5px;color:var(--fg-subtle)}
+.shell-ws__menu{display:none;position:absolute;left:12px;bottom:calc(100% - 4px);min-width:270px;background:var(--bg-el);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-pop);padding:6px;z-index:30}
+.shell-ws__menu.on{display:block}
+.shell-ws__cap{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-subtle);padding:8px 10px 4px}
+.shell-ws__item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;text-decoration:none}
+.shell-ws__item:hover{background:var(--bg-muted)}.shell-ws__item.is-active{background:var(--accent-soft)}
+.shell-ws__item-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.shell-ws__item-name{font-size:12.5px;font-weight:700}.shell-ws__item-sub{font-size:11px;color:var(--fg-subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shell-ws__div{height:1px;background:var(--border);margin:5px 0}
+.shell-ws__link{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer;color:var(--fg-muted);font-size:12.5px;font-weight:600;text-decoration:none}
+.shell-ws__link:hover{background:var(--bg-muted);color:var(--fg)}
+
+/* ===== v4 ===== */
+.main-card{border:0;background:linear-gradient(135deg,color-mix(in oklch,var(--dc,var(--accent)) 14%,var(--bg-el)),var(--bg-el));box-shadow:var(--shadow-card)}
+.mainlist{display:flex;flex-direction:column;gap:8px}
+.mainlist div{display:flex;flex-direction:column;gap:1px;font-size:13.5px;line-height:1.45;padding:8px 10px;border-radius:10px;background:color-mix(in oklch,var(--bg-el) 70%,transparent)}
+.mainlist b{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-subtle)}
+.how{border-color:var(--accent)}
+.tl-bar{position:relative;display:flex;height:22px;border-radius:8px;overflow:visible;gap:2px;margin:30px 0 6px}
+.tl-seg{height:100%;border-radius:6px;min-width:4px}
+.tl-now{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--fg)}
+.tl-now span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10.5px;font-weight:800;white-space:nowrap}
+.tl-list{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.tl-row{display:grid;grid-template-columns:10px 120px 86px 1fr;gap:8px;align-items:center;font-size:12.5px;padding:5px 8px;border-radius:9px}
+.tl-row.cur{background:var(--bg-muted);outline:1px solid var(--border-strong)}
+.tl-row i{width:10px;height:10px;border-radius:3px}
+.tl-lv{font-weight:800}
+.quads{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quad{background:var(--bg-muted);border-radius:12px;padding:10px 12px}
+.quad h4{margin:0 0 6px;font-size:12.5px}
+.quad ol{margin:0;padding-left:18px;font-size:12.5px;line-height:1.45}.quad li{margin:3px 0}
+.dec{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dec-col{border-radius:12px;padding:10px;font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.dec-col h4{margin:0 0 2px;font-size:12px}
+.dec-col div{background:rgba(255,255,255,.55);border-radius:8px;padding:5px 8px}
+:root[data-theme="dark"] .dec-col div{background:rgba(0,0,0,.2)}
+.dec-col.d0{background:var(--info-soft);color:var(--info-text)}.dec-col.d1{background:var(--ok-soft);color:var(--ok-text)}.dec-col.d2{background:var(--no-soft);color:var(--no-text)}
+.arrows{display:flex;flex-direction:column;gap:6px}
+.ar{display:grid;grid-template-columns:1fr 20px 1fr;gap:6px;align-items:center;font-size:12.5px;padding:7px 10px;border-radius:10px}
+.ar i{font-style:normal;font-weight:800;text-align:center}
+.ar.ok{background:var(--ok-soft);color:var(--ok-text)}.ar.no{background:var(--no-soft);color:var(--no-text)}
+.lead{display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:12px;cursor:pointer}
+.lead:hover{background:var(--bg-muted)}
+.lead b{display:block;font-size:13px}.lead span{font-size:12.5px;color:var(--fg-muted)}
+.tline.key{background:var(--amb-soft);color:var(--amb-text)}.tline.lead-line{background:var(--accent-soft);color:var(--accent-strong)}
+.hm{overflow-x:auto}
+.hm-row{display:grid;grid-template-columns:170px repeat(12,minmax(34px,1fr));gap:3px;align-items:center;margin-bottom:3px}
+.hm-who{display:flex;gap:8px;align-items:center;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden}
+.hm-cell{height:26px;border-radius:6px}
+.hm-cell-h{font-size:10.5px;color:var(--fg-subtle);text-align:center;white-space:nowrap}
+.hm-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--fg-muted);margin-top:10px}
+.hm-legend span{display:flex;gap:6px;align-items:center}.hm-legend i{width:12px;height:12px;border-radius:3px}
+@media (max-width:860px){.quads,.dec{grid-template-columns:1fr}.tl-row{grid-template-columns:10px 1fr;}.tl-row .hint{grid-column:2}}
+.mu{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--bg-el);border:1px solid var(--border);border-radius:12px;margin:0 24px 24px;padding:16px 18px;white-space:pre-wrap;word-break:break-word}
+.mu-dir{color:var(--accent);font-weight:700}.mu-h{color:var(--info-text);font-weight:700}.mu-t{color:var(--fg-muted)}
+.mu-note{display:flex;gap:10px;margin:18px 24px 12px;padding:10px 12px;border-radius:12px;background:var(--accent-soft);font-size:13px;line-height:1.5}
+.seg .dt{border:0;background:transparent;padding:6px 11px;font-weight:700;font-size:12.5px;color:var(--fg-subtle)}.seg .dt.on{background:var(--accent-soft);color:var(--accent-strong)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scell{background:var(--bg-el);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;position:relative}
+.scell b{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg-subtle);padding-right:22px}
+.scell span:last-child{font-size:13.5px;line-height:1.4}
+.scell .si{position:absolute;top:8px;right:10px;font-size:15px}
+.prov{margin-top:10px;font-size:11.5px;color:var(--fg-subtle);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.keyline{background:var(--accent-soft);color:var(--accent-strong);border-radius:12px;padding:9px 12px;font-size:13.5px;margin-bottom:10px}
+.wsub{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--fg-subtle);margin:14px 0 6px}
+.wsub:first-of-type{margin-top:4px}
+.tl-bar.per{height:34px;border-radius:10px;overflow:visible;display:flex;position:relative}
+.tl-bar.per .tl-seg{display:flex;align-items:center;padding:0 8px;color:#fff;font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden}
+.tl-bar.per .tl-seg:first-child{border-radius:10px 0 0 10px}.tl-bar.per .tl-seg:last-of-type{border-radius:0 10px 10px 0}
+.per-list{display:flex;flex-direction:column;gap:4px;margin-top:8px;font-size:12.5px;color:var(--fg-muted)}
+.per-list b{color:var(--fg);text-transform:capitalize}
+.days{display:flex;gap:8px;flex-wrap:wrap}
+.dchip{border:1px solid var(--border);background:var(--bg-el);border-radius:12px;padding:8px 12px;display:flex;flex-direction:column;min-width:120px}
+.dchip b{font-size:15px}.dchip span{font-size:12px;color:var(--fg-muted)}
+.qi{display:flex;flex-direction:column;gap:1px;padding:5px 0;border-top:1px dashed var(--border);font-size:13px;line-height:1.4}
+.qi:first-of-type{border-top:0}
+.qi small{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg-subtle);font-weight:800}
+.pmain{display:grid;gap:6px;margin-bottom:10px}
+.pmain div{background:rgba(255,255,255,.09);border-radius:12px;padding:8px 10px;font-size:13px}
+.pmain small{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;opacity:.75;font-weight:800}
+.pdays{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:12.5px}
+.pdays span{background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px}
+.mu-fm{color:var(--ok-text);font-weight:600}
+.doc h3{font-size:15px;margin:16px 0 6px}
+@media (max-width:640px){.sgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+ <aside class="sidebar" id="sidebar"></aside>
+ <main id="main"><div class="mobile-top"><button class="btn sm" onclick="$('sidebar').classList.toggle('open')">☰</button><b>Суть ✕ Команда</b></div><div id="view" style="flex:1;display:flex;flex-direction:column;min-height:0"></div></main>
+ <nav class="rail" id="rail"></nav>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="palette" id="palette"></div>
+<aside class="drawer" id="drawer"></aside>
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast"></div>
+<div class="who-panel" id="whoPanel"></div>
+<div class="viewas" id="viewas"></div>
+<script>
+const $=id=>document.getElementById(id);
+const ICONS={home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',check:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>',video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/>',eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M22 20a6.5 6.5 0 0 0-4.5-6.2"/>',book:'<path d="M4 4h10a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M4 16a4 4 0 0 1 4-4h10"/>',wallet:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',team:'<rect x="9" y="2" width="6" height="5" rx="1.2"/><rect x="2" y="17" width="6" height="5" rx="1.2"/><rect x="16" y="17" width="6" height="5" rx="1.2"/><path d="M12 7v5M5 17v-2.5h14V17"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',brief:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',key:'<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M17 6l3 3M14.5 8.5l2 2"/>',lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',print:'<path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',hist:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 3"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>',expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',chev:'<path d="m9 6 6 6-6 6"/>',sitemap:'<rect x="3" y="3" width="7" height="6" rx="1.2"/><rect x="14" y="15" width="7" height="6" rx="1.2"/><rect x="14" y="3" width="7" height="6" rx="1.2"/><path d="M6.5 9v9H14M10 6h4"/>',activity:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',layers:'<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>',download:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',max:'<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/>',task:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>',meet:'<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 20a6 6 0 0 1 12 0M10 20a6 6 0 0 1 12 0"/>'};
+const ic=(n,s)=>`<svg class="i" viewBox="0 0 24 24" ${s?`style="width:${s}px;height:${s}px"`:''}>${ICONS[n]||''}</svg>`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const plural=(n,a,b,c)=>{const x=Math.abs(n)%100,y=x%10;return x>10&&x<20?c:y>1&&y<5?b:y===1?a:c};
+const people=n=>`${n} ${plural(n,'человек','человека','человек')}`;
+const norm=s=>String(s).toLowerCase().replace(/ё/g,'е');
+const PAL=['#8C6A57','#5C7E5A','#6B6E8E','#4A7B92','#B8623E','#C77A8A','#7A5340','#3F6B61'];
+const TODAY=new Date(2026,8,28);
+function avatar(p,size=40){const ini=(p.last[0]+(p.first[0]||'')).toUpperCase();const seed=p.key?900+p.key:p.id;const col=PAL[(seed*7)%PAL.length];const g=p.g==='f'?'women':'men';const n=(seed*37+11)%95;
+ return `<span class="av ${p.status==='left'?'left':''}" style="width:${size}px;height:${size}px;font-size:${Math.round(size*.36)}px;background:${col}">${ini}<img loading="lazy" alt="" src="https://randomuser.me/api/portraits/${g}/${n}.jpg" onerror="this.remove()"></span>`}
+
+/* ================= данные (выдуманы) ================= */
+const DB={people:[],depts:[],positions:[],docs:[],views:[],vac:[],changes:[]};let NEXT=1;
+const P=id=>DB.people.find(p=>p.id===id),D=id=>DB.depts.find(d=>d.id===id);
+const posName=p=>(DB.positions.find(q=>q.id===p.pos)||{}).name||'—';
+const isF=(l,f)=>/[ая]$/.test(l)||/[ая]$/.test(f);
+function mk(c,last,first,mid,pos,dept,mgr,x={}){const p=Object.assign({id:NEXT++,company:c,last,first,mid,pos,dept,mgr,status:'active',since:'2023-04-01',email:null,account:false},x);p.g=isF(last,first)?'f':'m';p.code=p.code||(c==='rice'?'РН-':c==='mal'?'М-':'ТО-')+(100+p.id);DB.people.push(p);return p}
+function dept(c,name,parent,color){const d={id:DB.depts.length+1,company:c,name,parent,head:null,color};DB.depts.push(d);return d}
+function posi(c,name){let p=DB.positions.find(x=>x.company===c&&x.name===name);if(!p){p={id:DB.positions.length+1,company:c,name};DB.positions.push(p)}return p.id}
+const COMPANIES=[{id:'rice',name:'«Рис и Нори»',short:'Рис и Нори',sub:'сеть ресторанов · 3 филиала',color:'#B8623E',letter:'РН'},{id:'mal',name:'«Малахит»',short:'Малахит',sub:'нутрицевтика · маркетплейсы',color:'#3F6B61',letter:'М'},{id:'dot',name:'«Точка опоры»',short:'Точка опоры',sub:'центр · практика, книги, бизнесу',color:'#6B6E8E',letter:'ТО'}];
+const K={owner:1,leb:2,tar:3};
+(function(){const C='rice';
+ const uk=dept(C,'Управляющая компания',null,'#7A5340'),fin=dept(C,'Финансы',uk.id,'#6B6E8E'),com=dept(C,'Коммерция',uk.id,'#C77A8A'),hr=dept(C,'Персонал',uk.id,'#8E6F3E');
+ const owner=mk(C,'Ковалёв','Сергей','Андреевич',posi(C,'Собственник'),uk.id,null,{key:K.owner,email:'owner@example.test',account:true,tg:'@kovalev',since:'2016-02-01'});
+ const exec=mk(C,'Орлова','Марина','Викторовна',posi(C,'Исполнительный директор'),uk.id,owner.id,{email:'orlova@example.test',account:true,tg:'@orlova_m',since:'2019-06-10'});
+ const cco=mk(C,'Лебедева','Анна','Игоревна',posi(C,'Коммерческий директор'),com.id,owner.id,{key:K.leb,email:'lebedeva@example.test',account:true,tg:'@anna_leb',since:'2020-01-15'});uk.head=exec.id;com.head=cco.id;
+ const acc=mk(C,'Белова','Ирина','Павловна',posi(C,'Главный бухгалтер'),fin.id,exec.id,{email:'belova@example.test',since:'2018-09-01'});fin.head=acc.id;
+ mk(C,'Зайцева','Ксения','Олеговна',posi(C,'Бухгалтер'),fin.id,acc.id);mk(C,'Ёлкина','Дарья','Сергеевна',posi(C,'Бухгалтер'),fin.id,acc.id,{since:'2026-09-14'});
+ const hrm=mk(C,'Тарасова','Юлия','Андреевна',posi(C,'Менеджер по персоналу'),hr.id,exec.id,{key:K.tar,email:'hr@example.test',account:true,tg:'@tarasova_hr'});hr.head=hrm.id;
+ mk(C,'Соколов','Глеб','Романович',posi(C,'Маркетолог'),com.id,cco.id);mk(C,'Павлова','Вера','Денисовна',posi(C,'SMM-менеджер'),com.id,cco.id);mk(C,'Захаров','Олег','Ильич',posi(C,'Закупщик'),com.id,cco.id);
+ const FM=['Алексей','Дмитрий','Иван','Максим','Никита','Артём','Егор','Роман','Кирилл','Тимур','Фёдор','Степан','Руслан','Антон','Павел','Георгий','Семён','Лев'],FF=['Алина','Екатерина','Полина','Виктория','Софья','Ксения','Валерия','Мария','Ульяна','Таисия','Евгения','Анастасия','Диана','Милана'];
+ const LN=['Волков','Морозов','Новиков','Фёдоров','Медведев','Егоров','Комаров','Андреев','Макаров','Гусев','Титов','Кудрявцев','Баранов','Куликов','Алексеев','Степанов','Яковлев','Сорокин','Сергеев','Романов','Воробьёв','Фролов','Виноградов','Богданов','Воронцов','Щербаков'];
+ const MM=['Андреевич','Сергеевич','Игоревич','Олегович','Павлович'],MF=['Андреевна','Сергеевна','Игоревна','Олеговна','Павловна'];
+ let k=0;const person=(pos,d,m,x)=>{const f=k%3===0,ln=LN[k%LN.length];const p=mk(C,f?ln+'а':ln,f?FF[k%FF.length]:FM[k%FM.length],f?MF[k%5]:MM[k%5],posi(C,pos),d,m,Object.assign({since:`202${3+k%4}-0${1+k%8}-1${k%9}`},x||{}));k++;return p};
+ const BR=[['«Центральный»','Смирнов','Денис','Олегович','#B8623E'],['«Северный»','Кузнецова','Ольга','Петровна','#4A7B92'],['«Речной»','Попов','Илья','Сергеевич','#5C7E5A']];
+ BR.forEach(([bn,l,fn,md,col],i)=>{const b=dept(C,'Филиал '+bn,null,col);
+  const mgr=mk(C,l,fn,md,posi(C,'Управляющий филиалом'),b.id,exec.id,{email:['smirnov','kuznetsova','popov'][i]+'@example.test',account:i<2,since:['2021-03-01','2022-07-11','2024-02-05'][i]});b.head=mgr.id;
+  const kit=dept(C,'Кухня',b.id,col),hall=dept(C,'Зал',b.id,col),del=dept(C,'Доставка',b.id,col);
+  const chef=person('Су-шеф',kit.id,mgr.id);kit.head=chef.id;
+  if(i===2){chef.status='left';chef.leftAt='05.09.2026'}
+  for(let j=0;j<6;j++){const p=person('Повар',kit.id,chef.status==='left'?mgr.id:chef.id);if(i===0&&j===2){Object.assign(p,{last:'Жуков',first:'Павел',mid:'Андреевич',g:'m',email:'zhukov@example.test',account:true,since:'2024-11-01'})}if(i===0&&j===4)p.since='2026-09-15'}
+  const adm=person('Администратор зала',hall.id,mgr.id);hall.head=adm.id;for(let j=0;j<6;j++)person('Официант',hall.id,adm.id);
+  const cur=person('Старший курьер',del.id,mgr.id);del.head=cur.id;for(let j=0;j<4;j++)person('Курьер',del.id,cur.id)});
+ const prod=dept(C,'Заготовочный цех',null,'#8E6F3E');const ph=mk(C,'Никитин','Олег','Васильевич',posi(C,'Начальник цеха'),prod.id,exec.id,{since:'2017-05-20'});prod.head=ph.id;
+ for(let j=0;j<8;j++)person('Заготовщик',prod.id,ph.id);
+ const rechKit=DB.depts.find(d=>d.company===C&&d.name==='Кухня'&&D(d.parent).name==='Филиал «Речной»');
+ DB.vac.push({id:1,company:C,pos:'Су-шеф',dept:rechKit.id,mgr:personBy(C,'Попов').id,since:'16.09.2026'});
+ DB.vac.push({id:2,company:C,pos:'Маркетолог (второй)',dept:com.id,mgr:cco.id,since:'22.09.2026'});
+})();
+(function(){const C='mal';
+ const top=dept(C,'Дирекция',null,'#3F6B61'),sales=dept(C,'Маркетплейсы',top.id,'#B8623E'),wh=dept(C,'Склад',top.id,'#6B6E8E'),cont=dept(C,'Контент и бренд',top.id,'#C77A8A');
+ const owner=mk(C,'Ковалёв','Сергей','Андреевич',posi(C,'Собственник'),top.id,null,{key:K.owner,email:'owner@example.test',account:true,tg:'@kovalev',since:'2021-04-01'});
+ const exec=mk(C,'Лебедева','Анна','Игоревна',posi(C,'Исполнительный директор'),top.id,owner.id,{key:K.leb,email:'lebedeva@example.test',account:true,tg:'@anna_leb',since:'2026-09-01'});top.head=exec.id;
+ const s1=mk(C,'Воронцов','Артём','Павлович',posi(C,'Руководитель продаж'),sales.id,exec.id);sales.head=s1.id;
+ [['Кравец','Марк'],['Лаптева','Нина'],['Гордеев','Лев'],['Осипова','Яна'],['Рябов','Тимофей']].forEach(([l,f])=>mk(C,l,f,/а$/.test(l)?'Игоревна':'Олегович',posi(C,'Менеджер маркетплейса'),sales.id,s1.id));
+ const w1=mk(C,'Шубин','Роман','Ильич',posi(C,'Заведующий складом'),wh.id,exec.id);wh.head=w1.id;
+ [['Панов','Денис'],['Лыкова','Ада'],['Серов','Игнат'],['Мухина','Лада']].forEach(([l,f])=>mk(C,l,f,/а$/.test(l)?'Павловна':'Петрович',posi(C,'Кладовщик'),wh.id,w1.id));
+ const c1=mk(C,'Миронова','Ева','Сергеевна',posi(C,'Бренд-менеджер'),cont.id,exec.id);cont.head=c1.id;
+ [['Кольцов','Ян'],['Чайкина','Лея'],['Дёмин','Савва']].forEach(([l,f],i)=>mk(C,l,f,/а$/.test(l)?'Андреевна':'Олегович',posi(C,i===2?'Дизайнер':'Контент-менеджер'),cont.id,c1.id));
+})();
+(function(){const C='dot';
+ const top=dept(C,'Дирекция центра',null,'#6B6E8E'),pr=dept(C,'Практика',top.id,'#5C7E5A'),edu=dept(C,'Обучение',top.id,'#4A7B92'),bk=dept(C,'Книги',top.id,'#8E6F3E'),biz=dept(C,'Услуги бизнесу',top.id,'#B8623E'),sal=dept(C,'Продажи',top.id,'#C77A8A'),adm=dept(C,'Администрация',top.id,'#7A5340');
+ const owner=mk(C,'Ковалёв','Сергей','Андреевич',posi(C,'Основатель'),top.id,null,{key:K.owner,email:'owner@example.test',account:true,tg:'@kovalev',since:'2024-01-10'});
+ const dir=mk(C,'Зорина','Вера','Андреевна',posi(C,'Директор центра'),top.id,owner.id,{email:'zorina@example.test',account:true,since:'2024-03-01'});top.head=dir.id;
+ const lead=(d,l,f,m,pos,team,tpos)=>{const h=mk(C,l,f,m,posi(C,pos),d.id,dir.id);d.head=h.id;team.forEach(([a,b])=>mk(C,a,b,/а$/.test(a)?'Олеговна':'Игоревич',posi(C,tpos),d.id,h.id));return h};
+ lead(pr,'Левин','Марк','Аркадьевич','Руководитель практики',[['Гаврилова','Ника'],['Ушаков','Тимофей'],['Белоусова','Арина'],['Громов','Лука'],['Субботина','Ева'],['Клименко','Остап']],'Психолог');
+ lead(edu,'Филатова','Вера','Олеговна','Методист',[['Нестеров','Глеб'],['Ковалевская','Лия'],['Прохоров','Ян']],'Ведущий программ');
+ lead(bk,'Абрамов','Лев','Ильич','Главный редактор',[['Сомова','Кира'],['Дьячков','Прохор']],'Редактор');
+ lead(biz,'Кириллова','Мира','Андреевна','Руководитель направления',[['Тихонов','Савелий'],['Лапина','Вера'],['Чернов','Мирон']],'Консультант');
+ lead(sal,'Демидов','Эрик','Петрович','Руководитель продаж',[['Голубева','Ника'],['Мельников','Ян'],['Широкова','Лада']],'Менеджер по продажам');
+ const a1=mk(C,'Сизова','Лада','Павловна',posi(C,'Администратор'),adm.id,dir.id);adm.head=a1.id;mk(C,'Краснов','Ян','Олегович',posi(C,'Бухгалтер'),adm.id,a1.id);
+ mk(C,'Тарасова','Юлия','Андреевна',posi(C,'Менеджер по персоналу'),adm.id,a1.id,{key:K.tar,email:'hr@example.test',account:true,tg:'@tarasova_hr',since:'2025-02-01'});
+ DB.vac.push({id:3,company:C,pos:'Психолог (детский)',dept:pr.id,mgr:personBy(C,'Левин').id,since:'10.09.2026'});
+})();
+function personBy(c,l){return DB.people.find(p=>p.company===c&&p.last===l)}
+function posBy(c,n){return DB.positions.find(p=>p.company===c&&p.name===n)}
+
+/* ================= тексты (одна сущность — текст) ================= */
+const SRC={
+ orlova:{title:'Марина Орлова — исполнительный директор сети',md:[['quote','Про тебя и твою роль. В чём ты сильнее всех в сети, что мы сознательно с тебя снимаем и как с тобой лучше работать.'],
+  ['h2','Сильные стороны'],['ul',['Держит в голове три филиала сразу','Видит провал раньше цифр','Собирает людей вокруг задачи','Наводит порядок: регламенты, графики, дежурства']],
+  ['h2','Какие задачи поручать'],['ul',['Запуск нового филиала — цель и срок, без пошагового плана','Наведение порядка в смене — покажи цифры проблемы','Подбор управляющих — портрет и потолок зарплаты']],
+  ['h2','Что нельзя поручать'],['ul',['Монотонную сверку цифр на неделю — выгорит к среде','Переговоры о цене с поставщиками — уступит ради отношений','Задачи «когда будет время» — без срока не начнёт']],
+  ['h2','Мотивация'],['ul',['Заводит — масштаб и признание результата при команде','Заводит — видимый итог за месяц','Гасит — премия «по итогам года»','Гасит — задачи без срока']],
+  ['h2','Энергия: подъёмы и спады'],['table',[['Неделя месяца','Энергия','Что ставить'],['1-я','высокая','запуски, сложные переговоры'],['2-я','высокая','новые проекты'],['3-я','средняя','доводка и контроль'],['4-я','низкая','рутина, без запусков']]],
+  ['h2','Как ставить задачи'],['ul',['Цель и срок одной строкой, без пошагового плана','Промежуточная проверка через неделю','Итог — при команде']],
+  ['h2','Как взаимодействовать'],['ol',['Короткий созвон раз в неделю, повестка заранее','Решения — письменно, одной строкой в задачнике','Критика — один на один и с цифрами; при команде — только признание']]]},
+ pair:{title:'Как Анне работать с Мариной Орловой',md:[['quote','Документ для тебя, Анна. Марина его не видит и о нём не знает.'],['h2','Как ставить ей задачи'],['ul',['Приходи с цифрой и сроком','Предлагай два варианта, а не готовое решение']],['h2','Как договариваться'],['ul',['Спор о человеке переводи в спор о цифре']],['h2','Чего избегать'],['ul',['Задач через её голову управляющим','Сообщений в выходные']],['h2','Как поддержать'],['ul',['Публично отмечай результат её филиалов']]]},
+ job_branch:{title:'Управляющий филиалом',md:[['h2','Общие положения'],['p','Отвечает за филиал целиком: выручку, людей, качество и чистоту.'],['h2','Трудовые функции'],['ul',['Работа кухни, зала и доставки','Подбор и ввод линейного персонала','Себестоимость и списания']],['h2','Должностные обязанности'],['table',[['Что','Как часто'],['Проверка открытия смены — чек-лист до 10:00','Каждый день'],['Ответ на отзывы гостей ≤ 24 ч','Каждую неделю'],['Инвентаризация, расхождения ≤ 1%','Каждый месяц']]]]},
+ job_exec:{title:'Исполнительный директор',md:[['h2','Трудовые функции'],['ul',['Управление филиалами и цехом','Финансовая дисциплина сети','Подбор управляющих']],['h2','Должностные обязанности'],['table',[['Что','Как часто'],['Сводка выручки по филиалам','Каждый день'],['Разбор с управляющими','Каждую неделю'],['Закрытие месяца с финансами','Каждый месяц']]]]},
+ job_cook:{title:'Повар',md:[['h2','Трудовые функции'],['ul',['Приготовление по техкартам','Маркировка заготовок','Чистота рабочего места']],['h2','Должностные обязанности'],['table',[['Что','Как часто'],['Сдача смены с чек-листом','Каждый день'],['Проверка сроков заготовок','Каждую неделю']]]]},
+ job_psy:{title:'Психолог',md:[['h2','Трудовые функции'],['ul',['Индивидуальные сессии','Групповые программы','Супервизия раз в месяц']],['h2','Должностные обязанности'],['table',[['Что','Как часто'],['Записи сессий в карточке клиента','Каждый день'],['Разбор случаев с руководителем практики','Каждую неделю'],['Супервизия','Каждый месяц']]]]}
+};
+const LEVELS=['высокая','средняя','низкая'];
+const WHAT={высокая:'сложное, новое, запуски',средняя:'доводка и контроль',низкая:'рутина, без запусков'};
+(function(){const rice=(l)=>personBy('rice',l);
+ DB.docs.push({id:1,company:'rice',kind:'personal',subject:rice('Орлова').id,src:'orlova',v:[{n:1,d:'02.09.2026'},{n:2,d:'15.09.2026'},{n:3,d:'28.09.2026'}]});
+ DB.docs.push({id:2,company:'rice',kind:'pair',reader:rice('Лебедева').id,subject:rice('Орлова').id,src:'pair',v:[{n:1,d:'20.09.2026'}]});
+ [['Управляющий филиалом','job_branch'],['Исполнительный директор','job_exec'],['Повар','job_cook']].forEach(([n,s],i)=>DB.docs.push({id:3+i,company:'rice',kind:'job',position:posBy('rice',n).id,src:s,v:[{n:1,d:'10.09.2026'}]}));
+ DB.docs.push({id:6,company:'dot',kind:'job',position:posBy('dot','Психолог').id,src:'job_psy',v:[{n:1,d:'12.09.2026'}]});
+ let id=7;['Жуков','Кузнецова','Смирнов','Никитин','Белова','Тарасова'].forEach(l=>DB.docs.push({id:id++,company:'rice',kind:'personal',subject:rice(l).id,gen:true,v:[{n:1,d:'22.09.2026'}]}));
+ DB.people.filter(p=>p.company==='rice'&&['Повар','Су-шеф','Администратор зала','Старший курьер'].includes(posName(p))&&p.status==='active').slice(0,14).forEach(p=>{if(!DB.docs.some(d=>d.subject===p.id))DB.docs.push({id:id++,company:'rice',kind:'personal',subject:p.id,gen:true,v:[{n:1,d:'24.09.2026'}]})});
+ ['Воронцов','Шубин','Миронова','Лебедева'].forEach(l=>DB.docs.push({id:id++,company:'mal',kind:'personal',subject:personBy('mal',l).id,gen:true,v:[{n:1,d:'18.09.2026'}]}));
+ ['Зорина','Левин','Филатова','Кириллова','Демидов'].forEach(l=>DB.docs.push({id:id++,company:'dot',kind:'personal',subject:personBy('dot',l).id,gen:true,v:[{n:1,d:'19.09.2026'}]}));
+ DB.views.push({doc:1,who:'Марина Орлова',when:'28.09 09:14'},{doc:1,who:'Сергей Ковалёв · через Юю',when:'28.09 08:02'},{doc:2,who:'Анна Лебедева',when:'27.09 18:40'});
+ const ch=(company,d,type,t,s)=>DB.changes.push({company,d,type,t,s});
+ ch('rice','28.09','doc','Новая версия личной: Марина Орлова · v3','Сергей Ковалёв · через Юю');
+ ch('rice','22.09','vac','Открыта вакансия: маркетолог (второй) · Коммерция','Анна Лебедева · через Юю');
+ ch('rice','16.09','vac','Открыта вакансия: су-шеф · «Речной»','Сергей Ковалёв · через Юю');
+ ch('rice','15.09','in','Пришёл: повар в «Центральный»','Юлия Тарасова · через Юю');
+ ch('rice','14.09','in','Пришла: Дарья Ёлкина · бухгалтер','Юлия Тарасова · через Юю');
+ ch('rice','05.09','out','Ушёл: су-шеф «Речного» — повара переведены к управляющему','Сергей Ковалёв · через Юю');
+ ch('mal','01.09','move','Анна Лебедева стала исполнительным директором «Малахита» (также — коммерческий директор «Рис и Нори»)','Сергей Ковалёв · через Юю');
+ ch('dot','10.09','vac','Открыта вакансия: детский психолог · Практика','Вера Зорина · через Юю');
+})();
+
+/* ================= роли просмотра и права ================= */
+const PERSONAS=[
+ {id:'admin',label:'Администратор',name:'Сергей Ковалёв',role:'Собственник всех трёх компаний · администратор модуля',admin:true,links:{rice:'Ковалёв',mal:'Ковалёв',dot:'Ковалёв'},sees:['три пространства — переключаются внизу слева, как в «Задачах»; у каждого своя структура','всё дерево каждой компании, уволенных, закрытые поля','документы всех, парные, историю, закрытые данные рождения; «Покрытие» — чего не хватает для расчёта; «Доступы» — в меню пространства']},
+ {id:'mgr',label:'Руководитель',name:'Марина Орлова',role:'Исполнительный директор «Рис и Нори»',links:{rice:'Орлова'},sees:['одно пространство — «Рис и Нори»; «Моя команда» — пульт по своим людям','личные и окна по времени всей своей ветки вниз; «как вам вести каждого» — парные «Марина → подчинённый», их рассчитывает движок','НЕ видит парную «Как Анне работать с Мариной»','других пространств в переключателе у неё нет']},
+ {id:'emp',label:'Сотрудник',name:'Павел Жуков',role:'Повар, филиал «Центральный»',links:{rice:'Жуков'},sees:['дерево и роли по должностям','только СВОЙ документ и свои окна по времени','чужие личные, уволенных, историю — нет']},
+ {id:'top',label:'Топ · в 2 компаниях',name:'Анна Лебедева',role:'Коммерческий директор «Рис и Нори» · исполнительный директор «Малахита»',links:{rice:'Лебедева',mal:'Лебедева'},sees:['два пространства в переключателе — «Рис и Нори» и «Малахит»','на Марине Орловой — метку «для вас» и блок «Как вам с ней работать»','в «Малахите» — личные своей ветки; в «Рис и Нори» — только своей коммерции','«Точки опоры» для неё нет']}];
+const S={company:'rice',persona:'admin',view:'tree',open:null,expanded:new Set(),stackOpen:new Set(),level:2,dense:false,energy:true,hlDept:null,focus:null,q:'',filter:'',showLeft:false,drill:null};
+const persona=()=>PERSONAS.find(p=>p.id===S.persona);
+const isAdmin=()=>!!persona().admin;
+const myCompanies=()=>COMPANIES.filter(c=>(persona().links||{})[c.id]);
+function viewerIn(c){const l=(persona().links||{})[c];return l?personBy(c,l):null}
+const viewer=()=>viewerIn(S.company);
+function gateOpen(c=S.company){if(persona().admin)return true;const v=viewerIn(c);return !!(v&&v.status==='active')}
+const cp=(c=S.company)=>DB.people.filter(p=>p.company===c&&(p.status==='active'||(isAdmin()&&S.showLeft)));
+const kids=p=>cp(p.company).filter(x=>x.mgr===p.id);
+function subtree(p){const out=[],q=[p.id],seen=new Set([p.id]);while(q.length){const id=q.shift();DB.people.filter(x=>x.mgr===id&&x.status==='active').forEach(x=>{if(!seen.has(x.id)){seen.add(x.id);out.push(x);q.push(x.id)}})}return out}
+function chainUp(p){const out=[],seen=new Set([p.id]);let m=p.mgr&&P(p.mgr),g=0;while(m&&g<50&&!seen.has(m.id)){seen.add(m.id);if(m.status==='active')out.unshift(m);m=m.mgr&&P(m.mgr);g++}return out}
+const inChainUp=(v,s)=>!!(v&&s&&subtree(v).some(x=>x.id===s.id));
+function canRead(d){if(!gateOpen(d.company))return false;if(isAdmin())return true;const v=viewerIn(d.company),s=d.subject&&P(d.subject);if(s&&s.status!=='active')return false;
+ if(d.kind==='job')return true;if(d.kind==='personal')return !!v&&(v.id===d.subject||inChainUp(v,s));if(d.kind==='pair')return !!v&&v.id===d.reader;return false}
+const deptOf=p=>p.dept?D(p.dept):null;
+const topDept=p=>{let d=deptOf(p);while(d&&d.parent)d=D(d.parent);return d};
+const colorOf=p=>{const d=deptOf(p);return d?d.color:'#C9BCAB'};
+const src=d=>d.gen==='pair'?genPair(P(d.reader),P(d.subject)):d.gen?genPersonal(P(d.subject)):SRC[d.src];
+const lastV=d=>d.v[d.v.length-1];
+const personalOf=p=>DB.docs.find(d=>d.kind==='personal'&&d.subject===p.id);
+const jobOf=p=>DB.docs.find(d=>d.kind==='job'&&d.position===p.pos&&d.company===p.company);
+function pairFor(p){const v=viewerIn(p.company);return v?DB.docs.find(d=>d.kind==='pair'&&d.reader===v.id&&d.subject===p.id&&canRead(d)):null}
+const others=p=>p.key?DB.people.filter(x=>x.key===p.key&&x.id!==p.id&&x.status==='active'):[];
+const isNew=p=>(TODAY-new Date(p.since))/864e5<=30;
+function tenure(p){const d=new Date(p.since),m=(TODAY.getFullYear()-d.getFullYear())*12+TODAY.getMonth()-d.getMonth();if(m<1)return 'меньше месяца';const y=Math.floor(m/12),mm=m%12;return (y?`${y} ${plural(y,'год','года','лет')}`:'')+(y&&mm?' ':'')+(mm?`${mm} ${plural(mm,'месяц','месяца','месяцев')}`:'')}
+function sections(md){const out={};let cur=null;for(const [t,c] of md){if(t==='h2'){cur=c;out[cur]=[]}else if(cur)out[cur].push([t,c])}return out}
+const items=b=>(b||[]).flatMap(([t,c])=>t==='ul'||t==='ol'?c:t==='p'?[c]:[]);
+const WEEK=Math.min(4,Math.ceil(TODAY.getDate()/7));
+const whoSees=(kind,p)=>kind==='personal'?`Видят: ${p.first} сам${p.g==='f'?'а':''}, руководители выше по цепочке и администратор модуля. Коллеги и подчинённые — нет.`:kind==='pair'?'Видите только вы и администратор модуля. Тот, о ком это, не видит и не знает о существовании.':kind==='job'?'Видят все, кто допущен к модулю в этой компании.':'Видит только администратор модуля.';
+const whoI=t=>`<span class="who-sees">?<span class="pop">${esc(t)}</span></span>`;
+
+/* ================= оболочка ================= */
+function toast(t){const e=$('toast');e.innerHTML=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),3000)}
+function renderSidebar(){const co=COMPANIES.find(c=>c.id===S.company),mine=myCompanies();const v=S.view;const vw=viewer();const hasTeam=vw&&kids(vw).length;
+ const nav=(k,i,l,cnt)=>`<a href="javascript:void 0" class="${v===k?'on':''}" onclick="setView('${k}')">${ic(i)} ${l}${cnt!=null?`<span class="count">${cnt}</span>`:''}</a>`;
+ const role=isAdmin()?'администратор модуля':vw?(kids(vw).length?'руководитель':'сотрудник'):'';
+ $('sidebar').innerHTML=`<div class="sb-head">Суть <span>✕</span> Команда</div>
+ <button class="search-btn" onclick="openPalette()">${ic('search',16)} Найти человека <kbd>⌘K</kbd></button>
+ ${gateOpen()?`<nav class="nav">${nav('tree','team','Структура')}${nav('depts','sitemap','Отделы',DB.depts.filter(d=>d.company===S.company&&!d.parent).length)}${nav('faces','grid','Люди',cp().length)}${hasTeam?nav('team','star','Моя команда',kids(vw).length):''}${nav('roles','brief','Должности')}${isAdmin()?nav('coverage','layers','Покрытие'):''}
+ ${vw?`<a href="javascript:void 0" onclick="goPerson(${vw.id})">${ic('target')} Где я</a>`:''}</nav>`:''}
+ <div style="margin-top:auto;padding:12px 12px 0"><div class="mock-note">Мокап v6 · люди и компании выдуманы · фото — заглушки</div>
+ <button class="ask-yuia" onclick="openYuia()"><span style="color:var(--accent)">${ic('spark')}</span><span><b>Всё вносит Юя</b>Кого завести, перевести, какую вакансию открыть, чей текст положить.</span></button></div>
+ <div class="shell-ws" id="wsBox"><button class="shell-ws__current" onclick="event.stopPropagation();$('wsMenu').classList.toggle('on')"><span class="shell-ws__logo" style="background:${co.color}">${co.letter}</span><span class="shell-ws__info"><span class="shell-ws__name">${co.short}</span>${role?`<span class="shell-ws__role">${role}</span>`:''}</span><span style="color:var(--fg-subtle)">${ic('chev',14)}</span></button>
+  <div class="shell-ws__menu" id="wsMenu" onclick="event.stopPropagation()"><div class="shell-ws__cap">Пространства</div>
+  ${mine.map(c=>`<a class="shell-ws__item ${c.id===S.company?'is-active':''}" onclick="$('wsMenu').classList.remove('on');switchCompany('${c.id}')"><span class="shell-ws__logo shell-ws__logo--sm" style="background:${c.color}">${c.letter}</span><span class="shell-ws__item-text"><span class="shell-ws__item-name">${c.short}</span><span class="shell-ws__item-sub">${people(cp(c.id).length)} · ${c.sub}</span></span>${c.id===S.company?'<span style="color:var(--accent);font-weight:800">✓</span>':''}</a>`).join('')}
+  ${isAdmin()?`<div class="shell-ws__div"></div><div class="shell-ws__cap">Управление</div><a class="shell-ws__link" onclick="$('wsMenu').classList.remove('on');setView('access')">${ic('key',15)} Доступы к «Команде»</a><a class="shell-ws__link" onclick="toast('Настройки пространства — общие для всех модулей')">${ic('brief',15)} Настройки пространства</a>`:''}</div></div>`}
+function renderRail(){const it=[['home','Главная'],['check','Задачи'],['mail','Почта'],['cal','Календарь'],['video','Видео'],['eye','Видеонаблюдение'],['users','CRM'],['team','Команда',1],['book','База знаний'],['wallet','Деньги']];
+ $('rail').innerHTML=`<button class="yu" onclick="openYuia()">${ic('spark')}<span class="tip">Юя</span></button>`+it.map(([i,l,on])=>`<button class="${on?'on':''}" onclick="${on?"setView('tree')":"toast('В мокапе показан только модуль «Команда»')"}">${ic(i)}<span class="tip">${l}</span></button>`).join('')+`<span class="sp"></span><button onclick="toggleTheme()">${ic('moon')}<span class="tip">Тема</span></button><button>${ic('bell')}</button><button>${ic('help')}</button>`}
+function setView(v){S.view=v;$('sidebar').classList.remove('open');if(v!=='tree')S.focus=null;render()}
+function switchCompany(c){S.company=c;S.expanded=new Set();S.stackOpen=new Set();S.open=null;S.filter='';S.focus=null;S.hlDept=null;S.drill=null;if(S.view==='access'&&!isAdmin())S.view='tree';render()}
+
+/* ================= дерево ================= */
+let T={x:0,y:0,k:1};
+const isLeaf=p=>kids(p).length===0;
+function depthMap(rs){const m=new Map();const walk=(p,d)=>{m.set(p.id,d);kids(p).forEach(k=>walk(k,d+1))};rs.forEach(r=>walk(r,0));return m}
+function applyLevel(){const rs=roots();const dm=depthMap(rs);S.expanded=new Set();dm.forEach((d,id)=>{if(S.level==='all'||d<S.level-1)S.expanded.add(id)})}
+function roots(){if(S.focus){return[P(S.focus)]}return cp().filter(p=>!p.mgr||!cp().some(x=>x.id===p.mgr))}
+function inHl(p){if(!S.hlDept)return true;const t=topDept(p),d=deptOf(p);return (d&&d.id===S.hlDept)||(t&&t.id===S.hlDept)||(d&&d.parent===S.hlDept)}
+function nodeHTML(p){const v=viewer(),me=v&&v.id===p.id,pr=pairFor(p),d=deptOf(p),ks=kids(p),en=S.energy?energyNow(p):null,ot=others(p);
+ return `<div class="node ${me?'me':''} ${p.status==='left'?'left':''} ${inHl(p)?'':'dim'}" data-id="${p.id}" style="--dc:${colorOf(p)}" onclick="openSheet(${p.id})" onmouseenter="hlPath(${p.id},1)" onmouseleave="hlPath(${p.id},0)">
+ ${me?'<span class="tag me">Вы</span>':pr?'<span class="tag pair">★ для вас</span>':''}
+ ${en?`<span class="en ${en.cls}" title="${esc(en.what)}">${esc(en.label)}</span>`:''}
+ <span class="badges">${isNew(p)?'<span class="nb new">новичок</span>':''}${ot.length?`<span class="nb x">+${ot.length} ${plural(ot.length,'компания','компании','компаний')}</span>`:''}</span>
+ ${avatar(p,56)}<div class="nm">${esc(p.first)} ${esc(p.last)}</div><div class="rl">${esc(posName(p))}</div>${d?`<div class="dp"><i></i>${esc(d.name)}</div>`:''}
+ ${ks.length?`<div><button class="tog" onclick="event.stopPropagation();toggleNode(${p.id})"><span class="stackav">${ks.slice(0,3).map(x=>avatar(x,20)).join('')}</span>${S.expanded.has(p.id)?'свернуть':`${ks.length} · в ветке ${subtree(p).length}`}</button></div>`:''}</div>`}
+function teamHTML(key,ks,title){const open=S.stackOpen.has(key),lim=ks.length<=5?5:4,show=open?ks:ks.slice(0,lim);const dim=ks.every(x=>!inHl(x));
+ return `<div class="team ${dim?'dim':''}"><div class="team-h">${esc(title)} · ${ks.length}</div>${show.map(x=>{const en=S.energy?energyNow(x):null;return `<div class="ti" data-id="${x.id}" onclick="openSheet(${x.id})">${avatar(x,30)}<div style="flex:1"><b>${esc(x.first)} ${esc(x.last)}${viewer()&&viewer().id===x.id?' <span class="badge ok">вы</span>':''}${isNew(x)?' <span class="nb new">новичок</span>':''}</b><small>${esc(posName(x))}</small></div>${en?`<span class="en ${en.cls}" style="position:static">${en.cls==='hi'?'▲':en.cls==='mid'?'■':'▼'}</span>`:''}</div>`}).join('')}${ks.length>lim?`<div class="more" onclick="S.stackOpen.${open?'delete':'add'}('${key}');renderTree(true)">${open?'Свернуть':'Ещё '+(ks.length-lim)}</div>`:''}</div>`}
+function vacHTML(v){return `<div class="vac" onclick="openVac(${v.id})"><div class="vi">+</div><b>Вакансия</b><small>${esc(v.pos)}<br>открыта с ${v.since}</small></div>`}
+function liHTML(p){const ks=kids(p),vs=DB.vac.filter(v=>v.mgr===p.id);let inner=nodeHTML(p);
+ if((ks.length||vs.length)&&(S.expanded.has(p.id)||(!ks.length&&vs.length))){let lis='';
+  if(ks.length&&ks.every(isLeaf)&&ks.length>=3){const g={};ks.forEach(x=>{const k=x.dept||0;(g[k]=g[k]||[]).push(x)});const gs=Object.entries(g);lis=gs.map(([d,xs])=>`<li>${teamHTML(p.id+'-'+d,xs,gs.length>1&&+d?D(+d).name:([...new Set(xs.map(posName))].length===1?posName(xs[0]):'Команда'))}</li>`).join('')}
+  else lis=ks.map(liHTML).join('');
+  lis+=vs.map(v=>`<li>${vacHTML(v)}</li>`).join('');inner+=`<ul>${lis}</ul>`}
+ return `<li>${inner}</li>`}
+function pageTree(){if(innerWidth<=860)return pageDrill();const rs=roots();if(!rs.length)return emptyCompany();
+ if(!S.expanded.size)applyLevel();
+ const legend=DB.depts.filter(d=>d.company===S.company&&!d.parent);const lg=legend.length===1?DB.depts.filter(d=>d.parent===legend[0].id):legend;
+ const f=S.focus&&P(S.focus);
+ return `${f?`<div class="focusbar">${ic('target',14)} Ветка: <b>${esc(f.first)} ${esc(f.last)}</b> · выше: ${chainUp(f).map(m=>`<a onclick="S.focus=${m.id};S.expanded=new Set();renderMain()">${esc(m.first)} ${esc(m.last)}</a>`).join(' › ')||'—'} <span style="flex:1"></span><a onclick="S.focus=null;S.expanded=new Set();renderMain()">← Вся компания</a></div>`:''}
+ <div class="tb"><div class="tb-row"><h1>${f?'Ветка':'Структура'}</h1><span class="hint hide-m">${people((f?[f,...subtree(f)]:cp()).length)} · тяните, ⌘+колесо — масштаб, <span class="kbd">/</span> — поиск, <span class="kbd">F</span> — вписать</span><span class="sp"></span>
+  <label class="find">${ic('search',15)}<input id="tfind" placeholder="Найти: «жуков», «повар», «ёлкина»…" oninput="treeFind(this.value)"></label></div>
+  <div class="tb-row"><span class="lvl">Уровни</span><div class="seg">${[1,2,3,'all'].map(l=>`<button class="${S.level===l?'on':''}" onclick="S.level=${l==='all'?"'all'":l};applyLevel();renderTree()">${l==='all'?'все':l}</button>`).join('')}</div>
+  <div class="seg"><button class="${!S.dense?'on':''}" onclick="S.dense=false;renderTree()">Подробно</button><button class="${S.dense?'on':''}" onclick="S.dense=true;renderTree()">Компактно</button></div>
+  <button class="btn sm ${S.energy?'primary':''}" onclick="S.energy=!S.energy;renderTree(true)" title="Показывается только там, где вам можно читать личный документ">▲▼ Окна сейчас</button>
+  ${isAdmin()?`<label class="btn sm" style="gap:6px"><input type="checkbox" ${S.showLeft?'checked':''} onchange="S.showLeft=this.checked;renderTree(true)"> уволенные</label>`:''}
+  <span class="sp"></span><button class="btn sm" onclick="toast('Схема выгружена в PNG и PDF — с фото и цветами отделов. Отдаётся только тем, кто видит модуль.')">${ic('download',14)} PNG / PDF</button><button class="btn sm" onclick="document.body.classList.toggle('full');setTimeout(fit,50)">${ic('max',14)} Во весь экран</button></div>
+  <div class="legend">${lg.map(d=>`<span class="${S.hlDept===d.id?'on':''}" onclick="S.hlDept=S.hlDept===${d.id}?null:${d.id};renderTree(true)" title="Подсветить отдел"><i style="background:${d.color}"></i>${esc(d.name)}</span>`).join('')}${S.hlDept?'<span onclick="S.hlDept=null;renderTree(true)">✕ снять подсветку</span>':''}</div></div>
+ <div class="canvas" id="canvas"><div class="stage" id="stage"><div class="oc ${S.dense?'compact':''}" id="oc"><ul>${rs.map(liHTML).join('')}</ul></div></div>
+  <div class="zoom"><button onclick="zoomBy(1.2)">+</button><button onclick="zoomBy(1/1.2)">−</button><button onclick="fit()" title="Вписать (F)">${ic('expand',15)}</button></div>
+  <aside class="sheet" id="sheet"></aside></div>`}
+function renderTree(keep){const oc=$('oc');if(!oc){renderMain();return}oc.className='oc'+(S.dense?' compact':'');oc.innerHTML=`<ul>${roots().map(liHTML).join('')}</ul>`;const tb=document.querySelector('.tb');if(tb&&!keep){renderMain();return}if(!keep)fit()}
+function toggleNode(id){S.expanded.has(id)?S.expanded.delete(id):S.expanded.add(id);renderTree(true);if(S.expanded.has(id))setTimeout(()=>focusPerson(id,false,true),30)}
+function apply(anim){const st=$('stage');if(!st)return;st.classList.toggle('anim',!!anim);st.style.transform=`translate(${T.x}px,${T.y}px) scale(${T.k})`}
+function fit(){const c=$('canvas'),st=$('stage');if(!c||!st)return;const sw=S.open&&innerWidth>860?500:0,aw=c.clientWidth-sw;const w=st.scrollWidth,h=st.scrollHeight;const k=Math.min(1,(aw-40)/w,(c.clientHeight-40)/h);T.k=Math.max(.55,k);T.x=w*T.k<aw?(aw-w*T.k)/2:Math.min(0,(aw-w*T.k)/2);T.y=0;apply(true)}
+function zoomBy(f,cx,cy){const c=$('canvas');if(!c)return;cx=cx??c.clientWidth/2;cy=cy??c.clientHeight/2;const nk=Math.min(2,Math.max(.25,T.k*f));T.x=cx-(cx-T.x)*nk/T.k;T.y=cy-(cy-T.y)*nk/T.k;T.k=nk;apply(true)}
+function focusPerson(id,open,soft){const p=P(id);if(!p)return;if(innerWidth<=860){S.drill=p.mgr||null;renderMain();openSheet(id);return}
+ if(S.focus&&!(S.focus===id||inChainUp(P(S.focus),p)))S.focus=null;
+ chainUp(p).forEach(m=>S.expanded.add(m.id));if(p.mgr)S.stackOpen.add(p.mgr+'-'+(p.dept||0));renderTree(true);
+ requestAnimationFrame(()=>{const el=document.querySelector(`[data-id="${id}"]`),c=$('canvas'),st=$('stage');if(!el||!c)return;const r=el.getBoundingClientRect(),sr=st.getBoundingClientRect();const lx=(r.left-sr.left)/T.k+r.width/T.k/2,ly=(r.top-sr.top)/T.k+r.height/T.k/2;
+  if(!soft)T.k=Math.max(T.k,.9);const sw=open&&innerWidth>860?500:0;T.x=(c.clientWidth-sw)/2-lx*T.k;T.y=c.clientHeight/2.6-ly*T.k;apply(true);if(!soft){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse')}if(open)openSheet(id)})}
+function hlPath(id,on){chainUp(P(id)).forEach(m=>{const el=document.querySelector(`.node[data-id="${m.id}"]`);if(el)el.classList.toggle('path',!!on)})}
+let findT;function treeFind(q){clearTimeout(findT);findT=setTimeout(()=>{const n=norm(q.trim());if(n.length<2)return;const hit=cp().find(p=>norm(`${p.last} ${p.first} ${posName(p)}`).includes(n));if(hit)focusPerson(hit.id,false);else toast('Никого не нашли')},250)}
+function wireCanvas(){const c=$('canvas');if(!c)return;let drag=null;
+ c.addEventListener('pointerdown',e=>{if(e.target.closest('.node,.team,.vac,.zoom,.sheet,button,input'))return;drag={x:e.clientX,y:e.clientY,tx:T.x,ty:T.y};c.classList.add('drag');c.setPointerCapture(e.pointerId)});
+ c.addEventListener('pointermove',e=>{if(!drag)return;T.x=drag.tx+e.clientX-drag.x;T.y=drag.ty+e.clientY-drag.y;apply(false)});
+ c.addEventListener('pointerup',()=>{drag=null;c.classList.remove('drag')});
+ c.addEventListener('wheel',e=>{if(e.target.closest('.sheet'))return;e.preventDefault();const r=c.getBoundingClientRect();if(e.ctrlKey||e.metaKey)zoomBy(e.deltaY<0?1.1:1/1.1,e.clientX-r.left,e.clientY-r.top);else{T.x-=e.deltaX;T.y-=e.deltaY;apply(false)}},{passive:false})}
+function openVac(id){const v=DB.vac.find(x=>x.id===id);const m=P(v.mgr);toast(`Вакансия «${v.pos}» · руководитель ${m.first} ${m.last} · открыта с ${v.since}. Закрыть её — сказать Юе «на су-шефа взяли …»`)}
+
+/* мобильная проходка по дереву (как у Frappe HR на телефоне) */
+function pageDrill(){const rs=cp().filter(p=>!p.mgr||!cp().some(x=>x.id===p.mgr));if(!rs.length)return emptyCompany();
+ const cur=S.drill?P(S.drill):null;const list=cur?kids(cur):rs;const chain=cur?[...chainUp(cur),cur]:[];
+ return `<div class="scroll"><div class="drill"><div class="tb" style="padding:0 0 10px;border:0"><div class="tb-row"><h1>Структура</h1><span class="sp"></span><label class="find">${ic('search',15)}<input placeholder="Найти…" oninput="treeFind(this.value)"></label></div></div>
+ <div class="crumb"><a onclick="S.drill=null;renderMain()">Верх</a>${chain.map(m=>`<a onclick="S.drill=${m.id};renderMain()">${esc(m.first)} ${esc(m.last[0])}.</a>`).join('')}</div>
+ ${cur?`<div class="me-card" onclick="openSheet(${cur.id})">${avatar(cur,54)}<div><b>${esc(cur.first)} ${esc(cur.last)}</b><div class="hint">${esc(posName(cur))} · в ветке ${people(subtree(cur).length)}</div></div><span style="margin-left:auto" class="badge acc">профиль</span></div><div class="hint" style="margin:14px 0 4px">Подчинённые · ${list.length}</div>`:''}
+ ${list.map(p=>{const n=kids(p).length,en=S.energy?energyNow(p):null;return `<div class="row" onclick="${n?`S.drill=${p.id};renderMain()`:`openSheet(${p.id})`}">${avatar(p,42)}<div><b>${esc(p.first)} ${esc(p.last)}</b>${isNew(p)?' <span class="nb new">новичок</span>':''}<div class="hint">${esc(posName(p))}</div></div><span class="go">${en?`<span class="en ${en.cls}" style="position:static">${en.cls==='hi'?'▲':en.cls==='mid'?'■':'▼'}</span>`:''}${n?`${n} ${ic('chev',14)}`:''}</span></div>`}).join('')}
+ ${DB.vac.filter(v=>cur&&v.mgr===cur.id).map(v=>`<div class="row" style="border-style:dashed" onclick="openVac(${v.id})"><div class="vi" style="width:42px;height:42px;border-radius:50%;border:2px dashed var(--border-strong);display:grid;place-items:center">+</div><div><b>Вакансия</b><div class="hint">${esc(v.pos)}</div></div></div>`).join('')}
+ </div></div><aside class="sheet" id="sheet" style="position:fixed"></aside>`}
+
+/* ================= профиль ================= */
+function energyHTML(blocks){const tb=(blocks||[]).find(b=>b[0]==='table');if(!tb)return '';const lv={высокая:92,средняя:60,низкая:30};
+ return `<div class="energy">${tb[1].slice(1).map(r=>{const h=lv[r[1]]||50;const c=h>80?['#7FC49A','#2F7A4F']:h>50?['#F2CF7E','#B17A23']:['#F0A89F','#B7392E'];return `<div class="${r[0]===WEEK+'-я'?'cur':''}"><b style="height:${h}%;--c1:${c[0]};--c2:${c[1]}"></b><small><b style="display:block;background:none;height:auto;color:var(--fg);outline:0">${esc(r[0])}${r[0]===WEEK+'-я'?' · сейчас':''}</b>${esc(r[2]||'')}</small></div>`}).join('')}</div>`}
+function roleHTML(doc,p){const s=sections(src(doc).md);const fn=items(s['Трудовые функции']);const tb=(s['Должностные обязанности']||[]).find(b=>b[0]==='table');
+ return `<div class="sec" id="a-role"><div class="sec-h">${ic('brief',14)} Роль: ${esc(posName(p))}<span class="sp"></span><span class="badge">v${lastV(doc).n}</span>${whoI(whoSees('job',p))}</div>
+ ${fn.length?`<div class="pills" style="margin-bottom:10px">${fn.map(x=>`<span class="pill">${esc(x)}</span>`).join('')}</div>`:''}
+ ${tb?`<div class="cadence">${tb[1].slice(1).map(r=>`<div class="cad"><span>${esc(r[1])}</span>${esc(r[0])}</div>`).join('')}</div>`:''}
+ <div style="margin-top:10px"><button class="btn sm" onclick="openDoc(${doc.id})">${ic('file',14)} Должностная целиком</button></div></div>`}
+function openSheet(id){const p=P(id),sh=$('sheet');if(!p||!sh)return;S.open=id;const d=deptOf(p),chain=chainUp(p),ks=kids(p),v=viewer();
+ const personal=personalOf(p),job=jobOf(p),pair=pairFor(p),ot=others(p);const adminPairs=isAdmin()?DB.docs.filter(x=>x.kind==='pair'&&x.subject===p.id):[];
+ const canPers=personal&&canRead(personal),canPersNone=!personal&&(isAdmin()||(v&&(v.id===p.id||inChainUp(v,p))));const canTask=isAdmin()||(v&&inChainUp(v,p));
+ sh.style.setProperty('--dc',colorOf(p));
+ sh.innerHTML=`<div class="sh-top"><button class="btn icon ghost sh-close" onclick="closeSheet()">${ic('x',16)}</button>
+ <div class="sh-hero">${avatar(p,84)}<div><h2>${esc(p.last)} ${esc(p.first)}<br>${esc(p.mid)}</h2><div class="rl">${esc(posName(p))}</div></div></div>
+ <div class="chips">${d?`<span class="chip" onclick="setView('depts')"><i></i>${esc(d.name)}${d.parent?' · '+esc(D(d.parent).name):''}</span>`:''}${v&&v.id===p.id?'<span class="badge ok">это вы</span>':''}${isNew(p)?'<span class="badge" style="background:var(--info-soft);color:var(--info-text)">новичок</span>':''}${p.status==='left'?`<span class="badge no">уволен ${p.leftAt}</span>`:''}${ot.map(x=>{const c=COMPANIES.find(c=>c.id===x.company);return gateOpen(x.company)?`<span class="chip" style="--dc:${c.color}" onclick="S.company='${c.id}';goPerson(${x.id})"><i></i>также ${c.short} · ${esc(posName(x))}</span>`:''}).join('')}</div>
+ <div class="actions">${ks.length?`<button class="btn sm" onclick="S.focus=${p.id};S.expanded=new Set([${p.id}]);S.view='tree';closeSheet();renderMain()">${ic('target',14)} Только ветка</button>`:''}<button class="btn sm" onclick="focusPerson(${p.id})">${ic('team',14)} В дереве</button><button class="btn sm ghost" onclick="toast('Ссылка на карточку скопирована. Откроется только у тех, кто видит модуль.')">${ic('link',14)}</button></div>
+ <div class="anchors">${pair?'<a onclick="document.getElementById(\'a-pair\').scrollIntoView({behavior:\'smooth\'})">Для вас</a>':''}${canPers?'<a onclick="document.getElementById(\'a-cheat\').scrollIntoView({behavior:\'smooth\'})">Главное</a><a onclick="document.getElementById(\'a-win\')&&document.getElementById(\'a-win\').scrollIntoView({behavior:\'smooth\'})">Окна</a><a onclick="document.getElementById(\'a-core\')&&document.getElementById(\'a-core\').scrollIntoView({behavior:\'smooth\'})">Точное попадание</a>':''}${job?'<a onclick="document.getElementById(\'a-role\').scrollIntoView({behavior:\'smooth\'})">Роль</a>':''}<a onclick="document.getElementById('a-place').scrollIntoView({behavior:'smooth'})">Место в структуре</a><a onclick="document.getElementById('a-facts').scrollIntoView({behavior:'smooth'})">Факты</a></div></div>
+ <div class="sh-body">
+ ${pair?pairHTML(pair,p):''}
+ ${canPers?cheatHTML(personal,p):canPersNone?`<div class="sec"><div class="sec-h">${ic('spark',14)} Главное на одном экране</div><p class="hint" style="margin:0">Личного документа ещё нет. Его рассчитывает движок по дате, времени и месту рождения, записывает Юя.${isAdmin()&&!(birthOf(p)&&birthOf(p).time)?' Для расчёта не хватает данных рождения.':''}</p>${isAdmin()?`<button class="btn sm primary" style="margin-top:8px" onclick="openYuia('${birthOf(p)&&birthOf(p).time?'gen':'birth'}',${p.id})">${ic('spark',14)} ${birthOf(p)&&birthOf(p).time?'Рассчитать через Юю':'Внести данные рождения через Юю'}</button>`:''}</div>`:''}
+ ${job?roleHTML(job,p):''}
+ <div class="sec" id="a-place"><div class="sec-h">${ic('team',14)} Место в структуре</div>
+ ${chain.length?`<div class="mini-chain">${chain.map(m=>`<a onclick="openSheet(${m.id});focusPerson(${m.id},false,true)">${avatar(m,24)}${esc(m.first)} ${esc(m.last[0])}.</a><span class="ar">›</span>`).join('')}<b style="font-size:12.5px">${esc(p.first)}</b></div>`:'<span class="hint">верхний уровень</span>'}
+ ${ks.length?`<div class="hint" style="margin:12px 0 6px">Подчинённые · ${ks.length} · в ветке ${people(subtree(p).length)}</div><div class="mini-chain">${ks.slice(0,10).map(x=>`<a onclick="openSheet(${x.id})">${avatar(x,24)}${esc(x.first)} ${esc(x.last[0])}.</a>`).join('')}${ks.length>10?`<span class="hint">и ещё ${ks.length-10}</span>`:''}</div>`:''}
+ ${DB.vac.filter(x=>x.mgr===p.id).map(x=>`<div class="hint" style="margin-top:8px">＋ Вакансия: <b>${esc(x.pos)}</b> · с ${x.since}</div>`).join('')}</div>
+ <div class="sec" id="a-facts"><div class="sec-h">${ic('file',14)} Факты</div><dl class="facts"><dt>В компании</dt><dd>${tenure(p)} · с ${new Date(p.since).toLocaleDateString('ru-RU')}</dd>${p.email?`<dt>Почта</dt><dd><span class="copy" onclick="toast('Почта скопирована')">${p.email}</span></dd>`:''}${p.tg?`<dt>Telegram</dt><dd><span class="copy" onclick="toast('Написать в Telegram')">${p.tg}</span></dd>`:''}${ot.length?`<dt>Компании</dt><dd>${[p,...ot].map(x=>COMPANIES.find(c=>c.id===x.company).short).join(', ')}</dd>`:''}</dl>
+ ${isAdmin()?`<div class="admin-note" style="margin:12px 0 6px">${ic('lock',13)} Видит только администратор</div><dl class="facts"><dt>Табельный</dt><dd>${p.code}</dd><dt>Аккаунт</dt><dd>${p.account?'связан':'не связан'}</dd>${(b=>b?`<dt>Рождение</dt><dd>${b.date.split('-').reverse().join('.')}${b.time?' · '+b.time:''} · ${esc(b.place)}<div class="hint">${esc(b.acc)} · только для движка, больше нигде не показывается</div></dd>`:`<dt>Рождение</dt><dd><span class="badge no">нет</span> <a class="hint" style="cursor:pointer" onclick="openYuia('birth',${p.id})">внести через Юю</a></dd>`)(birthOf(p))}</dl>
+  ${adminPairs.map(x=>`<div class="doclink" style="margin-top:10px" onclick="openDoc(${x.id})">${ic('lock',16)}<div><b>Парная для ${esc(P(x.reader).first)} ${esc(P(x.reader).last)}</b><small>читает только ${esc(P(x.reader).first)} и администратор</small></div></div>`).join('')}
+  ${personal?`<div class="doclink" style="margin-top:10px" onclick="openHistory(${personal.id})">${ic('hist',16)}<div><b>История личной · ${personal.v.length} ${plural(personal.v.length,'версия','версии','версий')}</b><small>кто и когда записал, кто открывал</small></div></div>`:''}
+  <div style="margin-top:10px"><button class="btn sm" onclick="openYuia('dismiss',${p.id})">${ic('spark',14)} Изменить через Юю</button></div>`:''}</div>
+ </div>`;sh.classList.add('on')}
+function closeSheet(){const sh=$('sheet');if(sh)sh.classList.remove('on');S.open=null;if(S.view==='tree'&&innerWidth>860)fit()}
+
+/* ================= документ, история ================= */
+function renderMd(md){return md.map(([t,c])=>t==='h2'?`<h2>${esc(c)}</h2>`:t==='h3'?`<h3>${esc(c)}</h3>`:t==='p'?`<p>${esc(c)}</p>`:t==='quote'?`<blockquote>${esc(c)}</blockquote>`:t==='pre'?`<pre>${esc(c)}</pre>`:(t==='ul'||t==='ol')?`<${t}>${c.map(x=>`<li>${esc(x)}</li>`).join('')}</${t}>`:t==='table'?`<table><tr>${c[0].map(x=>`<th>${esc(x)}</th>`).join('')}</tr>${c.slice(1).map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table>`:'').join('')}
+function openDoc(id){const d=DB.docs.find(x=>x.id===id);if(!canRead(d))return;const sr=src(d),v=lastV(d),r=d.reader&&P(d.reader);const mu=toMarkup(sr);
+ $('modal').innerHTML=`<div class="modal-h"><b>${esc(sr.title)}</b><span class="badge">${{job:'должностная',personal:'личная',pair:'парная'}[d.kind]} · версия ${v.n} от ${v.d}</span><span style="flex:1"></span><div class="seg"><button class="dt on" data-k="view" onclick="docTab('view')">Как видно</button><button class="dt" data-k="src" onclick="docTab('src')">Как написала Юя</button></div><button class="btn sm" onclick="toast('PDF «${esc(sr.title)} — v${v.n}.pdf» · выгрузка записана в журнал')">${ic('print',14)} PDF</button><button class="btn sm ghost" onclick="closeAll()">${ic('x',16)}</button></div>
+ <div id="dv-view"><div class="doc">${sr.meta?provHTML(sr):''}${renderMd(sr.md)}</div>${r?`<div class="wm"><span>Для: ${esc(r.last)} ${r.first[0]}. · выгружено 28.09.2026</span><span>водяной знак — на каждой странице PDF</span></div>`:''}</div>
+ <div id="dv-src" style="display:none"><div class="mu-note">${ic('spark',15)}<span>Исходный текст в «Суть-разметке»: обычный Markdown плюс блоки <code>:::имя … :::</code> и карточки <code>&gt; [!NOTE]</code>. Текст рассчитывает движок по дате, времени и месту рождения, Юя кладёт его через MCP по шаблону. Шапка между <code>---</code> — откуда текст: дата расчёта, движок, точность времени, до какого числа действуют окна. Проверка до сохранения возвращает ошибки с номером строки. Плитки, полосы окон, колонки «кто что решает» строятся из этих блоков — отдельных полей нет.</span></div><pre class="mu">${hlMarkup(mu)}</pre></div>`;$('modal').classList.add('on');$('overlay').classList.add('on')}
+function openHistory(id){const d=DB.docs.find(x=>x.id===id);const vs=DB.views.filter(x=>x.doc===id);
+ $('modal').innerHTML=`<div class="modal-h"><b>История · ${esc(src(d).title)}</b><span style="flex:1"></span><button class="btn sm ghost" onclick="closeAll()">${ic('x',16)}</button></div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px"><div class="card" style="padding:14px"><div class="sec-h">Версии</div>${[...d.v].reverse().map((v,i)=>`<div style="padding:8px 0;border-top:${i?'1px solid var(--border)':'0'};display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Версия ${v.n}</b>${i===0?'<span class="badge ok">текущая</span>':`<button class="btn sm" style="margin-left:auto" onclick="restoreV(${d.id},${v.n})">Вернуть</button>`}<div class="hint" style="width:100%">${v.d} · Сергей Ковалёв · через Юю</div></div>`).join('')}</div>
+ <div class="card" style="padding:14px"><div class="sec-h">Кто открывал</div>${vs.map(x=>`<div style="padding:6px 0"><b>${esc(x.who)}</b><div class="hint">${x.when}</div></div>`).join('')||'<span class="hint">пока никто</span>'}</div></div>`;$('modal').classList.add('on');$('overlay').classList.add('on')}
+function restoreV(id,n){const d=DB.docs.find(x=>x.id===id);d.v.push({n:lastV(d).n+1,d:'28.09.2026'});toast(`Создана версия ${lastV(d).n}, равная версии ${n}. Прежние остались.`);openHistory(id)}
+
+/* ================= отделы, люди, команда, должности, изменения, доступы ================= */
+function pageDepts(){const tops=DB.depts.filter(d=>d.company===S.company&&!d.parent);if(!tops.length)return emptyCompany();const list=tops.length===1?[tops[0],...DB.depts.filter(d=>d.parent===tops[0].id)]:tops;
+ const ppl=d=>cp().filter(p=>{let x=deptOf(p);while(x){if(x.id===d.id)return true;x=x.parent&&D(x.parent)}return false});
+ return `<div class="scroll"><div class="page"><h1 style="margin:0;font-size:26px">Отделы</h1><div class="hint">${COMPANIES.find(c=>c.id===S.company).name} · у каждого отдела свой цвет в дереве и свой руководитель</div>
+ <div class="dgrid">${list.map(d=>{const h=d.head&&P(d.head),ps=ppl(d),subs=DB.depts.filter(x=>x.parent===d.id);const vac=DB.vac.filter(v=>v.dept===d.id||subs.some(s=>s.id===v.dept)).length;const own=list[0]===d&&tops.length===1;
+  return `<div class="dcard" style="--dc:${d.color}" onclick="S.hlDept=${own?'null':d.id};S.focus=${h&&!own?h.id:'null'};S.expanded=new Set();setView('tree')"><div class="dcard-h">${h?avatar(h,46):''}<div><b>${esc(d.name)}</b><small>${h?'руководитель · '+esc(h.first+' '+h.last):'без главы'}</small></div><span style="margin-left:auto" class="badge">${people(own?cp().length:ps.length)}</span></div>
+  <div class="dcard-b">${subs.length&&!own?subs.map(s=>{const sh=s.head&&P(s.head);return `<div class="sub-d">${sh?avatar(sh,26):'<span class="av" style="width:26px;height:26px;background:var(--border-strong)"></span>'}<div><b style="font-size:13px">${esc(s.name)}</b><div class="hint">${sh?esc(sh.first+' '+sh.last):'без главы'}</div></div><span>${people(ppl(s).length)}</span></div>`}).join(''):`<span class="stackav">${ps.slice(0,10).map(p=>avatar(p,30)).join('')}</span>`}
+  <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">${vac?`<span class="badge" style="background:var(--amb-soft);color:var(--amb-text)">${vac} ${plural(vac,'вакансия','вакансии','вакансий')}</span>`:''}${ps.filter(isNew).length?`<span class="badge" style="background:var(--info-soft);color:var(--info-text)">+${ps.filter(isNew).length} новичок</span>`:''}<span class="badge acc" style="margin-left:auto">Открыть в дереве ›</span></div></div></div>`}).join('')}</div></div></div>`}
+function pageFaces(){const all=cp();if(!all.length)return emptyCompany();const tops0=DB.depts.filter(d=>d.company===S.company&&!d.parent);const tops=tops0.length===1?DB.depts.filter(d=>d.parent===tops0[0].id):tops0;
+ const inDept=(p,t)=>{let d=deptOf(p);while(d){if(d.id===t.id)return true;d=d.parent&&D(d.parent)}return false};
+ let list=all;if(S.q){const q=norm(S.q);list=list.filter(p=>norm(`${p.last} ${p.first} ${posName(p)}`).includes(q))}if(S.filter==='new')list=list.filter(isNew);
+ const groups=(tops0.length===1?[[tops0[0],list.filter(p=>p.dept===tops0[0].id)]]:[]).concat(tops.filter(t=>!S.filter||S.filter==='new'||+S.filter===t.id).map(t=>[t,list.filter(p=>inDept(p,t))])).filter(g=>g[1].length);
+ return `<div class="scroll"><div class="page"><div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap"><div><h1 style="margin:0;font-size:26px">Люди</h1><div class="hint">${people(all.length)} · лица компании по отделам</div></div><span style="flex:1"></span><label class="find">${ic('search',15)}<input id="fq" value="${esc(S.q)}" placeholder="ФИО или должность · «елкина» найдёт «Ёлкину»" oninput="S.q=this.value;renderMain(true)"></label></div>
+ <div class="filters" style="margin-top:14px"><button class="fchip ${!S.filter?'on':''}" onclick="S.filter='';renderMain()">Все</button><button class="fchip ${S.filter==='new'?'on':''}" onclick="S.filter='new';renderMain()">Новички за месяц</button>${tops.map(t=>`<button class="fchip ${+S.filter===t.id?'on':''}" style="--dc:${t.color}" onclick="S.filter='${t.id}';renderMain()"><i></i>${esc(t.name)}</button>`).join('')}</div>
+ ${groups.map(([t,ps])=>`<div class="gal-h" style="--dc:${t.color}"><i></i><h3>${esc(t.name)}</h3><span class="hint">${people(ps.length)}</span></div><div class="gal">${ps.map(p=>{const m=p.mgr&&P(p.mgr),pr=pairFor(p),me=viewer()&&viewer().id===p.id;return `<div class="face" style="--dc:${colorOf(p)}" onclick="goPerson(${p.id})">${me?'<span class="tag me">Вы</span>':pr?'<span class="tag pair">★ для вас</span>':isNew(p)?'<span class="tag" style="background:var(--info-soft);color:var(--info-text)">новичок</span>':''}${avatar(p,72)}<b>${esc(p.first)} ${esc(p.last)}</b><small>${esc(posName(p))}</small>${m?`<div class="mg">руководитель · ${esc(m.first)} ${esc(m.last)}</div>`:''}</div>`}).join('')}</div>`).join('')||'<div class="empty">Никого не нашли</div>'}</div></div>`}
+function pageRoles(){const ps=DB.positions.filter(p=>p.company===S.company);if(!ps.length)return emptyCompany();
+ return `<div class="scroll"><div class="page"><h1 style="margin:0 0 4px;font-size:26px">Должности</h1><div class="hint" style="margin-bottom:18px">У каждой должности — одна должностная; её видят все в компании</div>
+ <div class="gal" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${ps.map(x=>{const ppl=cp().filter(p=>p.pos===x.id);const doc=DB.docs.find(d=>d.kind==='job'&&d.position===x.id);const vac=DB.vac.filter(v=>v.company===S.company&&norm(v.pos).startsWith(norm(x.name))).length;const fn=doc?items(sections(src(doc).md)['Трудовые функции']):[];
+  return `<div class="face" style="text-align:left;--dc:var(--accent)" onclick="${doc?`openDoc(${doc.id})`:`toast('Должностную ещё не записали — пришлите Юе текст')`}"><div style="display:flex;justify-content:space-between;align-items:center"><span class="stackav">${ppl.slice(0,5).map(p=>avatar(p,30)).join('')}</span>${doc?`<span class="badge ok">v${lastV(doc).n}</span>`:'<span class="badge">нет текста</span>'}</div><b style="margin-top:12px">${esc(x.name)}</b><small>${people(ppl.length)}${vac?` · <span style="color:var(--amb-text);font-weight:700">+${vac} ${plural(vac,'вакансия','вакансии','вакансий')}</span>`:''}</small>${fn.length?`<div class="mg" style="text-align:left">${fn.map(esc).join(' · ')}</div>`:''}</div>`}).join('')}</div></div></div>`}
+const ACC={sug:null};
+function pageAccess(){if(!isAdmin())return p404();const mem=DB.people.filter(p=>p.company===S.company&&p.email);const sug=mem.filter(p=>!p.account);
+ return `<div class="scroll"><div class="page"><h1 style="margin:0 0 4px;font-size:26px">Доступы</h1><div class="hint" style="margin-bottom:18px">Роли в модуле и связь «аккаунт ↔ карточка» для ${COMPANIES.find(c=>c.id===S.company).name}. У каждой компании свои. Меняет только человек — Юе это запрещено.</div>
+ ${sug.length?`<div class="card" style="padding:16px;margin-bottom:16px;border-color:var(--accent)"><div class="sec-h" style="color:var(--accent)">Предложенные связи · по рабочей почте</div>${sug.map(p=>`<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border)"><input type="checkbox" checked>${avatar(p,32)}<b>${esc(p.first)} ${esc(p.last)}</b><span class="hint">${esc(posName(p))}</span><span style="flex:1"></span><code style="font-size:12px">${p.email}</code></label>`).join('')}
+ <button class="btn primary" style="margin-top:10px" onclick="let n=0;DB.people.filter(p=>p.company===S.company&&p.email&&!p.account).forEach(p=>{p.account=true;n++});toast('Связано: '+people(n));renderMain()">${ic('link',15)} Связать выбранные</button></div>`:''}
+ <div class="card" style="overflow:hidden"><table class="tbl"><tr><th>Участник</th><th>Роль в модуле</th><th>Карточка</th></tr>${mem.map(p=>`<tr><td><div style="display:flex;gap:10px;align-items:center">${avatar(p,30)}<div><b>${esc(p.first)} ${esc(p.last)}</b><div class="hint">${p.email}</div></div></div></td><td><select class="select"><option>— видит по своей карточке</option><option ${p.key===K.owner?'selected':''}>Администратор модуля</option><option ${p.key===K.tar?'selected':''}>Участник модуля</option></select></td><td>${p.account?'<span class="badge ok">связана</span>':'<span class="hint">не связана</span>'}</td></tr>`).join('')}</table></div></div></div>`}
+function emptyCompany(){return `<div class="scroll"><div class="empty"><div class="ill">${ic('team',32)}</div><h3>Структуру ещё не завели</h3><p>Людей, отделы, фото и тексты вносит Юя по заданию администратора — экранов ввода нет.</p></div></div>`}
+function p404(){return `<div class="scroll"><div class="four04"><div class="n">404</div><h2>Такой страницы нет</h2><p class="hint">${esc(persona().name)} не работает в компании ${COMPANIES.find(c=>c.id===S.company).name} — модуля «Команда» здесь для этого человека нет: ни пункта в меню, ни страниц. Ответ такой же, как на несуществующий адрес.</p><button class="btn" onclick="switchCompany('${myCompanies()[0].id}')">В свою компанию</button></div></div>`}
+function goPerson(id){S.view='tree';const p=P(id);if(p&&p.company!==S.company){S.company=p.company;S.expanded=new Set()}if(S.focus&&!(S.focus===id||inChainUp(P(S.focus),p)))S.focus=null;render();setTimeout(()=>focusPerson(id,true),80)}
+
+/* ================= ⌘K ================= */
+let pSel=0;
+function openPalette(){$('palette').innerHTML=`<div class="pi">${ic('search')}<input id="pq" placeholder="Кого ищем? Фамилия, имя или должность — во всех ваших компаниях" oninput="pSel=0;palR()" onkeydown="palK(event)"></div><div id="pres"></div><div class="ft">Ищет людей во всех компаниях, где вы есть · тексты инструкций в поиск не попадают · Enter — показать в дереве</div>`;$('palette').classList.add('on');$('overlay').classList.add('on');palR();setTimeout(()=>$('pq').focus(),30)}
+function palRes(){const q=norm(($('pq')||{}).value||'');if(q.length<2)return[];const o=[];for(const c of myCompanies()){DB.people.filter(p=>p.company===c.id&&p.status==='active'&&norm(`${p.last} ${p.first} ${posName(p)}`).includes(q)).slice(0,6).forEach(p=>o.push({p,c}))}return o}
+function palR(){const r=palRes();$('pres').innerHTML=r.length?'<div class="grp">Люди</div>'+r.map((x,i)=>`<div class="res ${i===pSel?'sel':''}" onclick="palGo(${i})">${avatar(x.p,32)}<div style="flex:1"><b>${esc(x.p.first)} ${esc(x.p.last)}</b><div class="hint">${esc(posName(x.p))}</div></div><span class="cochip" style="--cc:${x.c.color}"><i></i>${x.c.short}</span></div>`).join(''):`<div class="res hint" style="cursor:default">${(($('pq')||{}).value||'').length<2?'Например: «ковалёв» — он есть в трёх компаниях, «елкина», «психолог»':'Никого не нашли'}</div>`}
+function palK(e){const r=palRes();if(e.key==='ArrowDown'){pSel=Math.min(pSel+1,r.length-1);palR();e.preventDefault()}else if(e.key==='ArrowUp'){pSel=Math.max(pSel-1,0);palR();e.preventDefault()}else if(e.key==='Enter'&&r[pSel])palGo(pSel)}
+function palGo(i){const x=palRes()[i];closeAll();goPerson(x.p.id)}
+
+/* ================= Юя ================= */
+const CHAT=[];
+function openYuia(scn,arg){$('drawer').classList.add('on');$('overlay').classList.add('on');if(!CHAT.length)CHAT.push({ya:1,t:'Я вношу структуру, фото, вакансии и тексты по вашему заданию — вашими правами. Перед изменением показываю предпросмотр: пока вы не нажмёте «Выполнить», ничего не сохраняется.'});renderYuia();if(scn)setTimeout(()=>runScn(scn,arg),250)}
+function sugs(){const s=[];if(S.company==='rice'){if(personBy('rice','Попов').status==='active')s.push(['dismiss','Уволь Попова Илью, управляющего «Речным»']);s.push(['move','Переведи Павла Жукова в «Северный»']);s.push(['bulk','Залей 12 новых официантов в «Северный»']);s.push(['windows','Пересчитай окна Марине Орловой на полгода']);if(isAdmin())s.push(['coverage','Собери недостающие документы в «Рис и Нори»'])}
+ if(S.company==='dot')s.push(['newdept','Открой отдел «Мероприятия»: руководитель и два организатора']);if(S.company==='mal')s.push(['vac','Открой вакансию второго дизайнера']);return s}
+function renderYuia(){$('drawer').innerHTML=`<div class="dr-head"><span class="yl">${ic('spark',18)}</span><div><b>Юя</b><div class="hint">работает с правами: ${esc(persona().name)} · ${COMPANIES.find(c=>c.id===S.company).name}</div></div><span style="flex:1"></span><button class="btn icon ghost" onclick="closeAll()">${ic('x',16)}</button></div>
+ <div class="dr-body" id="chat">${CHAT.map((m,i)=>m.pv?`<div class="pv"><div class="pv-h">👁 ПРЕДПРОСМОТР — НИЧЕГО НЕ СОХРАНЕНО</div><div class="pv-b">${m.body}</div><div class="pv-f">${m.done?`<span class="badge ok">✓ Выполнено · в истории «${esc(persona().name)} · через Юю»</span>`:m.cancel?'<span class="badge">Отменено</span>':`<button class="btn sm primary" onclick="execScn(${i})">${m.scn==='task'?'Создать задачу':'Выполнить'}</button><button class="btn sm" onclick="CHAT[${i}].cancel=1;renderYuia()">Отмена</button>`}</div></div>`:`<div class="msg ${m.ya?'ya':'me'}">${m.html||esc(m.t)}</div>`).join('')}</div>
+ <div class="dr-sugs"><span class="hint" style="font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:11px">Попробуйте</span>${sugs().map(s=>`<button class="sug" onclick="runScn('${s[0]}')">${esc(s[1])}</button>`).join('')}</div>`;const c=$('chat');c.scrollTop=c.scrollHeight}
+function say(t){CHAT.push({ya:1,t});renderYuia()}
+function typing(cb){CHAT.push({ya:1,html:'<span class="typing"><i></i><i></i><i></i></span>',tmp:1});renderYuia();setTimeout(()=>{const i=CHAT.findIndex(x=>x.tmp);if(i>=0)CHAT.splice(i,1);cb()},650)}
+function runScn(scn,arg){let target=arg?P(arg):null;
+ if(scn==='task'&&!target)target=personBy('rice','Смирнов');
+ const T_={windows:'Пересчитай окна Марине Орловой на полгода',coverage:'Собери недостающие документы в «Рис и Нори»',gen:`Рассчитай документы ${target?target.first+' '+target.last:''}`,birth:`Данные рождения ${target?target.first+' '+target.last:''}: 14.03.1992, 07:40, Самара, время точное`,dismiss:'Уволь Попова Илью, управляющего «Речным»',move:'Переведи Павла Жукова в «Северный»',bulk:'Залей 12 новых официантов в «Северный» (таблица во вложении)',task:`Поставь ${target?target.first+' '+target.last:''} задачу: акция доставки к 10 октября`,newdept:'Открой отдел «Мероприятия»: руководитель Игнатова Алла и два организатора',vac:'Открой вакансию второго дизайнера в «Контенте»',write:`Положи личную ${target?target.first+' '+target.last:''} — текст во вложении, как есть`};
+ if(scn==='dismiss'&&target&&target.last!=='Попов'){CHAT.push({t:`Что поменять у ${target.first} ${target.last}?`});typing(()=>say('Скажите, что изменить: должность, отдел, руководителя, фото, почту — или «уволь». Перед изменением покажу предпросмотр.'));return}
+ CHAT.push({t:T_[scn]});renderYuia();
+ const v=viewer();const canWrite=isAdmin();const canTask=isAdmin()||(v&&target&&inChainUp(v,target));
+ if(scn==='task'?!canTask:!canWrite){typing(()=>say(scn==='task'?'Ставить задачи можно своей ветке — этот человек не в вашей ветке.':'У вас нет прав менять структуру и тексты — это может только администратор модуля. Я работаю вашими правами.'));return}
+ typing(()=>{let b='';
+  if(scn==='dismiss'){const p=personBy('rice','Попов'),s=kids(p);b=`<b>Попов Илья → уволен с 28.09.2026</b><ul><li>${s.length} ${plural(s.length,'подчинённый перейдёт','подчинённых перейдут','подчинённых перейдут')} к <b>Орловой М.</b></li><li>филиал «Речной» останется <b>без главы</b>; вакансия су-шефа останется за Орловой</li><li>карточка и тексты сохранятся; доступ закроется сразу</li></ul>`}
+  if(scn==='move')b='<b>Жуков Павел: «Центральный» → «Северный»</b><ul><li>отдел: Кухня «Северного», руководитель — су-шеф «Северного»</li><li>его документы и история остаются с ним</li><li>в ленте изменений появится запись «перешёл»</li></ul>';
+  if(scn==='bulk')b='<b>Пакет из 12 строк</b> — всё или ничего<ul><li>Официант · Зал «Северного»</li><li>дублей нет: сверила по коду и ФИО (регистр и «ё» не важны)</li></ul><p class="hint" style="margin:6px 0 0">создано 12 · обновлено 0 · ошибок 0</p>';
+  if(scn==='task'){const d=personalOf(target),ok=d&&canRead(d),S4=ok?sectionsV4(src(d).md):{};const how=items(bl(S4,'Как с тобой лучше работать'));const en=energyNow(target);
+   b=`<b>Задача в «Задачах» → ${esc(target.first)} ${esc(target.last)}</b><ul><li>«Запустить акцию доставки в «Центральном»» · срок <b>10.10.2026</b></li>${how.length?`<li>по шпаргалке: ${how.map(esc).join('; ')}</li>`:''}<li>промежуточная проверка — <b>03.10.2026</b>${en?` (сейчас у ${target.g==='f'?'неё':'него'} окно «${esc(en.lvl)}» до ${fmtD(en.until)}: ${esc(en.what)})`:''}</li></ul>`}
+  if(scn==='newdept')b='<b>Будет создано в «Точке опоры»:</b><ul><li>отдел «Мероприятия» под дирекцией центра</li><li>Игнатова Алла — руководитель, двое организаторов под ней</li></ul><p class="hint" style="margin:6px 0 0">создано 3 · отделов +1</p>';
+  if(scn==='windows')b='<b>Пересчёт окон · Марина Орлова · личная → версия 4</b><ul><li>данные рождения есть, время точное</li><li>движок: окна с 01.10.2026 по 31.03.2027 — 5 окон, большие периоды без изменений, 3 лучших дня</li><li>меняю только раздел «Окна по времени», остальные — байт в байт прежние</li><li>разметка проверена: окна подряд без дыр, уровни из списка, шапка «действует до 31.03.2027»</li></ul>';
+  if(scn==='coverage'){const rows=covRows();const nb=rows.filter(r=>!r.b||!r.b.time),nd=rows.filter(r=>r.b&&r.b.time&&!r.d),np=rows.filter(r=>r.m&&!r.pair&&r.b&&r.b.time&&birthOf(r.m)),st=rows.filter(r=>r.stale);
+   b=`<b>План по «Рис и Нори» · ${rows.length} человек</b><ul><li>рассчитаю личные: <b>${nd.length}</b> — движок → шаблон «личная» → проверка разметки → версия 1</li><li>рассчитаю парные «руководитель → подчинённый»: <b>${np.length}</b></li><li>пересчитаю окна, срок которых кончается: <b>${st.length}</b> — меняется только раздел «Окна по времени»</li><li>не хватает данных рождения: <b>${nb.length}</b> — ${nb.slice(0,4).map(r=>esc(r.p.first+' '+r.p.last)).join(', ')}${nb.length>4?' и ещё '+(nb.length-4):''}; пришлите дату, время и место — рассчитаю сразу</li></ul><p class="hint" style="margin:6px 0 0">ничего не удаляю; каждый документ — новая версия с шапкой «откуда текст»</p>`}
+  if(scn==='gen'){const b0=birthOf(target),m=target.mgr&&P(target.mgr);b=`<b>Расчёт · ${esc(target.first)} ${esc(target.last)}</b><ul><li>данные рождения: ${b0.date.split('-').reverse().join('.')} · ${b0.time} · ${esc(b0.place)} · ${esc(b0.acc)}</li><li>движок → шаблон «личная»: 6 пунктов «Главное», 17 — «Точное попадание», окна: годы → месяцы → дни</li>${m?`<li>заодно парная для руководителя: <b>${esc(m.first)} → ${esc(target.first)}</b> — «как вам ${target.g==='f'?'её':'его'} вести»</li>`:''}<li>проверка разметки: 0 ошибок</li></ul>`}
+  if(scn==='birth')b=`<b>Данные рождения → закрытое поле</b><ul><li>${esc(target.first)} ${esc(target.last)}: 14.03.1992 · 07:40 · Самара · время точное</li><li>видит только администратор модуля; в журнале вызовов и в ответах — без самих значений</li><li>после записи предложу рассчитать документы</li></ul>`;
+  if(scn==='vac')b='<b>Вакансия: Дизайнер (второй)</b><ul><li>отдел «Контент и бренд», руководитель — Миронова Е.</li><li>в дереве появится пунктирная карточка «Вакансия»</li></ul>';
+  CHAT.push({pv:1,scn,body:b,arg:target&&target.id});say(scn==='task'?'Проверьте текст задачи и нажмите «Создать задачу».':'Проверьте предпросмотр и нажмите «Выполнить».')})}
+function execScn(i){const m=CHAT[i];m.done=1;const C=S.company;
+ if(m.scn==='dismiss'){const p=personBy('rice','Попов'),o=personBy('rice','Орлова');kids(p).forEach(x=>x.mgr=o.id);DB.vac.forEach(v=>{if(v.mgr===p.id)v.mgr=o.id});p.status='left';p.leftAt='28.09.2026';const d=DB.depts.find(x=>x.head===p.id);if(d)d.head=null;DB.changes.unshift({company:'rice',d:'28.09',type:'out',t:'Ушёл: Илья Попов, управляющий «Речным» — команда переведена к Орловой',s:persona().name+' · через Юю'});say('Готово. Вернуть — «верни Попова».')}
+ if(m.scn==='move'){const z=personBy('rice','Жуков');const br=DB.depts.find(x=>x.company==='rice'&&x.name==='Филиал «Северный»'),kit=DB.depts.find(x=>x.parent===br.id&&x.name==='Кухня');z.dept=kit.id;z.mgr=kit.head;DB.changes.unshift({company:'rice',d:'28.09',type:'move',t:'Перешёл: Павел Жуков — «Центральный» → «Северный»',s:persona().name+' · через Юю'});say('Готово. Показываю его на новом месте.');closeAll();goPerson(z.id);renderYuia();return}
+ if(m.scn==='bulk'){const br=DB.depts.find(x=>x.company==='rice'&&x.name==='Филиал «Северный»'),hall=DB.depts.find(x=>x.parent===br.id&&x.name==='Зал');[['Белкин','Игорь'],['Рыбакова','Злата'],['Носов','Остап'],['Фомина','Лиана'],['Ершов','Прохор'],['Панкова','Ия'],['Ларин','Вадим'],['Котова','Эмма'],['Шестаков','Марат'],['Уварова','Нелли'],['Хромов','Ефим'],['Цветкова','Инна']].forEach(([l,f])=>mk('rice',l,f,/а$/.test(l)?'Ивановна':'Иванович',posi('rice','Официант'),hall.id,hall.head,{since:'2026-09-28'}));DB.changes.unshift({company:'rice',d:'28.09',type:'in',t:'Пришли: 12 официантов в «Северный»',s:persona().name+' · через Юю'});say('Готово: 12 новых, у всех метка «новичок».')}
+ if(m.scn==='task'){say('Задача создана в «Задачах» и назначена. Промежуточная проверка стоит отдельным пунктом.');toast('✓ Задача создана в модуле «Задачи» · исполнитель '+P(m.arg).first+' '+P(m.arg).last)}
+ if(m.scn==='newdept'){const top=DB.depts.find(d=>d.company==='dot'&&!d.parent);const ev=dept('dot','Мероприятия',top.id,'#B17A23');const dir=personBy('dot','Зорина');const h=mk('dot','Игнатова','Алла','Сергеевна',posi('dot','Руководитель мероприятий'),ev.id,dir.id,{since:'2026-09-28'});ev.head=h.id;mk('dot','Власов','Тихон','Ильич',posi('dot','Организатор'),ev.id,h.id,{since:'2026-09-28'});mk('dot','Рожкова','Лиза','Андреевна',posi('dot','Организатор'),ev.id,h.id,{since:'2026-09-28'});DB.changes.unshift({company:'dot',d:'28.09',type:'in',t:'Новый отдел «Мероприятия»: Алла Игнатова и два организатора',s:persona().name+' · через Юю'});say('Готово — смотрите дерево.');closeAll();S.view='tree';S.expanded=new Set();render();setTimeout(()=>focusPerson(h.id,true),120)}
+ if(m.scn==='windows'){const d=DB.docs.find(x=>x.id===1);d.v.push({n:lastV(d).n+1,d:'28.09.2026'});say('Готово: версия '+lastV(d).n+'. Поменялся только раздел «Окна по времени».')}
+ const mkDocs=p=>{let n=0;if(!personalOf(p)){DB.docs.push({id:DB.docs.length+2000,company:p.company,kind:'personal',subject:p.id,gen:true,v:[{n:1,d:'28.09.2026'}]});n++}const mg=p.mgr&&P(p.mgr);if(mg&&birthOf(mg)&&!DB.docs.some(x=>x.kind==='pair'&&x.reader===mg.id&&x.subject===p.id)){DB.docs.push({id:DB.docs.length+2000,company:p.company,kind:'pair',reader:mg.id,subject:p.id,gen:'pair',v:[{n:1,d:'28.09.2026'}]});n++}return n};
+ if(m.scn==='coverage'){let n=0,re=0;covRows().forEach(r=>{if(r.stale){FRESH.add(r.p.id);r.d.v.push({n:lastV(r.d).n+1,d:'28.09.2026'});re++}if(r.b&&r.b.time){FRESH.add(r.p.id);n+=mkDocs(r.p)}});if(re)say(`Пересчитала окна: ${re} — поменялся только раздел «Окна по времени».`);const nb=covRows().filter(r=>!r.b||!r.b.time).length;say(`Готово: рассчитано и записано ${n} ${plural(n,'документ','документа','документов')}. Для ${nb} человек нужны данные рождения — список в «Покрытии».`)}
+ if(m.scn==='gen'){const n=mkDocs(P(m.arg));say(`Готово: ${n} ${plural(n,'документ','документа','документов')}. Открываю профиль.`);closeAll();goPerson(m.arg);renderYuia();return}
+ if(m.scn==='birth'){BIRTH[m.arg]={date:'1992-03-14',time:'07:40',place:'Самара',acc:'время точное'};CHAT.push({pv:1,scn:'gen',body:`<b>Рассчитать документы · ${esc(P(m.arg).first)} ${esc(P(m.arg).last)}?</b><ul><li>личная + парная для руководителя</li></ul>`,arg:m.arg});say('Сохранила в закрытое поле. Рассчитать документы сейчас?')}
+ if(m.scn==='vac'){const c=DB.depts.find(d=>d.company==='mal'&&d.name==='Контент и бренд');DB.vac.push({id:DB.vac.length+1,company:'mal',pos:'Дизайнер (второй)',dept:c.id,mgr:c.head,since:'28.09.2026'});DB.changes.unshift({company:'mal',d:'28.09',type:'vac',t:'Открыта вакансия: дизайнер (второй) · Контент и бренд',s:persona().name+' · через Юю'});say('Готово: пунктирная карточка уже в дереве у Мироновой.')}
+ renderYuia();renderSidebar();renderMain()}
+
+/* ================= «смотреть как» и цикл ================= */
+function renderViewAs(){const p=persona();$('viewas').innerHTML=`<span class="lbl">Смотреть как</span><div class="vs">${PERSONAS.map(x=>`<button class="${x.id===S.persona?'on':''}" onclick="setPersona('${x.id}')">${x.label}</button>`).join('')}</div><button class="q" onclick="$('whoPanel').classList.toggle('on')">?</button>`;
+ $('whoPanel').innerHTML=`<b>${esc(p.name)}</b> <span class="hint">· ${esc(p.role)}</span><ul>${p.sees.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`}
+function setPersona(id){S.persona=id;S.company='rice';S.expanded=new Set();S.stackOpen=new Set();S.showLeft=false;S.focus=null;S.hlDept=null;S.drill=null;CHAT.length=0;
+ const p=persona();S.view='tree';render();$('whoPanel').classList.add('on');setTimeout(()=>$('whoPanel').classList.remove('on'),4500);
+ const t=id==='top'?personBy('rice','Орлова'):id!=='admin'?viewer():null;if(t)setTimeout(()=>focusPerson(t.id,true),150)}
+function closeAll(){['overlay','palette','drawer','modal'].forEach(i=>$(i).classList.remove('on'))}
+$('overlay').onclick=closeAll;
+document.addEventListener('click',()=>{const m=$('wsMenu');if(m)m.classList.remove('on')});
+document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();return}if(e.key==='Escape'){closeAll();closeSheet();return}
+ if(e.target.closest('input,select,textarea'))return;if(e.key==='/'&&$('tfind')){e.preventDefault();$('tfind').focus()}if((e.key==='f'||e.key==='а')&&S.view==='tree')fit()});
+function toggleTheme(){const r=document.documentElement;r.setAttribute('data-theme',r.getAttribute('data-theme')==='dark'?'light':'dark')}
+function renderMain(keep){let h;const V=S.view;
+ if(!gateOpen())h=p404();else if(V==='depts')h=pageDepts();else if(V==='faces')h=pageFaces();else if(V==='team')h=pageTeam();else if(V==='roles')h=pageRoles();else if(V==='access')h=pageAccess();else if(V==='coverage')h=pageCoverage();else h=pageTree();
+ const pos=keep&&document.activeElement&&document.activeElement.id==='fq'?document.activeElement.selectionStart:null;
+ $('view').innerHTML=h;if(pos!==null){const q=$('fq');q.focus();q.setSelectionRange(pos,pos)}
+ if(V==='tree'&&gateOpen()&&innerWidth>860){wireCanvas();requestAnimationFrame(fit);if(S.open)openSheet(S.open)}}
+function render(){renderSidebar();renderRail();renderMain();renderViewAs()}
+/* ===== v4: слоёный документ, окна по времени, карта окон команды ===== */
+const WIN_LV=['подъём','ровно','спад','осторожно'];
+const WIN_WHAT={подъём:'запуски, найм, сложные разговоры',ровно:'стройка и рутина в обычном темпе',спад:'доводка и контроль, без запусков',осторожно:'крупное — только с цифрами; беречь силы'};
+function isoAdd(iso,days){const d=new Date(iso);d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
+function genWindows(s){const rows=[['С','По','Окно','Что делать']];let start='2026-08-18';const lens=[21,28,35,24,42,30,28];for(let i=0;i<7;i++){const lv=WIN_LV[(s*3+i*(1+s%3))%4];const end=isoAdd(start,lens[(s+i)%7]);rows.push([start,end,lv,WIN_WHAT[lv]]);start=isoAdd(end,1)}return rows}
+function sectionsV4(md){const out={};let cur=null,sub=null;for(const [t,c] of md){if(t==='h2'){cur=c;sub=null;out[cur]={blocks:[],groups:{}}}else if(t==='h3'&&cur){sub=c;out[cur].groups[sub]=[]}else if(cur){(sub?out[cur].groups[sub]:out[cur].blocks).push([t,c])}}return out}
+const bl=(S4,name)=>S4[name]?S4[name].blocks:[];
+const lbl=x=>{const i=x.indexOf(':');return i>0&&i<60?[x.slice(0,i),x.slice(i+1).trim()]:[null,x]};
+const fmtD=iso=>{const d=new Date(iso);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}).replace('.','')};
+function energyNow(p,at=TODAY){const w=windowsOf(p);if(!w)return null;const iso=at.toISOString().slice(0,10);const r=w.find(r=>r[0]<=iso&&iso<=r[1]);if(!r)return null;const cls={подъём:'hi',ровно:'mid',спад:'lo',осторожно:'lo'}[r[2]];return{lvl:r[2],what:r[3],cls,until:r[1],label:({подъём:'▲ подъём',ровно:'■ ровно',спад:'▼ спад',осторожно:'⚠ осторожно'})[r[2]]+' до '+fmtD(r[1])}}
+const WCOL={подъём:['#7FC49A','#2F7A4F'],ровно:['#E9D9A6','#B17A23'],спад:['#F0A89F','#B7392E'],осторожно:['#F6C07A','#B8623E']};
+function timelineHTML(rows){const s0=new Date(rows[0][0]),s1=new Date(rows[rows.length-1][1]);const span=(s1-s0)||1;const now=(TODAY-s0)/span*100;
+ return `<div class="tl"><div class="tl-bar">${rows.map(r=>{const w=((new Date(r[1])-new Date(r[0]))/span*100);const c=WCOL[r[2]]||WCOL.ровно;return `<div class="tl-seg" style="width:${w}%;background:linear-gradient(180deg,${c[0]},${c[1]})" title="${esc(r[2])}: ${fmtD(r[0])} — ${fmtD(r[1])} · ${esc(r[3])}"></div>`}).join('')}${now>=0&&now<=100?`<div class="tl-now" style="left:${now}%"><span>сегодня</span></div>`:''}</div>
+ <div class="tl-list">${rows.map(r=>{const cur=r[0]<=TODAY.toISOString().slice(0,10)&&TODAY.toISOString().slice(0,10)<=r[1];const c=WCOL[r[2]]||WCOL.ровно;return `<div class="tl-row ${cur?'cur':''}"><i style="background:${c[1]}"></i><b>${fmtD(r[0])} — ${fmtD(r[1])}</b><span class="tl-lv">${esc(r[2])}</span><span class="hint">${esc(r[3])}</span></div>`}).join('')}</div></div>`}
+const DIR={'Главное на одном экране':'summary','Как с тобой лучше работать':'steps','Окна по времени':'windows','Точное попадание':'quadrants','Кто что решает':'decisions','Сила → деньги':'gains','Зоны риска → чем закрываем':'risks','Ритм':'rhythm','Как вести каждого':'people','Трудовые функции':'chips','Должностные обязанности':'rhythm'};
+function mdTable(t){return ['| '+t[0].join(' | ')+' |','|'+t[0].map(()=>'---').join('|')+'|',...t.slice(1).map(r=>'| '+r.join(' | ')+' |')].join('\n')}
+function mdList(t,c){return c.map((x,i)=>{const k=x.indexOf(':');const lab=k>0&&k<60?`**${x.slice(0,k)}:**${x.slice(k+1)}`:x;return (t==='ol'?`${i+1}. `:'- ')+lab}).join('\n')}
+function docTab(k){document.querySelectorAll('.dt').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('dv-view').style.display=k==='view'?'':'none';$('dv-src').style.display=k==='src'?'':'none'}
+
+/* ===== v6: документы пишет движок через агента; четыре главных экрана; пары «руководитель → подчинённый»; данные рождения; покрытие ===== */
+const SUMMARY_LABELS=['Кто ты здесь','Твой главный ход','Твоя незаменимая сила','Как делаешь деньги','Главная ловушка','Твоё окно'];
+const CORE_LABELS={'Кто ты':['О тебе в одной строке','Как тебя читают с порога — и кто ты внутри','Твоя суперсила','Неочевидный талант'],'Что движет':['Драйвер №1','Чего ты хочешь на самом деле','В своей стихии, когда','Чем восстанавливаешься'],'Где больно':['Глубинный страх','Самое тяжёлое','Слепое пятно / ловушка','Под давлением ты','Что гасит тебя мгновенно'],'Ключи к тебе':['Ключ к тебе','Что тебе нельзя брать на себя','Если беречь ↔ если жечь','Куда тянет душа (рост)']};
+const ORLOVA_V6={title:'Марина Орлова — исполнительный директор сети',meta:{рассчитано:'2026-09-28',движок:'Суть-движок 2026.09',точность:'время рождения точное',действует_до:'2027-03-31'},md:[
+ ['quote','Это твой документ — твоя дисциплина и твоё зеркало. Открывай, когда тянет нырнуть не туда.'],
+ ['h2','Главное на одном экране'],['ul',['Кто ты здесь: исполнительный директор — держишь три филиала и цех как одну машину.','Твой главный ход: выстроить управляющих так, чтобы филиалы держались без твоего ежедневного присутствия.','Твоя незаменимая сила: видишь провал раньше цифр и собираешь людей вокруг задачи.','Как делаешь деньги: порядок в сменах режет списания, сильные управляющие растят выручку.','Главная ловушка: берёшь чужую работу «быстрее сама» — и выгораешь к концу месяца.','Твоё окно: до марта 2027 — стройка команды управляющих; дальше — рост сети.']],
+ ['h2','Как с тобой лучше работать'],['ul',['Приносить готовое: проблема + варианты + рекомендация.','Звать на запуск и разбор провала, а не на рутину.','Решения фиксировать одной строкой в задачнике.','Не писать в выходные — ответит, но запомнит.']],
+ ['h2','Окна по времени'],
+ ['h3','Большие периоды'],['table',[['С','По','Период','Что это значит'],['2024-06-01','2027-03-31','стройка','собрать команду и порядок — то, что потом крутится само'],['2027-04-01','2029-12-31','рост','расширение сети, новые точки'],['2030-01-01','2032-06-30','передача','растить себе смену, выходить выше']]],
+ ['h3','Ближайшие месяцы'],['table',[['С','По','Окно','Что делать'],['2026-09-01','2026-09-21','подъём','запуски, найм, сложные разговоры'],['2026-09-22','2026-10-19','спад','доводка и контроль, без запусков'],['2026-10-20','2026-12-10','подъём','новые проекты, найм су-шефа'],['2026-12-11','2027-01-20','осторожно','крупные решения — только с цифрами, отдых'],['2027-01-21','2027-03-31','ровно','стройка команды управляющих']]],
+ ['h3','Лучшие дни'],['table',[['Дата','Для чего'],['2026-10-21','запуск и объявление команде'],['2026-10-27','переговоры и найм'],['2026-11-05','разговор о деньгах и бонусах']]],
+ ['h2','Точное попадание'],
+ ['h3','Кто ты'],['ol',['О тебе в одной строке: хозяйка-организатор, которая держит порядок и людей одновременно.','Как тебя читают с порога — и кто ты внутри: снаружи собранная и требовательная; внутри отвечаешь за каждого до усталости.','Твоя суперсила: видишь, где сломается, до того как сломалось.','Неочевидный талант: миришь людей, не теряя требовательности.']],
+ ['h3','Что движет'],['ol',['Драйвер №1: масштаб и признание результата при команде.','Чего ты хочешь на самом деле: чтобы машина, которую ты собрала, работала и росла.','В своей стихии, когда: запускаешь, наводишь порядок, работаешь с живыми людьми.','Чем восстанавливаешься: короткими паузами и сменой обстановки, не длинным отпуском раз в год.']],
+ ['h3','Где больно'],['ol',['Глубинный страх: подвести людей, которые на тебя рассчитывают.','Самое тяжёлое: монотонная сверка цифр и бумажная рутина.','Слепое пятно / ловушка: берёшь чужую работу, чтобы «быстрее».','Под давлением ты: становишься резкой и всё контролируешь сама.','Что гасит тебя мгновенно: задачи «когда будет время» и критика при всех.']],
+ ['h3','Ключи к тебе'],['ol',['Ключ к тебе: приходи с цифрой и сроком, без пошагового плана.','Что тебе нельзя брать на себя: сверку цифр и переговоры о цене с поставщиками.','Если беречь ↔ если жечь: на запусках и людях — растишь сеть; в рутине — выгораешь к среде.','Куда тянет душа (рост): от «сделаю сама» — к команде управляющих, которые делают без тебя.']],
+ ['h2','Кто что решает'],['table',[['Решаешь сама','Делегируешь','Не трогаешь'],['Найм управляющих','Графики смен → управляющие','Сверку цифр → бухгалтерия'],['Порядок и регламенты сети','Закупки → Захаров','Переговоры о цене с поставщиками'],['Разбор провалов филиалов','Отзывы гостей → администраторы','Ежедневные мелочи филиалов']]],
+ ['h2','Сила → деньги'],['ul',['Видишь провал раньше цифр → ловишь потери до того, как они съели выручку','Наводишь порядок в сменах → меньше списаний и переработок','Собираешь людей → управляющие держатся и растут']],
+ ['h2','Зоны риска → чем закрываем'],['ul',['Берёшь чужую работу → правило «если закроет другой на 8 из 10 — не твоё»','Выгораешь на рутине → сверка у Беловой, дашборд вместо таблиц','Резкость под давлением → разбор провалов на следующий день, не в моменте']],
+ ['h2','Ритм'],['table',[['Когда','Что'],['Каждый день','Сводка выручки по филиалам — 10 минут'],['Каждую неделю','Созвон с управляющими, разбор одного провала'],['Каждый месяц','Закрытие месяца с финансами, план на следующий']]]]};
+const PICK=(s,a)=>a[s%a.length];const FRESH=new Set();
+/* подписи пишутся человеку на «ты»; другим читателям показываем без обращения */
+const RELAB={'Кто ты здесь':f=>f?'Кто она здесь':'Кто он здесь','Твой главный ход':()=>'Главный ход','Твоя незаменимая сила':()=>'Незаменимая сила','Как делаешь деньги':()=>'Как делает деньги','Твоё окно':()=>'Окно','О тебе в одной строке':()=>'В одной строке','Как тебя читают с порога — и кто ты внутри':()=>'Как читают с порога — и кто внутри','Твоя суперсила':()=>'Суперсила','Чего ты хочешь на самом деле':()=>'Чего хочет на самом деле','Чем восстанавливаешься':()=>'Чем восстанавливается','Под давлением ты':()=>'Под давлением','Что гасит тебя мгновенно':()=>'Что гасит мгновенно','Ключ к тебе':f=>f?'Ключ к ней':'Ключ к нему','Что тебе нельзя брать на себя':()=>'Что нельзя поручать','Если беречь ↔ если жечь':()=>'Если беречь ↔ если жечь'};
+const rl=(k,self,p)=>self||!RELAB[k]?k:RELAB[k](p.g==='f');
+function genPersonal(p){const s=(p.key?900+p.key:p.id);const pk=a=>PICK(s,a);const fresh=FRESH.has(p.id);let w=genWindows(s);if(s%5===0&&!fresh)w=w.filter((r,i)=>i===0||r[0]<'2026-10-01');const d0=new Date(TODAY);const day=n=>{const d=new Date(d0);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+ return{title:`${p.first} ${p.last} — ${posName(p)}`,meta:{рассчитано:fresh?'2026-09-28':'2026-09-20',движок:'Суть-движок 2026.09',точность:(birthOf(p)||{}).acc||'время точное',действует_до:w[w.length-1][1]},md:[
+ ['h2','Главное на одном экране'],['ul',[`Кто ты здесь: ${posName(p).toLowerCase()} — ${pk(['держишь стандарт','ведёшь свой участок','отвечаешь за результат смены'])}.`,`Твой главный ход: ${pk(['стать тем, на кого равняются новички','взять участок побольше','довести своё место до образца'])}.`,`Твоя незаменимая сила: ${pk(['точность и надёжность в рутине','быстро учишься и держишь слово','ведёшь людей за собой'])}.`,`Как делаешь деньги: ${pk(['меньше брака и списаний','гости возвращаются','команда не разваливается в запаре'])}.`,`Главная ловушка: ${pk(['молчишь, когда перегружен','берёшься за всё сразу','споришь со старшими при всех'])}.`,`Твоё окно: ${pk(['до весны — вырасти до старшего','до конца года — стать наставником','ближайшие полгода — взять участок побольше'])}.`]],
+ ['h2','Как с тобой лучше работать'],['ul',[pk(['Коротко и по делу.','Одна задача — один срок.','Обратная связь сразу после смены.']),pk(['Признание при команде.','Без мелкого контроля.','Объясняй зачем.']),pk(['Не дёргать в выходные.','Предупреждать о переработках заранее.','Давать выбор из двух вариантов.'])]],
+ ['h2','Окна по времени'],['h3','Большие периоды'],['table',[['С','По','Период','Что это значит'],['2025-01-01','2027-06-30',pk(['рост','стройка','учёба']),pk(['вырасти в должности','укрепиться на месте','набрать мастерство'])],['2027-07-01','2029-12-31',pk(['стройка','рост','передача']),pk(['взять ответственность за людей','новый участок','стать наставником'])]]],
+ ['h3','Ближайшие месяцы'],['table',w],
+ ['h3','Лучшие дни'],['table',[['Дата','Для чего'],[day(7+s%9),pk(['разговор о росте','сложная смена','обучение новичка'])],[day(19+s%7),pk(['новая задача','перевод на участок','разбор ошибок'])]]],
+ ['h2','Точное попадание'],
+ ['h3','Кто ты'],['ol',[`О тебе в одной строке: ${pk(['спокойный мастер своего дела','быстрый и цепкий, схватывает на лету','прямой, говорит как есть'])}.`,`Как тебя читают с порога — и кто ты внутри: ${pk(['тихий снаружи, упрямый внутри','лёгкий снаружи, требовательный к себе внутри','жёсткий снаружи, заботливый внутри'])}.`,`Твоя суперсила: ${pk(['держать стандарт в запаре','видеть мелочи','заводить людей'])}.`,`Неочевидный талант: ${pk(['учить других','находить короткий путь','успокаивать гостей'])}.`]],
+ ['h3','Что движет'],['ol',[`Драйвер №1: ${pk(['признание мастерства','понятный рост','свобода делать по-своему'])}.`,`Чего ты хочешь на самом деле: ${pk(['чтобы ценили','расти быстрее','своё дело'])}.`,`В своей стихии, когда: ${pk(['всё по правилам и чисто','много нового','много людей'])}.`,`Чем восстанавливаешься: ${pk(['тишиной','движением','общением'])}.`]],
+ ['h3','Где больно'],['ol',[`Глубинный страх: ${pk(['ошибиться при всех','застрять на месте','остаться без поддержки'])}.`,`Самое тяжёлое: ${pk(['хаос без правил','однообразие','одиночная работа'])}.`,`Слепое пятно / ловушка: ${pk(['не просишь помощи','бросаешь на полпути','споришь, не выслушав'])}.`,`Под давлением ты: ${pk(['замыкаешься','суетишься','взрываешься'])}.`,`Что гасит тебя мгновенно: ${pk(['переработки без предупреждения','задачи без обратной связи','мелкий контроль'])}.`]],
+ ['h3','Ключи к тебе'],['ol',[`Ключ к тебе: ${pk(['хвали за точность, при команде','ставь одну задачу — один срок','дай участок и не стой над душой'])}.`,`Что тебе нельзя брать на себя: ${pk(['разбор конфликтов с гостями','бумажную рутину','контроль чужой работы'])}.`,`Если беречь ↔ если жечь: ${pk(['в ритме — образец для всех; в хаосе — ошибки','в новом — горишь; в рутине — гаснешь','с людьми — ведёшь; один — скучаешь'])}.`,`Куда тянет душа (рост): ${pk(['к наставничеству','к своему участку','к старшей должности'])}.`]],
+ ['h2','Кто что решает'],['table',[['Решаешь сам','Делегируешь','Не трогаешь'],[pk(['Порядок на своём месте','Как сделать задачу','Как вести свою смену']),'—',pk(['Цены и меню','Графики других смен','Закупки'])]]]]}}
+function genPair(r,sj){const s=r.id*31+sj.id;const pk=a=>PICK(s,a);const he=sj.g==='f'?'ней':'ним';const d0=new Date(TODAY);const day=n=>{const d=new Date(d0);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+ return{title:`Пара · ${r.first} ${r.last} → ${sj.first} ${sj.last}`,meta:{рассчитано:'2026-09-20',движок:'Суть-движок 2026.09 · пара',точность:'оба времени рождения точные',действует_до:'2027-03-31'},md:[
+ ['h2','Главное о паре'],['ul',[`Как вам с ${he}: ${pk(['легко думать вслух — схватывает с полуслова',`работаете как тандем: ты ставишь курс — ${sj.g==='f'?'она':'он'} держит`,'искрите по мелочам, но в большом заодно'])}.`,`Где вы совпадаете: ${pk(['порядок и дисциплина','скорость и азарт','забота о людях'])}.`,`Где искрит: ${pk(['темп: вы быстрее','детали: вы крупнее','прямота: вы резче'])}.`]],
+ ['h2','Как ставить задачи'],['ol',[pk(['Цель и срок одной строкой','Два варианта на выбор','Задача на неделю и разбор в пятницу']),pk(['Промежуточная проверка через неделю','Итог — при команде','Без пошагового плана'])]],
+ ['h2','Чего избегать'],['ul',[pk(['Мелкого контроля','Сообщений в выходные','Критики при всех']),pk(['Задач «когда будет время»','Решений через голову','Сравнения с другими'])]],
+ ['h2','Как поддержать'],['ul',[pk(['Публично отметить результат','Дать участок побольше','Спросить совета по людям'])]],
+ ['h2','Лучшие дни для трудных разговоров'],['table',[['Дата','Для чего'],[day(9+s%8),'разговор о росте и деньгах'],[day(23+s%6),'разбор ошибки']]]]}}
+const BIRTH={};
+function birthOf(p){if(!(p.id in BIRTH)){const s=p.key?900+p.key:p.id;const has=DB.docs.some(d=>d.subject===p.id||d.reader===p.id);BIRTH[p.id]=!has&&s%7===3?null:{date:`19${80+s%20}-${String(1+s%12).padStart(2,'0')}-${String(1+s%27).padStart(2,'0')}`,time:!has&&s%5===2?null:`${String(5+s%15).padStart(2,'0')}:${String((s*7)%60).padStart(2,'0')}`,place:PICK(s,['Самара','Сызрань','Новосибирск','Казань']),acc:!has&&s%5===2?'время неизвестно':s%4===1?'время примерное (±1 ч)':'время точное'}}return BIRTH[p.id]}
+(function(){let id=900;const add=(r,s)=>{if(r&&s&&!DB.docs.some(d=>d.kind==='pair'&&d.reader===r.id&&d.subject===s.id))DB.docs.push({id:id++,company:r.company,kind:'pair',reader:r.id,subject:s.id,gen:'pair',v:[{n:1,d:'20.09.2026'}]})};
+ ['Ковалёв','Орлова','Смирнов','Кузнецова','Лебедева'].forEach(l=>{const r=personBy('rice',l);DB.people.filter(x=>x.mgr===r.id&&x.status==='active').forEach(s=>add(r,s))});
+ const km=personBy('mal','Ковалёв');DB.people.filter(x=>x.mgr===km.id).forEach(s=>add(km,s));})();
+function windowsOf(p){const d=personalOf(p);if(!d||!canRead(d))return null;const S4=sectionsV4(src(d).md);const g=S4['Окна по времени'];const t=g&&g.groups&&(g.groups['Ближайшие месяцы']||[]).find(b=>b[0]==='table');return t?t[1].slice(1):null}
+const qitems=(S4,h2,h3)=>S4[h2]&&S4[h2].groups[h3]?items(S4[h2].groups[h3]):[];
+const fmtY=iso=>new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}).replace(' г.','');
+function provHTML(sr){const m=sr.meta;if(!m)return '';const stale=m.действует_до&&(new Date(m.действует_до)-TODAY)/864e5<30;return `<div class="prov">${ic('spark',13)} рассчитано ${fmtY(m.рассчитано)} · ${esc(m.движок)} · ${esc(m.точность)} · окна до ${fmtY(m.действует_до)}${stale&&isAdmin()?' <span class="badge no">пора пересчитать</span>':''}</div>`}
+function mainHTML(doc,p){const sr=src(doc),S4=sectionsV4(sr.md);const self=viewer()&&doc.subject===viewer().id;const en=energyNow(p);const main=items(bl(S4,'Главное на одном экране'));const map={};main.forEach(x=>{const [k,v]=lbl(x);if(k)map[k]=v});
+ const icons={'Кто ты здесь':'👤','Твой главный ход':'🎯','Твоя незаменимая сила':'⭐','Как делаешь деньги':'💰','Главная ловушка':'⚠️','Твоё окно':'🗓'};
+ return `<div class="sec main-card" id="a-cheat"><div class="sec-h">${ic('star',14)} Главное на одном экране<span class="sp"></span><span class="badge acc">${self?'про вас':'личная'} · v${lastV(doc).n}</span>${whoI(whoSees('personal',p))}</div>
+ ${en?`<div class="now ${en.cls}"><span style="font-size:20px">${en.label[0]}</span><div><b>Сейчас: ${esc(en.lvl)} до ${fmtD(en.until)}</b>Лучше всего сейчас: ${esc(en.what)}</div></div>`:''}
+ <div class="sgrid">${SUMMARY_LABELS.map(k=>map[k]?`<div class="scell"><span class="si">${icons[k]}</span><b>${esc(rl(k,self,p))}</b><span>${esc(map[k])}</span></div>`:'').join('')}</div>${provHTML(sr)}</div>`}
+function howHTML(doc,p){const S4=sectionsV4(src(doc).md);const how=items(bl(S4,'Как с тобой лучше работать'));const key=qitems(S4,'Точное попадание','Ключи к тебе')[0];if(!how.length)return '';
+ return `<div class="sec how"><div class="sec-h">${ic('meet',14)} Как с ${p.g==='f'?'ней':'ним'} работать${whoI(whoSees('personal',p))}</div>${key?`<div class="keyline">🔑 <b>${esc(lbl(key)[1])}</b></div>`:''}<div class="steps">${how.map(x=>`<div>${esc(x)}</div>`).join('')}</div></div>`}
+function windowsHTML(doc,p){const S4=sectionsV4(src(doc).md);const g=S4['Окна по времени'];if(!g)return '';const tb=n=>(g.groups[n]||[]).find(b=>b[0]==='table');const per=tb('Большие периоды'),mon=tb('Ближайшие месяцы'),days=tb('Лучшие дни');
+ const perHTML=per?(()=>{const rows=per[1].slice(1);const s0=new Date(rows[0][0]),s1=new Date(rows[rows.length-1][1]);const span=s1-s0;const now=(TODAY-s0)/span*100;const cols=['#4A7B92','#7A5340','#5C7E5A','#8E6F3E'];return `<div class="wsub">Большие периоды</div><div class="tl-bar per">${rows.map((r,i)=>`<div class="tl-seg" style="width:${(new Date(r[1])-new Date(r[0]))/span*100}%;background:${cols[i%4]}" title="${esc(r[2])}: ${esc(r[3])}"><span>${esc(r[2])} · ${new Date(r[0]).getFullYear()}–${new Date(r[1]).getFullYear()}</span></div>`).join('')}${now>=0&&now<=100?`<div class="tl-now" style="left:${now}%"><span>сейчас</span></div>`:''}</div><div class="per-list">${rows.map(r=>`<div><b>${esc(r[2])}</b> ${fmtD(r[0])} ${new Date(r[0]).getFullYear()} — ${fmtD(r[1])} ${new Date(r[1]).getFullYear()}: ${esc(r[3])}</div>`).join('')}</div>`})():'';
+ return `<div class="sec" id="a-win"><div class="sec-h">${ic('cal',14)} Окна по времени<span class="sp"></span><span class="hint" style="text-transform:none;letter-spacing:0">годы → месяцы → дни</span>${whoI(whoSees('personal',p))}</div>
+ ${perHTML}${mon?`<div class="wsub">Ближайшие месяцы</div>${timelineHTML(mon[1].slice(1))}`:''}
+ ${days?`<div class="wsub">Лучшие дни</div><div class="days">${days[1].slice(1).map(r=>`<div class="dchip"><b>${fmtD(r[0])}</b><span>${esc(r[1])}</span></div>`).join('')}</div>`:''}</div>`}
+function coreHTML(doc,p){const S4=sectionsV4(src(doc).md);const core=S4['Точное попадание'];if(!core)return '';const self=viewer()&&doc.subject===viewer().id;const f=p.g==='f';const quad={'Кто ты':['👤',f?'Кто она':'Кто он'],'Что движет':['⚡','Что движет'],'Где больно':['⚠','Где больно'],'Ключи к тебе':['🔑',f?'Ключи к ней':'Ключи к нему']};const open=S.coreOpen;
+ return `<div class="sec" id="a-core"><div class="sec-h">${ic('target',14)} Точное попадание<span class="sp"></span><a class="hint" style="text-transform:none;letter-spacing:0;cursor:pointer" onclick="S.coreOpen=!S.coreOpen;openSheet(${p.id})">${open?'свернуть':'все 17 пунктов'}</a></div><div class="quads">${Object.entries(core.groups).map(([g,bs])=>{const q=quad[g]||['•',g];const its=items(bs);return `<div class="quad"><h4>${q[0]} ${esc(self?g:q[1])}</h4>${(open?its:its.slice(0,2)).map(x=>{const [k,v]=lbl(x);return `<div class="qi">${k?`<small>${esc(rl(k,self,p))}</small>`:''}<span>${esc(v)}</span></div>`}).join('')}${!open&&its.length>2?`<div class="hint">ещё ${its.length-2}</div>`:''}</div>`}).join('')}</div></div>`}
+function restHTML(doc,p){const S4=sectionsV4(src(doc).md);const dec=bl(S4,'Кто что решает').find(b=>b[0]==='table');const sm=items(bl(S4,'Сила → деньги')),rk=items(bl(S4,'Зоны риска → чем закрываем'));const rh=bl(S4,'Ритм').find(b=>b[0]==='table');
+ return `${dec?`<div class="sec"><div class="sec-h">${ic('brief',14)} Кто что решает</div><div class="dec">${dec[1][0].map((h,i)=>`<div class="dec-col d${i}"><h4>${esc(h)}</h4>${dec[1].slice(1).map(r=>r[i]&&r[i]!=='—'?`<div>${esc(r[i])}</div>`:'').join('')}</div>`).join('')}</div></div>`:''}
+ ${sm.length||rk.length?`<div class="sec"><div class="sec-h">${ic('wallet',14)} Сила → деньги · риски → чем закрываем</div><div class="arrows">${sm.map(x=>{const [a,b]=x.split('→');return `<div class="ar ok"><span>${esc(a)}</span><i>→</i><span>${esc(b||'')}</span></div>`}).join('')}${rk.map(x=>{const [a,b]=x.split('→');return `<div class="ar no"><span>${esc(a)}</span><i>→</i><span>${esc(b||'')}</span></div>`}).join('')}</div></div>`:''}
+ ${rh?`<div class="sec"><div class="sec-h">${ic('hist',14)} Ритм</div><div class="cadence">${rh[1].slice(1).map(r=>`<div class="cad"><span>${esc(r[0])}</span>${esc(r[1])}</div>`).join('')}</div></div>`:''}`}
+function cheatHTML(doc,p){const self=viewer()&&doc.subject===viewer().id;return mainHTML(doc,p)+(self?'':howHTML(doc,p))+windowsHTML(doc,p)+coreHTML(doc,p)+restHTML(doc,p)+`<div><button class="btn sm" onclick="openDoc(${doc.id})">${ic('file',14)} Документ целиком · как написала Юя · PDF</button></div>`}
+function pairHTML(doc,p){const S4=sectionsV4(src(doc).md);const v=viewer();const direct=v&&p.mgr===v.id;const main=items(bl(S4,'Главное о паре'));const tasks=items(bl(S4,'Как ставить задачи')),avoid=items(bl(S4,'Чего избегать')).concat(items(bl(S4,'Чего избегать'))),sup=items(bl(S4,'Как поддержать'));const days=(bl(S4,'Лучшие дни для трудных разговоров').find(b=>b[0]==='table')||bl(S4,'Лучшие дни').find(b=>b[0]==='table'));
+ const doL=tasks.concat(items(bl(S4,'Как договариваться')),sup);const dont=[...new Set(items(bl(S4,'Чего избегать')))];
+ return `<div class="sec for-you" id="a-pair"><div class="sec-h">★ ${direct?`Как вам ${p.g==='f'?'её':'его'} вести`:`Как вам с ${p.g==='f'?'ней':'ним'} работать`}<span class="sp"></span><span class="lk">${ic('lock',11)} только вы</span>${whoI(whoSees('pair',p))}</div>
+ ${main.length?`<div class="pmain">${main.map(x=>{const [k,val]=lbl(x);return `<div>${k?`<small>${esc(k)}</small>`:''}<span>${esc(val)}</span></div>`}).join('')}</div>`:''}
+ <div class="fy-cols"><div><h4>Делать</h4><ul>${doL.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h4>Избегать</h4><ul>${dont.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>
+ ${days?`<div class="pdays">${days[1].slice(1).map(r=>`<span><b>${fmtD(r[0])}</b> · ${esc(r[1])}</span>`).join('')}</div>`:''}
+ <div style="margin-top:10px"><button class="btn sm" style="background:rgba(255,255,255,.12);border-color:transparent;color:inherit" onclick="openDoc(${doc.id})">${ic('file',14)} Текст целиком</button></div></div>`}
+function pageTeam(){const v=viewer();if(!v)return p404();const ks=kids(v);const leadOf=k=>{const d=DB.docs.find(x=>x.kind==='pair'&&x.reader===v.id&&x.subject===k.id);if(!d||!canRead(d))return null;const m=items(bl(sectionsV4(src(d).md),'Главное о паре'))[0];return m?lbl(m)[1]:null};
+ const en=ks.map(k=>energyNow(k));const hi=en.filter(e=>e&&e.cls==='hi').length,lo=en.filter(e=>e&&e.cls==='lo').length;
+ const weeks=[...Array(12)].map((_,i)=>{const d=new Date(TODAY);d.setDate(d.getDate()+i*7);return d});
+ const row=(p,me)=>{const w=windowsOf(p);return `<div class="hm-row"><div class="hm-who" onclick="goPerson(${p.id})">${avatar(p,26)}<span>${esc(p.first)} ${esc(p.last[0])}.${me?' <span class="badge ok">вы</span>':''}</span></div>${weeks.map(d=>{const e=w?energyNow(p,d):null;const c=e?(WCOL[e.lvl]||WCOL.ровно)[1]:'var(--bg-muted)';return `<div class="hm-cell" style="background:${c};opacity:${e?.9:.5}" title="${esc(p.first)}: ${e?e.lvl+' · '+e.what:'окон нет'}"></div>`}).join('')}</div>`};
+ return `<div class="scroll"><div class="page"><h1 style="margin:0;font-size:26px">Моя команда</h1><div class="hint">Прямые подчинённые · ${esc(v.first)} ${esc(v.last)} · пульт на каждый день</div>
+ <div class="sumbar"><div><b>${ks.length}</b><span>прямых подчинённых</span></div><div><b>${people(subtree(v).length)}</b><span>во всей ветке</span></div><div style="background:var(--ok-soft)"><b>${hi}</b><span>сейчас в подъёме — ставьте сложное</span></div><div style="background:var(--no-soft)"><b>${lo}</b><span>сейчас в спаде — беречь</span></div></div>
+ <div class="card" style="padding:16px;margin-top:16px"><div class="sec-h">${ic('cal',14)} Карта окон команды · 12 недель<span class="sp"></span><span class="hint" style="text-transform:none;letter-spacing:0">планируйте запуски, когда у ключевых людей подъём</span></div>
+  <div class="hm"><div class="hm-row hm-head"><div class="hm-who"></div>${weeks.map(d=>`<div class="hm-cell-h">${d.getDate()} ${d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')}</div>`).join('')}</div>${row(v,true)}${ks.map(k=>row(k)).join('')}</div>
+  <div class="hm-legend">${Object.entries(WCOL).map(([k,c])=>`<span><i style="background:${c[1]}"></i>${k}</span>`).join('')}<span><i style="background:var(--bg-muted)"></i>нет окон</span></div></div>
+ <div class="tgrid">${ks.map((k,i)=>{const d=personalOf(k),ok=d&&canRead(d);const S4=ok?sectionsV4(src(d).md):{};const e=en[i];const main=items(bl(S4,'Главное на одном экране'));const key=qitems(S4,'Точное попадание','Ключи к тебе')[0];const ld=leadOf(k);
+  return `<div class="tcard" onclick="goPerson(${k.id})"><div class="tcard-h">${avatar(k,48)}<div style="flex:1"><b>${esc(k.first)} ${esc(k.last)}</b><small>${esc(posName(k))}${kids(k).length?' · команда '+kids(k).length:''}</small></div>${e?`<span class="en ${e.cls}" style="position:static">${esc(e.label)}</span>`:''}</div>
+  ${ld?`<div class="tline lead-line">🧭 Как вам ${k.g==='f'?'её':'его'} вести: ${esc(ld)}</div>`:''}
+  ${ok?`${main[2]?`<div class="tline ok">⭐ ${esc(lbl(main[2])[1])}</div>`:''}${key?`<div class="tline key">🔑 ${esc(lbl(key)[1])}</div>`:''}${e?`<div class="hint">Сейчас: ${esc(e.what)}</div>`:''}`:'<div class="hint">Документа ещё нет — он появится, когда Юя рассчитает его движком</div>'}</div>`}).join('')}</div></div></div>`}
+function covRows(){const ps=cp().filter(p=>p.status==='active');
+ const row=p=>{const b=birthOf(p),d=personalOf(p),m=p.mgr&&P(p.mgr);const pair=m?DB.docs.find(x=>x.kind==='pair'&&x.reader===m.id&&x.subject===p.id):null;const sr=d?src(d):null;const until=sr&&sr.meta?sr.meta.действует_до:null;const stale=until&&(new Date(until)-TODAY)/864e5<30;
+  return {p,b,d,pair,m,until,stale}};
+ return ps.map(row)}
+function pageCoverage(){if(!isAdmin())return p404();const rows=covRows();const noB=rows.filter(r=>!r.b||!r.b.time).length,noD=rows.filter(r=>r.b&&r.b.time&&!r.d).length,noP=rows.filter(r=>r.m&&!r.pair&&r.b&&r.b.time&&birthOf(r.m)).length,st=rows.filter(r=>r.stale).length;
+ const ok=x=>x?'<span class="badge ok">есть</span>':'<span class="badge no">нет</span>';
+ return `<div class="scroll"><div class="page"><h1 style="margin:0;font-size:26px">Покрытие документов</h1><div class="hint">Что уже рассчитано движком и записано Юей, а чего не хватает. Тот же отчёт Юя получает инструментом MCP и собирает недостающее сама.</div>
+ <div class="sumbar"><div style="background:var(--no-soft)"><b>${noB}</b><span>нет даты, времени или места рождения — нужны от людей</span></div><div><b>${noD}</b><span>личных можно рассчитать</span></div><div><b>${noP}</b><span>пар «руководитель → подчинённый» можно рассчитать</span></div><div style="background:var(--amb-soft)"><b>${st}</b><span>окна заканчиваются — обновить</span></div><div style="display:flex;align-items:center"><button class="btn primary" onclick="openYuia('coverage')">${ic('spark',15)} Юя, собери недостающее</button></div></div>
+ <div class="card" style="overflow:hidden;margin-top:16px"><table class="tbl"><tr><th>Человек</th><th>Данные рождения</th><th>Личная</th><th>Окна до</th><th>Пара с руководителем</th></tr>${rows.slice(0,40).map(r=>`<tr style="cursor:pointer" onclick="goPerson(${r.p.id})"><td><div style="display:flex;gap:10px;align-items:center">${avatar(r.p,28)}<div><b>${esc(r.p.first)} ${esc(r.p.last)}</b><div class="hint">${esc(posName(r.p))}</div></div></div></td><td>${r.b?`<span class="badge ${r.b.time?(r.b.acc==='время точное'?'ok':''):'no'}">${esc(r.b.acc)}</span>`:'<span class="badge no">нет</span>'}</td><td>${r.d?`<span class="badge ok">v${lastV(r.d).n}</span>`:ok(false)}</td><td>${r.until?`${fmtY(r.until)}${r.stale?' <span class="badge no">скоро</span>':''}`:'—'}</td><td>${r.m?ok(r.pair)+` <span class="hint">${esc(r.m.first)} → ${esc(r.p.first)}</span>`:'<span class="hint">верхний уровень</span>'}</td></tr>`).join('')}</table>${rows.length>40?`<div class="pager">и ещё ${rows.length-40}</div>`:''}</div></div></div>`}
+
+const PAIR_V6={title:'Как Анне Лебедевой работать с Мариной Орловой',meta:{рассчитано:'2026-09-20',движок:'Суть-движок 2026.09 · пара',точность:'оба времени рождения точные',действует_до:'2027-03-31'},md:[
+ ['quote','Документ для тебя, Анна. Марина его не видит и о нём не знает.'],
+ ['h2','Главное о паре'],['ul',['Как вам с ней: обе быстрые и прямые — договариваетесь с полуслова, пока речь о цифрах.','Где вы совпадаете: скорость решений и любовь к порядку.','Где искрит: люди — ты судишь по результату, она по вложенным силам.']],
+ ['h2','Как ставить задачи'],['ol',['Приходи с цифрой и сроком.','Предлагай два варианта, а не готовое решение.']],
+ ['h2','Как договариваться'],['ul',['Спор о человеке переноси на следующий день.','Решение фиксируй одной строкой.']],
+ ['h2','Чего избегать'],['ul',['Решений через её голову по её филиалам.','Критики её управляющих при всех.']],
+ ['h2','Как поддержать'],['ul',['Отмечай её результат на общих созвонах.']],
+ ['h2','Лучшие дни для трудных разговоров'],['table',[['Дата','Для чего'],['2026-10-21','договориться о планах на зиму'],['2026-11-05','разговор о бонусах управляющих']]]]};
+SRC.orlova=ORLOVA_V6;SRC.pair=PAIR_V6;
+/* разметка: шапка «откуда текст» и вложенные блоки окон */
+Object.assign(DIR,{'Главное о паре':'summary','Как ставить задачи':'steps','Лучшие дни для трудных разговоров':'days'});delete DIR['Окна по времени'];delete DIR['Как вести каждого'];
+const DIR3={'Большие периоды':'periods','Ближайшие месяцы':'windows','Лучшие дни':'days'};
+function toMarkup(src){const out=[];if(src.meta)out.push('---',...Object.entries(src.meta).map(([k,v])=>`${k}: ${v}`),'---','');out.push(`# ${src.title}`,'');let dir=null,dir3=null;
+ const close3=()=>{if(dir3){out.push(':::','');dir3=null}},close=()=>{close3();if(dir){out.push(':::','');dir=null}};
+ for(const [t,c] of src.md){
+  if(t==='h2'){close();out.push(`## ${c}`,'');if(DIR[c]){dir=DIR[c];out.push(':::'+dir)}}
+  else if(t==='h3'){close3();out.push(`### ${c}`,'');if(!dir&&DIR3[c]){dir3=DIR3[c];out.push(':::'+dir3)}}
+  else if(t==='quote')out.push('> [!NOTE]','> '+c,'');
+  else if(t==='p')out.push(c,'');
+  else if(t==='ul'||t==='ol')out.push(mdList(t,c),'');
+  else if(t==='table')out.push(mdTable(c),'');
+  else if(t==='pre')out.push('```',c,'```','');}
+ close();return out.join('\n').replace(/\n{3,}/g,'\n\n').trim()}
+function hlMarkup(t){let fm=false;return esc(t).split('\n').map((l,i)=>{if(l==='---'&&(i===0||fm)){fm=i===0;return `<span class="mu-fm">${l}</span>`}if(fm)return `<span class="mu-fm">${l}</span>`;return /^:::/.test(l)?`<span class="mu-dir">${l}</span>`:/^#{1,3} /.test(l)?`<span class="mu-h">${l}</span>`:/^&gt; \[!/.test(l)?`<span class="mu-dir">${l}</span>`:/^\|/.test(l)?`<span class="mu-t">${l}</span>`:l}).join('\n')}
+
+let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{if(S.view==='tree')renderMain()},200)});
+render();
+setTimeout(()=>{openSheet(personBy('rice','Орлова').id);fit()},350);
+setTimeout(()=>{$('whoPanel').classList.add('on');setTimeout(()=>$('whoPanel').classList.remove('on'),4500)},700);
+
+</script>
+</body>
+</html>
