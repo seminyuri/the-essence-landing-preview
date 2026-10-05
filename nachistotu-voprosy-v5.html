@@ -1,0 +1,203 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex">
+<title>Начистоту — вопросы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+<style>:root{--paper:#FBF8F3;--paper2:#F3EDE4;--ink:#17140F;--ink2:#3B352D;--mut:#857D71;--line:#E8E1D6;--acc:#FF6900;--accink:#C44A00;--accsoft:#FFEEDF;--card:#FFFFFF;
+--disp:"Unbounded",system-ui,sans-serif;--text:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;--r:22px;--ease:cubic-bezier(.2,.7,.2,1)}
+@media (prefers-color-scheme:dark){:root{--paper:#121110;--paper2:#1A1816;--ink:#F3EEE7;--ink2:#D9D2C8;--mut:#9A9287;--line:#2B2723;--acc:#FF7A1A;--accink:#FF9B52;--accsoft:#2B1A0D;--card:#171513}}
+*{box-sizing:border-box}html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+/* шапка */
+.top{display:flex;align-items:center;justify-content:space-between;padding:20px 0 40px}
+.brand{display:flex;align-items:center;gap:10px;font:600 15px/1 var(--disp);letter-spacing:.01em}
+.dot{width:22px;height:22px;border-radius:50%;background:var(--acc);box-shadow:inset 0 0 0 5px color-mix(in srgb,var(--acc) 70%,#fff)}
+.ver{font-size:13px;color:var(--mut)}
+/* первый экран */
+.hero{position:relative;padding:0 0 40px;overflow:hidden;isolation:isolate}
+.hero:before{content:"";position:absolute;z-index:-1;right:-14vw;top:-22vw;width:min(70vw,820px);aspect-ratio:1;border-radius:50%;
+background:radial-gradient(circle at 40% 40%,color-mix(in srgb,var(--acc) 26%,transparent) 0%,color-mix(in srgb,var(--acc) 8%,transparent) 42%,transparent 70%);pointer-events:none}
+.eyebrow{font:600 12.5px/1 var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--accink)}
+.hero h1{font:700 clamp(40px,8.4vw,92px)/.98 var(--disp);letter-spacing:-.03em;margin:16px 0 18px;max-width:11ch}
+.hero h1 em{font-style:normal;color:var(--acc)}
+.lead{font-size:clamp(18px,2.2vw,22px);line-height:1.5;color:var(--ink2);max-width:40ch;margin:0}
+.stats{display:flex;flex-wrap:wrap;gap:10px 34px;margin:30px 0 0;padding:0;list-style:none}
+.stats li{display:flex;flex-direction:column}.stats b{font:600 30px/1.1 var(--disp);letter-spacing:-.02em}.stats span{color:var(--mut);font-size:14px}
+/* линза */
+.lens{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.lens .wrap{padding-top:12px;padding-bottom:12px}
+.lrow{display:flex;align-items:center;gap:12px}
+.llabel{font-size:13px;color:var(--mut);white-space:nowrap}
+.pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px}.pills::-webkit-scrollbar{display:none}
+.pill{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 15px/1 var(--text);padding:10px 14px;border-radius:999px;white-space:nowrap;cursor:pointer;transition:background .2s var(--ease),border-color .2s,color .2s,transform .15s}
+.pill:hover{border-color:color-mix(in srgb,var(--ink) 30%,var(--line))}.pill:active{transform:scale(.97)}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.pill:focus-visible,.tg:focus-within,a:focus-visible{outline:3px solid color-mix(in srgb,var(--acc) 55%,transparent);outline-offset:2px}
+.lmeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:10px;font-size:14px;color:var(--mut)}
+.lmeta b{color:var(--ink);font-weight:600}
+.tg{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;color:var(--ink2)}
+.tg input{appearance:none;width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;margin:0;cursor:pointer;transition:background .2s}
+.tg input:before{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .2s var(--ease)}
+.tg input:checked{background:var(--acc)}.tg input:checked:before{transform:translateX(14px)}
+.dots{display:none;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}.dots::-webkit-scrollbar{display:none}
+.dots a{flex:0 0 auto;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font:600 13px/1 var(--disp);text-decoration:none;color:var(--mut);transition:all .2s}
+.dots a.on{background:var(--acc);border-color:var(--acc);color:#fff}
+/* раскладка */
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:56px;padding:28px 0 20px}
+.rail{position:sticky;top:132px;align-self:start}
+.rail ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--line)}
+.rail a{display:flex;gap:12px;align-items:baseline;padding:9px 0 9px 18px;margin-left:-1px;border-left:2px solid transparent;text-decoration:none;color:var(--mut);transition:color .2s,border-color .2s}
+.rail a:hover{color:var(--ink)}.rail a.on{color:var(--ink);border-left-color:var(--acc)}
+.rn{font:600 13px/1 var(--disp);min-width:22px}.rt{font-size:15.5px}
+main{min-width:0;max-width:760px}
+/* блок */
+.block{padding:18px 0 46px;scroll-margin-top:calc(var(--lensH,140px) + 16px)}
+.bhead h2{font:700 clamp(28px,4.6vw,44px)/1.08 var(--disp);letter-spacing:-.025em;margin:12px 0 12px}
+.learn{margin:0;color:var(--ink2);font-size:18px;max-width:58ch}
+.example{margin:22px 0 4px;padding:18px 20px;background:var(--accsoft);border-radius:var(--r)}
+.example figcaption{font:600 12.5px/1 var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--accink);margin-bottom:8px}
+.example blockquote{margin:0;font-size:17px;line-height:1.55;color:var(--ink)}
+.qs{list-style:none;margin:18px 0 0;padding:0}
+.q{display:grid;grid-template-columns:76px minmax(0,1fr);gap:0 8px;padding:22px 0;border-top:1px solid var(--line)}
+.q[data-role]:not([data-role="core"]){display:none}
+body[data-role="kitchen"] .q[data-role="kitchen"],body[data-role="prep"] .q[data-role="prep"],body[data-role="front"] .q[data-role="front"],
+body[data-role="courier"] .q[data-role="courier"],body[data-role="cleaning"] .q[data-role="cleaning"],body[data-role="manager"] .q[data-role="manager"],
+body[data-role="office"] .q[data-role="office"],body[data-role="lead"] .q[data-role="lead"],body.handover .q[data-role="handover"]{display:grid}
+body.only-main .q[data-main="0"]{display:none!important}
+.num{font:600 34px/1 var(--disp);letter-spacing:-.03em;color:color-mix(in srgb,var(--ink) 18%,transparent);padding-top:2px}
+.num.is-main{color:var(--acc)}.num.is-role{font-size:24px;padding-top:6px}
+.q[data-role]:not([data-role="core"]){background:color-mix(in srgb,var(--accsoft) 70%,transparent);border-top:0;border-radius:18px;padding:20px 18px 20px 0;margin:10px 0}
+.q[data-role]:not([data-role="core"]) .num{padding-left:16px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:6px}
+.qid{font-size:13px;color:var(--mut);font-weight:500}
+.badge{font:600 11.5px/1 var(--text);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:999px}
+.badge.main{background:var(--accsoft);color:var(--accink)}.badge.role{background:var(--ink);color:var(--paper)}
+.qt{margin:0;font:500 clamp(19px,2.1vw,21px)/1.45 var(--text);letter-spacing:-.005em;color:var(--ink)}
+.q:has(.is-main) .qt{font-weight:600}
+.ph{background:var(--accsoft);color:var(--accink);border-radius:8px;padding:0 6px;white-space:nowrap}
+.how{margin:10px 0 0;font-size:15.5px;line-height:1.5;color:var(--ink2)}
+.how span{display:inline-block;margin-right:8px;font:600 11.5px/1 var(--text);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.gives{margin:10px 0 0;font-size:13px;color:var(--mut);letter-spacing:.01em}
+.gives:before{content:"Даёт: ";font-weight:600}
+/* разделы */
+.sec{padding:56px 0 10px;border-top:1px solid var(--line)}
+.sec h2{font:700 clamp(28px,4.4vw,44px)/1.08 var(--disp);letter-spacing:-.025em;margin:12px 0 26px;max-width:18ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.cov,.m{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 20px 18px}
+.cov h3,.m h3{font:600 18px/1.3 var(--text);margin:0 0 8px}.cov p,.m p{margin:0;color:var(--ink2);font-size:15.5px}
+.cov span{display:block;margin-top:12px;font:600 13px/1.4 var(--disp);color:var(--accink)}
+.mn{font:600 13px/1 var(--disp);color:var(--acc)}.m h3{margin-top:12px}
+.foot{padding:40px 0 70px;color:var(--mut);font-size:14px}
+.note{margin:6px 0 8px;padding:16px 18px;border:1px dashed var(--line);border-radius:16px;color:var(--ink2);font-size:16px}
+.note span{display:block;font:600 11.5px/1 var(--text);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.rolenote{margin:12px 0 0;padding:12px 16px;border-radius:14px;background:var(--accsoft);color:var(--accink);font-size:15px;font-weight:500}
+/* появление */
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .55s var(--ease),transform .55s var(--ease);transition-delay:calc(min(var(--i,0),8)*40ms)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}}
+/* телефон */
+@media (max-width:1023px){.layout{grid-template-columns:1fr;gap:0;padding-top:10px}.rail{display:none}.dots{display:flex}}
+@media (max-width:600px){.wrap{padding:0 16px}.hero{padding:26px 0 26px}.hero:before{right:-240px;top:-200px}
+.q{grid-template-columns:52px minmax(0,1fr)}.num{font-size:26px}.num.is-role{font-size:18px}
+.llabel{display:none}.ver{display:none}.top{padding:16px 0 26px}.pill{font-size:14px;padding:8px 12px}.lmeta{font-size:13px;gap:6px 14px;margin-top:8px}.dots{margin-top:8px}.dots a{width:28px;height:28px;font-size:12px}.lens .wrap{padding-top:10px;padding-bottom:10px}.stats{gap:8px 24px}.stats b{font-size:24px}}
+
+.q{grid-template-columns:76px minmax(0,1fr)}
+.flow{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:56px;align-items:center;padding:56px 0 20px;border-top:1px solid var(--line)}
+.flow h2{font:700 clamp(28px,4.4vw,44px)/1.08 var(--disp);letter-spacing:-.025em;margin:12px 0 18px}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{position:relative;padding:14px 0 14px 52px;border-top:1px solid var(--line);font-size:17px;color:var(--ink2)}
+.steps li b{color:var(--ink);font-weight:600}
+.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:12px;width:34px;height:34px;border-radius:50%;background:var(--accsoft);color:var(--accink);display:grid;place-items:center;font:600 14px/1 var(--disp)}
+.phone{position:relative;width:320px;height:640px;margin:0 auto;border-radius:46px;background:#0E0D0C;padding:12px;box-shadow:0 40px 80px -30px rgba(40,20,0,.35),0 0 0 1px rgba(0,0,0,.08)}
+.screen{position:relative;height:100%;border-radius:36px;overflow:hidden;background:var(--paper);display:flex;flex-direction:column;padding:46px 22px 22px}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;border-radius:20px;background:#0E0D0C}
+.sp{font:600 11.5px/1 var(--text);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.bar{height:4px;border-radius:4px;background:var(--line);margin:10px 0 22px;overflow:hidden}.bar i{display:block;height:100%;width:22%;background:var(--acc);border-radius:4px}
+.sq{font:600 22px/1.3 var(--text);letter-spacing:-.01em;margin:0 0 12px}
+.sh{font-size:15px;line-height:1.5;color:var(--ink2);margin:0}
+.rec{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.rd{width:10px;height:10px;border-radius:50%;background:#E5322D;box-shadow:0 0 0 0 rgba(229,50,45,.5);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(229,50,45,0)}100%{box-shadow:0 0 0 0 rgba(229,50,45,0)}}
+.wv{display:flex;gap:3px;align-items:center;height:22px;flex:1}.wv i{flex:1;max-width:4px;border-radius:3px;background:var(--acc);height:30%;animation:eq 1.1s ease-in-out infinite}
+.wv i:nth-child(2n){animation-delay:.15s}.wv i:nth-child(3n){animation-delay:.3s}.wv i:nth-child(5n){animation-delay:.45s}
+@keyframes eq{50%{height:100%}}
+@media (prefers-reduced-motion:reduce){.rd,.wv i{animation:none}}
+.tm{font:600 14px/1 var(--disp);color:var(--ink)}
+.btns{display:flex;gap:10px;margin-top:12px}
+.b2{flex:0 0 auto;padding:15px 18px;border-radius:16px;border:1px solid var(--line);background:var(--card);font:600 16px/1 var(--text);color:var(--ink)}
+.b1{flex:1;padding:15px 18px;border-radius:16px;background:var(--acc);color:#fff;font:600 16px/1 var(--text);text-align:center}
+.only{margin-top:12px;text-align:center;font-size:12.5px;color:var(--mut)}
+.promise{margin:0;padding:26px 26px 24px;border-radius:var(--r);background:var(--ink);color:var(--paper)}
+.promise p{margin:0;font:500 clamp(20px,2.4vw,26px)/1.4 var(--text);letter-spacing:-.01em}
+.promise span{display:block;margin-top:14px;font-size:14px;opacity:.7}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mode{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.mode h3{font:600 20px/1.25 var(--text);margin:10px 0 8px}.mode p{margin:0;color:var(--ink2);font-size:16px}
+.mode .tag{font:600 11.5px/1 var(--text);letter-spacing:.1em;text-transform:uppercase;color:var(--accink)}
+@media (prefers-color-scheme:dark){.phone{box-shadow:0 0 0 1px #3a342e,0 40px 80px -30px rgba(0,0,0,.6)}}
+@media (max-width:1023px){.flow{grid-template-columns:1fr;gap:34px}}
+@media (max-width:600px){.phone{transform:scale(.92);transform-origin:top center;margin-bottom:-50px}.two{grid-template-columns:1fr}.q{grid-template-columns:52px minmax(0,1fr)}}
+</style></head><body data-role="core">
+<section class="hero"><div class="wrap"><header class="top"><div class="brand"><span class="dot"></span>Начистоту</div><div class="ver">Суши Мама · вопросник v5 · 05.10.2026 · утверждён</div></header>
+<div class="eyebrow">Опрос всех сотрудников Суши Мамы</div>
+<h1>Поговорим <em>начистоту</em></h1>
+<p class="lead">Короткие простые вопросы, на которые каждый ответит голосом примерно за 20 минут. Из ответов складываются должностные, карта процессов и честная картина того, как Суши Мама работает на самом деле.</p>
+<ul class="stats"><li><b>4</b><span>части</span></li><li><b>16</b><span>вопросов для всех</span></li><li><b>+2–4</b><span>вопроса своей роли</span></li><li><b>≈ 20</b><span>минут голосом</span></li></ul>
+</div></section>
+
+<div class="wrap">
+<section class="flow"><div><div class="eyebrow">Как это у человека</div><h2>Одна запись — и «Далее»</h2>
+<ol class="steps"><li><b>Находит себя по фамилии</b> — или выбирает «сказать анонимно».</li>
+<li><b>Один раз нажимает «Записать».</b> Запись идёт до конца, без остановок.</li>
+<li><b>Читает вопрос, отвечает, жмёт «Далее»</b> — появляется следующий. Каждое «Далее» ставит в записи метку, по ней расшифровка делится на ответы по вопросам.</li>
+<li><b>«Спасибо»</b> — и видно, сколько минут он рассказал. Можно вернуться и дополнить.</li></ol></div>
+<div class="phone" aria-hidden="true"><div class="notch"></div><div class="screen">
+<div class="sp">Часть 1 из 4 · вопрос 2 из 19</div><div class="bar"><i></i></div>
+<p class="sq">Расскажите вашу последнюю смену, как будто снимаете про неё кино.</p>
+<p class="sh">Что делаете первым делом, что в самый завал, чем заняты в затишье, что перед уходом.</p>
+<div class="rec"><span class="rd"></span><span class="wv"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="tm">03:42</span></div>
+<div class="btns"><span class="b2">Назад</span><span class="b1">Далее</span></div>
+<div class="only">Ответы слушает и изучает только Юрий</div></div></div>
+</section>
+
+<section class="sec" style="border-top:0;padding-top:30px"><div class="eyebrow">Обещание людям</div><h2>Честно — значит безопасно</h2>
+<figure class="promise reveal"><p>«Ваши ответы слушаю и изучаю только я. Руководителям я передам только общие выводы — без имён и без того, кто что сказал. За честность ничего не будет — никому, никак.»</p><span>— Юрий Сёмин, собственник. Эти слова стоят на первом экране, в сообщении Риммы и на каждом экране с вопросом.</span></figure>
+<div class="two" style="margin-top:14px">
+<article class="mode reveal"><span class="tag">Основной путь</span><h3>С фамилией и именем</h3><p>Человек находит себя в списке и отвечает на вопросы своей роли. Руководители на табло видят только «ответил» и сколько знаков — содержание никогда.</p></article>
+<article class="mode reveal"><span class="tag">Дополнительно</span><h3>Анонимно — напрямую Юрию</h3><p>Без имени, текстом или надиктовать — голос сразу превращается в текст, сам звук не сохраняется. Для того, что под своим именем не скажут. Не заменяет ответы с именем.</p></article>
+</div></section>
+
+<p class="learn" style="margin:56px 0 0">Перед первым вопросом человек видит: «Вы знаете свою работу лучше всех. Расскажите как есть — правильных ответов нет. Случай из жизни лучше общих слов. Можно жаловаться и предлагать.»</p>
+</div>
+
+<nav class="lens" aria-label="Чьими глазами смотреть"><div class="wrap">
+<div class="lrow"><span class="llabel">Смотреть глазами</span><div class="pills" role="group"><button class="pill" data-role="core" aria-pressed="true">Вопросы для всех</button><button class="pill" data-role="kitchen" aria-pressed="false">Повар</button><button class="pill" data-role="prep" aria-pressed="false">Цех</button><button class="pill" data-role="front" aria-pressed="false">Зал и заказы</button><button class="pill" data-role="courier" aria-pressed="false">Курьер</button><button class="pill" data-role="cleaning" aria-pressed="false">Фея чистоты</button><button class="pill" data-role="manager" aria-pressed="false">Управляющий</button><button class="pill" data-role="office" aria-pressed="false">УК</button><button class="pill" data-role="lead" aria-pressed="false">Руководство</button></div></div>
+<div class="lmeta"><span id="sum"></span><label class="tg"><input type="checkbox" id="handover"> + передача дел</label></div>
+<div class="dots"><a href="#b1" data-n="1">1</a><a href="#b2" data-n="2">2</a><a href="#b3" data-n="3">3</a><a href="#b4" data-n="4">4</a></div></div></nav>
+
+<div class="wrap"><div class="layout"><aside class="rail"><ol><li><a href="#b1" data-n="1"><span class="rn">01</span><span class="rt">Ваша работа</span></a></li><li><a href="#b2" data-n="2"><span class="rn">02</span><span class="rt">Что мешает</span></a></li><li><a href="#b3" data-n="3"><span class="rn">03</span><span class="rt">Люди вокруг</span></a></li><li><a href="#b4" data-n="4"><span class="rn">04</span><span class="rt">О вас</span></a></li></ol></aside>
+<main><p class="rolenote" id="rolenote" hidden></p><section class="block" id="b1" data-n="1"><div class="bhead reveal"><div class="eyebrow">Часть 1 из 4</div><h2>Ваша работа</h2><p class="learn">Как устроен ваш день на самом деле и что в нём главное.</p></div><ol class="qs"><li class="q reveal" style="--i:0" data-role="core" data-main="1"><div class="num">01</div><div class="qb"><div class="meta"><span class="qid">В1</span></div><p class="qt">Давайте знакомиться: как вас зовут, кем и где вы работаете и сколько вы у нас?</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:1" data-role="core" data-main="1"><div class="num">02</div><div class="qb"><div class="meta"><span class="qid">В2</span></div><p class="qt">Расскажите вашу последнюю смену, как будто снимаете про неё кино.</p><p class="how"><span>Подсказка</span>Что делаете первым делом, что в самый завал, чем заняты в затишье, что перед уходом.</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:2" data-role="core" data-main="1"><div class="num">03</div><div class="qb"><div class="meta"><span class="qid">В3</span></div><p class="qt">Представьте, что вы неделю в отпуске. Что без вас сломается первым?</p><p class="how"><span>Подсказка</span>Так видно всё, что вы на самом деле держите на себе.</p><p class="gives">должностная · как есть / как должно</p></div></li><li class="q reveal" style="--i:3" data-role="core" data-main="1"><div class="num">04</div><div class="qb"><div class="meta"><span class="qid">В4</span></div><p class="qt">Какое дело у вас самое важное — где ошибка сразу бьёт по гостю или по деньгам? Как вы делаете его правильно?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:4" data-role="core" data-main="1"><div class="num">05</div><div class="qb"><div class="meta"><span class="qid">В5</span></div><p class="qt">Какие у вас есть свои хитрости в работе — то, чего нет ни в одной инструкции, но вы бы обязательно рассказали новичку?</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:5" data-role="handover" data-main="1"><div class="num is-role">П1</div><div class="qb"><div class="meta"><span class="qid">П1</span><span class="badge role">Передача дел</span></div><p class="qt">Что вы делали на самом деле — включая то, что нигде не записано?</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:6" data-role="handover" data-main="1"><div class="num is-role">П2</div><div class="qb"><div class="meta"><span class="qid">П2</span><span class="badge role">Передача дел</span></div><p class="qt">Что останется без хозяина: доступы, договорённости, незаконченные дела?</p><p class="gives">должностная · как есть / как должно</p></div></li></ol></section><section class="block" id="b2" data-n="2"><div class="bhead reveal"><div class="eyebrow">Часть 2 из 4</div><h2>Что мешает</h2><p class="learn">Где теряются время, продукты и нервы — и как это исправить.</p></div><ol class="qs"><li class="q reveal" style="--i:0" data-role="core" data-main="1"><div class="num">06</div><div class="qb"><div class="meta"><span class="qid">В6</span></div><p class="qt">Какая мелочь мешает и бесит каждый день, но к ней все привыкли?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:1" data-role="core" data-main="1"><div class="num">07</div><div class="qb"><div class="meta"><span class="qid">В7</span></div><p class="qt">На что за смену уходит время зря и что пропадает впустую?</p><p class="how"><span>Подсказка</span>Ждёте, ищете, переделываете, выбрасываете — примерно сколько?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:2" data-role="core" data-main="1"><div class="num">08</div><div class="qb"><div class="meta"><span class="qid">В8</span></div><p class="qt">От кого вы зависите и кто зависит от вас? Где чаще всего нестыковки?</p><p class="how"><span>Подсказка</span>Кухня, зал, курьеры, цех, закупки — что приходит не вовремя или не то?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:3" data-role="core" data-main="1"><div class="num">09</div><div class="qb"><div class="meta"><span class="qid">В9</span></div><p class="qt">Вспомните последний раз, когда что-то пошло не так. Что случилось — и как сделать, чтобы не повторилось?</p><p class="gives">потери и деньги · как есть / как должно</p></div></li><li class="q reveal" style="--i:4" data-role="core" data-main="1"><div class="num">10</div><div class="qb"><div class="meta"><span class="qid">В10</span></div><p class="qt">Что вы делаете, хотя это не ваша работа? И что ваша работа, но не успевается?</p><p class="gives">должностная · как есть / как должно</p></div></li><li class="q reveal" style="--i:5" data-role="core" data-main="1"><div class="num">11</div><div class="qb"><div class="meta"><span class="qid">В11</span></div><p class="qt">Что вы решаете сами, а за чем идёте к руководителю? Что бы вы решали сами, если бы вам разрешили?</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:6" data-role="kitchen" data-main="1"><div class="num is-role">К1</div><div class="qb"><div class="meta"><span class="qid">К1</span><span class="badge role">Повар</span></div><p class="qt">Вечер пятницы, заказы сыпятся: где на кухне затык и почему заказы задерживаются?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:7" data-role="kitchen" data-main="1"><div class="num is-role">К2</div><div class="qb"><div class="meta"><span class="qid">К2</span><span class="badge role">Повар</span></div><p class="qt">Все ли готовят одинаково — вес, рис, соус? Где у кого получается по-разному?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:8" data-role="kitchen" data-main="1"><div class="num is-role">К3</div><div class="qb"><div class="meta"><span class="qid">К3</span><span class="badge role">Повар</span></div><p class="qt">Кто решает, сколько делать заготовок, и что потом с остатками?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:9" data-role="kitchen" data-main="1"><div class="num is-role">К4</div><div class="qb"><div class="meta"><span class="qid">К4</span><span class="badge role">Повар</span></div><p class="qt">Только старшему смены: что вы делаете сверх работы повара и что решаете сами?</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:10" data-role="prep" data-main="1"><div class="num is-role">Ц1</div><div class="qb"><div class="meta"><span class="qid">Ц1</span><span class="badge role">Цех</span></div><p class="qt">Откуда вы знаете, сколько и чего нужно точкам, — и часто ли не угадываете?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:11" data-role="prep" data-main="1"><div class="num is-role">Ц2</div><div class="qb"><div class="meta"><span class="qid">Ц2</span><span class="badge role">Цех</span></div><p class="qt">Что выбрасывается или портится — примерно сколько в неделю и почему?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:12" data-role="front" data-main="1"><div class="num is-role">З1</div><div class="qb"><div class="meta"><span class="qid">З1</span><span class="badge role">Зал и заказы</span></div><p class="qt">Проведите один заказ от звонка до гостя: где он чаще всего спотыкается?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:13" data-role="front" data-main="1"><div class="num is-role">З2</div><div class="qb"><div class="meta"><span class="qid">З2</span><span class="badge role">Зал и заказы</span></div><p class="qt">На что гости жалуются чаще всего — и что вы можете сделать сами, чтобы гость остался доволен?</p><p class="gives">должностная · потери и деньги</p></div></li><li class="q reveal" style="--i:14" data-role="front" data-main="1"><div class="num is-role">З3</div><div class="qb"><div class="meta"><span class="qid">З3</span><span class="badge role">Зал и заказы</span></div><p class="qt">Что гости охотно добавляют к заказу, если им предложить?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:15" data-role="courier" data-main="1"><div class="num is-role">Д1</div><div class="qb"><div class="meta"><span class="qid">Д1</span><span class="badge role">Курьер</span></div><p class="qt">Сколько заказов за смену вы возите и сколько из них опаздывают — из-за чего?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:16" data-role="courier" data-main="1"><div class="num is-role">Д2</div><div class="qb"><div class="meta"><span class="qid">Д2</span><span class="badge role">Курьер</span></div><p class="qt">Сколько времени за смену уходит на ожидание заказов на точке?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:17" data-role="courier" data-main="1"><div class="num is-role">Д3</div><div class="qb"><div class="meta"><span class="qid">Д3</span><span class="badge role">Курьер</span></div><p class="qt">Что чаще всего не так с заказом, когда вы отдаёте его гостю?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:18" data-role="cleaning" data-main="1"><div class="num is-role">Ч1</div><div class="qb"><div class="meta"><span class="qid">Ч1</span><span class="badge role">Фея чистоты</span></div><p class="qt">Какие зоны вы убираете и в каком порядке? Кто проверяет?</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:19" data-role="cleaning" data-main="1"><div class="num is-role">Ч2</div><div class="qb"><div class="meta"><span class="qid">Ч2</span><span class="badge role">Фея чистоты</span></div><p class="qt">Чего не хватает для уборки?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:20" data-role="cleaning" data-main="1"><div class="num is-role">Ч3</div><div class="qb"><div class="meta"><span class="qid">Ч3</span><span class="badge role">Фея чистоты</span></div><p class="qt">Что вы видите на точке, чего, может быть, не замечают другие?</p><p class="gives">как есть / как должно · потери и деньги</p></div></li><li class="q reveal" style="--i:21" data-role="office" data-main="1"><div class="num is-role">С1</div><div class="qb"><div class="meta"><span class="qid">С1</span><span class="badge role">УК</span></div><p class="qt">Кто чаще всего приходит к вам с просьбами — и с какими?</p><p class="gives">должностная</p></div></li><li class="q reveal" style="--i:22" data-role="office" data-main="1"><div class="num is-role">С2</div><div class="qb"><div class="meta"><span class="qid">С2</span><span class="badge role">УК</span></div><p class="qt">Что держится только на вас и встанет, если вы заболеете?</p><p class="gives">должностная · как есть / как должно</p></div></li><li class="q reveal" style="--i:23" data-role="office" data-main="1"><div class="num is-role">С3</div><div class="qb"><div class="meta"><span class="qid">С3</span><span class="badge role">УК</span></div><p class="qt">Что вам мешает со стороны точек?</p><p class="gives">по кругу · потери и деньги</p></div></li></ol></section><section class="block" id="b3" data-n="3"><div class="bhead reveal"><div class="eyebrow">Часть 3 из 4</div><h2>Люди вокруг</h2><p class="learn">Кто помогает работать, а где тяжело.</p></div><ol class="qs"><li class="q reveal" style="--i:0" data-role="core" data-main="1"><div class="num">12</div><div class="qb"><div class="meta"><span class="qid">В12</span></div><p class="qt">Ваш руководитель и Римма: что у каждого получается лучше всего — и что одно каждому стоит изменить?</p><p class="gives">по кругу</p></div></li><li class="q reveal" style="--i:1" data-role="core" data-main="1"><div class="num">13</div><div class="qb"><div class="meta"><span class="qid">В13</span></div><p class="qt">Кого в команде вы бы похвалили и за что? С кем или с чем работать тяжело?</p><p class="gives">по кругу · люди</p></div></li><li class="q reveal" style="--i:2" data-role="manager" data-main="1"><div class="num is-role">У1</div><div class="qb"><div class="meta"><span class="qid">У1</span><span class="badge role">Управляющий</span></div><p class="qt">Про каждого в команде одной фразой: в чём силён и где ему нужна помощь?</p><p class="gives">по кругу</p></div></li><li class="q reveal" style="--i:3" data-role="manager" data-main="1"><div class="num is-role">У2</div><div class="qb"><div class="meta"><span class="qid">У2</span><span class="badge role">Управляющий</span></div><p class="qt">Что ваши люди, скорее всего, не знают о том, чего вы от них ждёте?</p><p class="gives">как есть / как должно</p></div></li><li class="q reveal" style="--i:4" data-role="manager" data-main="1"><div class="num is-role">У3</div><div class="qb"><div class="meta"><span class="qid">У3</span><span class="badge role">Управляющий</span></div><p class="qt">Будни, выходные, Новый год: где точка теряет деньги и хватит ли людей на праздники?</p><p class="gives">потери и деньги</p></div></li><li class="q reveal" style="--i:5" data-role="lead" data-main="1"><div class="num is-role">Р1</div><div class="qb"><div class="meta"><span class="qid">Р1</span><span class="badge role">Руководство</span></div><p class="qt">Что держится только на вас — и кому это можно передать?</p><p class="gives">должностная · как есть / как должно</p></div></li><li class="q reveal" style="--i:6" data-role="lead" data-main="1"><div class="num is-role">Р2</div><div class="qb"><div class="meta"><span class="qid">Р2</span><span class="badge role">Руководство</span></div><p class="qt">Про каждого управляющего и сотрудника УК: в чём силён, где не справляется?</p><p class="gives">по кругу</p></div></li><li class="q reveal" style="--i:7" data-role="lead" data-main="1"><div class="num is-role">Р3</div><div class="qb"><div class="meta"><span class="qid">Р3</span><span class="badge role">Руководство</span></div><p class="qt">Три главные проблемы сети — и что бы вы с ними сделали?</p><p class="gives">потери и деньги</p></div></li></ol></section><section class="block" id="b4" data-n="4"><div class="bhead reveal"><div class="eyebrow">Часть 4 из 4</div><h2>О вас</h2><p class="learn">Что вам важно — и что вы скажете собственнику напрямую.</p></div><ol class="qs"><li class="q reveal" style="--i:0" data-role="core" data-main="1"><div class="num">14</div><div class="qb"><div class="meta"><span class="qid">В14</span></div><p class="qt">Что вам в работе нравится больше всего, а что выматывает? Чему хотели бы научиться?</p><p class="gives">люди</p></div></li><li class="q reveal" style="--i:1" data-role="core" data-main="1"><div class="num">15</div><div class="qb"><div class="meta"><span class="qid">В15</span></div><p class="qt">Что держит вас здесь — и что могло бы заставить уйти? От 0 до 10: посоветовали бы знакомому работать у нас?</p><p class="gives">люди · сравнение волн</p></div></li><li class="q reveal" style="--i:2" data-role="core" data-main="1"><div class="num">16</div><div class="qb"><div class="meta"><span class="qid">В16</span></div><p class="qt">Если бы вы неделю были собственником — что изменили бы первым делом? И всё, что хотите сказать Юрию лично.</p><p class="gives">потери и деньги · люди</p></div></li></ol></section></main></div>
+<section class="sec"><div class="eyebrow">Что мы узнаем</div><h2>Каждый ответ идёт в дело</h2><div class="grid"><article class="cov reveal" style="--i:0"><h3>Должностные</h3><p>Смена по порядку, что держите на себе, самое важное и как правильно, свои хитрости, права решений</p><span>В2–В5, В10–В11 + вопросы роли</span></article><article class="cov reveal" style="--i:1"><h3>Как есть против как должно</h3><p>Чужие дела, несделанное, что сломается без человека</p><span>В3, В9–В10</span></article><article class="cov reveal" style="--i:2"><h3>Потери</h3><p>Мелочь, которая бесит, время впустую, нестыковки, разбор случая</p><span>В6–В9 + К, Ц, З, Д, Ч</span></article><article class="cov reveal" style="--i:3"><h3>По кругу</h3><p>Руководитель и Римма: лучшее и одно изменение; кого похвалить, где тяжело</p><span>В12–В13, У1, Р2</span></article><article class="cov reveal" style="--i:4"><h3>Руководитель думает — подчинённый делает</h3><p>Сверка снизу и сверху</p><span>В10–В11 против У2</span></article><article class="cov reveal" style="--i:5"><h3>Люди и удержание</h3><p>Что нравится и выматывает, рост, что держит и что заставит уйти</p><span>В14–В15</span></article><article class="cov reveal" style="--i:6"><h3>Сравнение волн</h3><p>«Посоветовали бы знакомому работать у нас», от 0 до 10</p><span>В15</span></article><article class="cov reveal" style="--i:7"><h3>Голос собственнику</h3><p>Три изменения и всё, что хочется сказать Юрию</p><span>В16 + анонимный канал</span></article></div></section>
+<footer class="foot">«Начистоту» · Суши Мама · v5 · 05.10.2026 · утверждён. Вопросы утверждены Юрием. Ответы слушает и изучает только Юрий; руководителям — общие выводы без имён.</footer></div>
+<script>
+(function(){
+ var body=document.body, pills=[].slice.call(document.querySelectorAll('.pill')), ho=document.getElementById('handover'), sum=document.getElementById('sum'), rn=document.getElementById('rolenote'), lens=document.querySelector('.lens');
+ var names={"core": "Вопросы для всех", "kitchen": "Повар", "prep": "Цех", "front": "Зал и заказы", "courier": "Курьер", "cleaning": "Фея чистоты", "manager": "Управляющий", "office": "УК", "lead": "Руководство", "handover": "Передача дел"};
+ function lh(){document.documentElement.style.setProperty('--lensH',lens.offsetHeight+'px')} lh(); window.addEventListener('resize',lh); if('ResizeObserver' in window)new ResizeObserver(lh).observe(lens); if(document.fonts&&document.fonts.ready)document.fonts.ready.then(lh);
+ function count(){var all=[].slice.call(document.querySelectorAll('.q')).filter(function(q){var r=q.dataset.role;return r==='core'||r===body.dataset.role||(r==='handover'&&body.classList.contains('handover'))});
+   sum.innerHTML=(body.dataset.role==='core'?'Вопросы для всех':'<b>'+names[body.dataset.role]+'</b> увидит')+': <b>'+all.length+'\u00a0вопросов</b> · ≈\u00a0'+Math.round(all.length*1.1)+'\u00a0мин голосом';}
+ function set(role,push){body.dataset.role=role; if(role==='core'){rn.hidden=true}else{rn.hidden=false;rn.textContent='Так увидит '+names[role].toLowerCase()+': вопросы для всех и вопросы своей роли — они на оранжевом фоне внутри частей.'}
+   pills.forEach(function(p){p.setAttribute('aria-pressed',p.dataset.role===role)}); count();
+   if(push){try{history.replaceState(null,'','#'+role+(body.classList.contains('handover')?'+handover':''))}catch(e){}} reveal();}
+ pills.forEach(function(p){p.addEventListener('click',function(){set(p.dataset.role,true)})});
+ ho.addEventListener('change',function(){body.classList.toggle('handover',ho.checked);set(body.dataset.role,true)});
+ var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -6% 0px'}):null;
+ function reveal(){document.querySelectorAll('.reveal:not(.in)').forEach(function(el){if(io)io.observe(el);else el.classList.add('in')})}
+ var h=(location.hash||'').slice(1).split('+'); if(names[h[0]]){if(h[1]==='handover'){ho.checked=true;body.classList.add('handover')} set(h[0],false)} else {count(); reveal();}
+ var links=[].slice.call(document.querySelectorAll('.rail a,.dots a'));
+ var so=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var n=e.target.dataset.n;links.forEach(function(a){a.classList.toggle('on',a.dataset.n===n)})}})},{rootMargin:'-45% 0px -50% 0px'}):null;
+ if(so)document.querySelectorAll('.block').forEach(function(b){so.observe(b)});
+})();
+</script></body></html>
