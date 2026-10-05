@@ -169,9 +169,9 @@ md += ["**Кому какие вопросы:** " + "; ".join(f"{a} → «{dict(
 (D / "q5.md").write_text("\n".join(md).strip() + "\n")
 
 data = {"version": B.VERSION, "start": B.START, "promise": B.PROMISE, "tags": B.TAGS, "flow": "one_recording_next_marks",
-        "parts": [{"part": p["n"], "title": p["title"], "lead": p["lead"], "questions": [{"id": q[0], "text": q[1], "hint": q[2], "tags": list(q[3])} for q in p["q"]]} for p in B.PARTS],
+        "parts": [{"part": p["n"], "title": p["title"], "lead": p["lead"], "questions": [dict({"id": q[0], "text": q[1], "hint": q[2], "tags": list(q[3])}, **B.SITE.get(q[0], {})) for q in p["q"]]} for p in B.PARTS],
         "roles": [{"code": r["code"], "key": r["key"], "title": r["title"], "short": r["short"], "after_part": r["part"],
-                   "questions": [{"id": q[0], "text": q[1], "hint": q[2], "tags": list(q[3])} for q in r["q"]]} for r in B.ROLES],
+                   "questions": [dict({"id": q[0], "text": q[1], "hint": q[2], "tags": list(q[3])}, **B.SITE.get(q[0], {})) for q in r["q"]]} for r in B.ROLES],
         "who": [{"role": a, "set": b} for a, b in B.WHO]}
 (D / "questions.json").write_text(json.dumps(data, ensure_ascii=False, indent=1))
 print("частей:", len(B.PARTS), "| для всех:", core_n, "| ролей:", len(B.ROLES), "| вопросов ролей:", sum(len(r["q"]) for r in B.ROLES))
