@@ -35,6 +35,10 @@
   th { color:var(--mut); font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:.04em; }
   .steps li { margin:8px 0; }
   .mut { color:var(--mut); }
+  .ba-old { margin-top:6px; }
+  .ba-old summary { cursor:pointer; font-size:13px; color:var(--mut); padding:4px 0; }
+  .ba-old img { opacity:.92; margin-top:6px; }
+  .new { display:inline-block; font-size:12px; font-weight:700; padding:1px 8px; border-radius:999px; background:#b34700; color:#fff; vertical-align:1px; margin-right:4px; }
 </style>
 </head>
 <body>
@@ -82,31 +86,38 @@
 
 <h2>2. Табло «Кто ответил» — для Риммы и управляющих</h2>
 <p>По своей ссылке, без входа. Только точка, фамилия, должность, статус, минуты, знаки и время — ни слова из ответов (проверено поиском). Анонимные не видны и в числа не входят.</p>
+<div class="box acc"><b>05.10, по вашему «докрути дизайн»:</b> сверху кольцо «сколько ответили» и срок сбора; полоса состояний и фильтры «кого позвать»; точки — карточками с кольцом; у каждого человека кольцо «сколько рассказал»; «Как читать табло» словами; кольца и числа доезжают при обновлении раз в минуту. Проверка доступности (Lighthouse) — 100 из 100.</div>
 <div class="grid">
-  <figure id="s17"><img loading="lazy" src="img/board-phone.jpg" alt="№17"><figcaption><b>№17</b> · Табло на телефоне — карточки</figcaption></figure>
-  <figure id="s18"><img loading="lazy" src="img/board-phone-dark.jpg" alt="№18"><figcaption><b>№18</b> · Табло, тёмная тема</figcaption></figure>
+  <figure id="s17"><img loading="lazy" src="img/board-phone.jpg" alt="№17"><figcaption><span class="new">стало</span><b>№17</b> · Табло на телефоне</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/board-phone.jpg" alt="№17, было"></details></figure>
+  <figure id="s18"><img loading="lazy" src="img/board-phone-dark.jpg" alt="№18"><figcaption><span class="new">стало</span><b>№18</b> · Табло, тёмная тема</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/board-phone-dark.jpg" alt="№18, было"></details></figure>
 </div>
 <div class="wide" style="margin-top:18px">
-  <figure id="s19"><img loading="lazy" src="img/board-desktop.jpg" alt="№19"><figcaption><b>№19</b> · Табло на компьютере: кольца по точкам, ответы по дням, фильтр, поиск</figcaption></figure>
+  <figure id="s19"><img loading="lazy" src="img/board-desktop.jpg" alt="№19"><figcaption><span class="new">стало</span><b>№19</b> · Табло на компьютере</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/board-desktop.jpg" alt="№19, было"></details></figure>
 </div>
 
 <h2>3. Ваш кабинет — ответы видите только вы</h2>
 <p>Модуль «Команда» в «Сути». Ответы открываются только читателям опроса (для «Суши Мамы» — вам). Админы пространства и админ платформы получают «страница не найдена». Каждое открытие, поиск и выгрузка пишутся в журнал.</p>
+<div class="box acc"><b>05.10, по вашему «докрути дизайн»:</b>
+<ul>
+<li><b>Список</b> — сводка как на табло, «кто прислал новое с прошлого входа», люди с кольцом и статусом словом, порядок «сначала новое / сначала кого позвать».</li>
+<li><b>Карточка человека</b> — шапка с числами; карта вопросов (на что ответил и как); плеер внизу экрана говорит, какой вопрос сейчас звучит; звучащий ответ подсвечен; прослушанная часть волны — цветом; стрелки «предыдущий / следующий» по тому же списку.</li>
+<li><b>Анонимные</b> — фильтры «непрочитанные / важные / тема», по дням; <b>поиск</b> — по людям, прямо к ответу; <b>журнал</b> — лентой, повторы одной строкой; <b>выгрузка</b> — карточками; <b>главная</b> — кольцо «ответили» и «новое».</li>
+</ul></div>
 <div class="wide">
-  <figure id="s20"><img loading="lazy" src="img/cab-list.jpg" alt="№20"><figcaption><b>№20</b> · Кабинет: сводка волны и список людей с фильтрами</figcaption></figure>
-  <figure id="s21"><img loading="lazy" src="img/cab-card.jpg" alt="№21"><figcaption><b>№21</b> · Карточка человека: волна записи с отметками вопросов, плеер, расшифровка по вопросам</figcaption></figure>
+  <figure id="s20"><img loading="lazy" src="img/cab-list.jpg" alt="№20"><figcaption><span class="new">стало</span><b>№20</b> · Кабинет: сводка и список людей</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-list.jpg" alt="№20, было"></details></figure>
+  <figure id="s21"><img loading="lazy" src="img/cab-card.jpg" alt="№21"><figcaption><span class="new">стало</span><b>№21</b> · Карточка человека: шапка, карта вопросов, волна, ответы, плеер внизу</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-card.jpg" alt="№21, было"></details></figure>
 </div>
 <div class="grid" style="margin-top:18px">
-  <figure id="s22"><img loading="lazy" src="img/cab-card-phone.jpg" alt="№22"><figcaption><b>№22</b> · Карточка на телефоне — плеер закреплён внизу</figcaption></figure>
-  <figure id="s23"><img loading="lazy" src="img/cab-list-phone.jpg" alt="№23"><figcaption><b>№23</b> · Список на телефоне</figcaption></figure>
-  <figure id="s24"><img loading="lazy" src="img/cab-card-dark.jpg" alt="№24"><figcaption><b>№24</b> · Карточка, тёмная тема</figcaption></figure>
-  <figure id="s25"><img loading="lazy" src="img/cab-home.jpg" alt="№25"><figcaption><b>№25</b> · Главная модуля «Команда»</figcaption></figure>
+  <figure id="s22"><img loading="lazy" src="img/cab-card-phone.jpg" alt="№22"><figcaption><span class="new">стало</span><b>№22</b> · Карточка на телефоне — играет вопрос, плеер внизу</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-card-phone.jpg" alt="№22, было"></details></figure>
+  <figure id="s23"><img loading="lazy" src="img/cab-list-phone.jpg" alt="№23"><figcaption><span class="new">стало</span><b>№23</b> · Список на телефоне</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-list-phone.jpg" alt="№23, было"></details></figure>
+  <figure id="s24"><img loading="lazy" src="img/cab-card-dark.jpg" alt="№24"><figcaption><span class="new">стало</span><b>№24</b> · Карточка, тёмная тема</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-card-dark.jpg" alt="№24, было"></details></figure>
+  <figure id="s25"><img loading="lazy" src="img/cab-home.jpg" alt="№25"><figcaption><span class="new">стало</span><b>№25</b> · Главная модуля «Команда»</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-home.jpg" alt="№25, было"></details></figure>
 </div>
 <div class="wide" style="margin-top:18px">
-  <figure id="s26"><img loading="lazy" src="img/cab-anon.jpg" alt="№26"><figcaption><b>№26</b> · Анонимный ящик: текст, точка, тема, дата; «прочитано», «важно»</figcaption></figure>
-  <figure id="s27"><img loading="lazy" src="img/cab-search.jpg" alt="№27"><figcaption><b>№27</b> · Поиск по всем ответам и анонимным</figcaption></figure>
-  <figure id="s28"><img loading="lazy" src="img/cab-access.jpg" alt="№28"><figcaption><b>№28</b> · Журнал доступа: кто, когда, что открывал</figcaption></figure>
-  <figure id="s29"><img loading="lazy" src="img/cab-export.jpg" alt="№29"><figcaption><b>№29</b> · Выгрузка для анализа: текст и звук</figcaption></figure>
+  <figure id="s26"><img loading="lazy" src="img/cab-anon.jpg" alt="№26"><figcaption><span class="new">стало</span><b>№26</b> · Анонимные: фильтры, по дням, «прочитано», «важно»</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-anon.jpg" alt="№26, было"></details></figure>
+  <figure id="s27"><img loading="lazy" src="img/cab-search.jpg" alt="№27"><figcaption><span class="new">стало</span><b>№27</b> · Поиск: по людям, прямо к ответу</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-search.jpg" alt="№27, было"></details></figure>
+  <figure id="s28"><img loading="lazy" src="img/cab-access.jpg" alt="№28"><figcaption><span class="new">стало</span><b>№28</b> · Журнал доступа лентой</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-access.jpg" alt="№28, было"></details></figure>
+  <figure id="s29"><img loading="lazy" src="img/cab-export.jpg" alt="№29"><figcaption><span class="new">стало</span><b>№29</b> · Выгрузка: текст и звук</figcaption><details class="ba-old"><summary>как было до 05.10</summary><img loading="lazy" src="img/before/cab-export.jpg" alt="№29, было"></details></figure>
 </div>
 
 <h2>4. Что проверено и чем</h2>
