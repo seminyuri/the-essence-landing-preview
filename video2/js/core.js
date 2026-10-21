@@ -57,6 +57,7 @@
     const root = $('#app'); root.innerHTML = html; window.scrollTo(0, 0);
     document.title = `${def.title} · Видеомодуль 2.0`;
     try { def.mount && def.mount(root, params); } catch (e) { console.error(e); }
+    P.fitBar && P.fitBar();
     updateNav();
   }
 

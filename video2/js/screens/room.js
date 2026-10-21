@@ -80,8 +80,13 @@
     desc: 'Специалист крупно, своё окно в углу. Слабая сеть — Юя предлагает «только звук» или «Позвонить мне». «В дороге» — экран гаснет, звук идёт.',
     tips: ['Через 3 секунды появится подсказка о слабой сети', '«Ещё» → «В дороге»', '«Ещё» → «Позвонить мне»'],
     acts: {
-      msheet: () => $('.msheet2').classList.toggle('is-open'),
-      road: () => { $('.mcall2').classList.toggle('is-road'); $('.msheet2').classList.remove('is-open'); },
+      msheet: () => { $('#cm-chat').classList.remove('is-open'); $('#cm-more').classList.toggle('is-open'); },
+      road: () => { $('.mcall2').classList.toggle('is-road'); $$('.msheet2').forEach((x) => x.classList.remove('is-open')); },
+      flip: () => { const s = $('.mcall2__self'); s.classList.toggle('is-back'); toast(s.classList.contains('is-back') ? 'Задняя камера — можно показать рисунок или записи' : 'Фронтальная камера', { icon: 'rotate' }); },
+      audioout: () => modal(`<div class="modal2__t">Куда идёт звук</div><div class="mt12">${P.pick([{ t: 'AirPods Pro', s: 'подключены' }, { t: 'Динамик телефона' }, { t: 'Разговорный динамик', s: 'как обычный звонок — у уха' }])}</div>`),
+      cmchat: () => { $('#cm-more').classList.remove('is-open'); $('#cm-chat').classList.add('is-open'); },
+      cmclose: () => $$('.msheet2').forEach((x) => x.classList.remove('is-open')),
+      cmsend: () => { const i = $('#cmin'); if (!i.value.trim()) return; $('#cmlog').insertAdjacentHTML('beforeend', `<div class="msg fade-up">${av('maria', 28)}<div class="msg__b"><span class="msg__n">Вы</span><span class="msg__t">${esc(i.value)}</span></div></div>`); i.value = ''; },
       audio: (el) => { el.closest('.weak2').remove(); toast('Только звук — видео вернётся само, когда сеть окрепнет'); },
       mmic: (el) => { el.classList.toggle('is-off'); el.querySelector('.mb__c').innerHTML = I(el.classList.contains('is-off') ? 'mic-off' : 'mic', 'md'); },
       mcam: (el) => { el.classList.toggle('is-off'); el.querySelector('.mb__c').innerHTML = I(el.classList.contains('is-off') ? 'video-off' : 'video', 'md'); },
@@ -89,14 +94,17 @@
     render() {
       const mb = (act, icon, t, cls = '') => `<button class="mb ${cls}" data-act="${act}"><span class="mb__c">${I(icon, 'md')}</span>${t}</button>`;
       return `<div class="mcall2"><div class="mcall2__remote" style="background-image:url(img/people/p32.jpg)"></div>
-        <div class="mcall2__top">${I('lock', 'sm')}<span class="sp b">Анна Соколова</span><span class="mono">32:10</span></div><div class="mcall2__self" style="background-image:url(img/people/p26.jpg)"></div>
+        <div class="mcall2__top">${I('lock', 'sm')}<span class="sp b">Анна Соколова</span><span class="mono">32:10</span></div><div class="mcall2__self" style="background-image:url(img/people/p26.jpg)"><button class="mflip" data-act="flip" aria-label="Сменить камеру">${I('rotate', 'sm')}</button></div>
         <div class="subs" style="left:16px;right:16px;transform:none;max-width:none"><b>Анна</b>Давайте посмотрим на это как на опору</div>
         <div class="weak2"><span class="sp">Связь слабая. Оставить только звук?</span>${btn('Только звук', { size: 'sm', act: 'audio' })}${btn('Позвонить мне', { size: 'sm', act: 'callme' })}</div>
         <div class="road">${I('headphones', 'xl')}<div class="h2">Режим «В дороге»</div><div class="muted">Видео выключено, звук идёт. Экран можно заблокировать.</div>${btn('Вернуть видео', { act: 'road', kind: 'primary' })}</div>
         <div class="mcall2__dock">${mb('mmic', 'mic', 'Звук')}${mb('mcam', 'video', 'Видео')}${mb('msheet', 'dots', 'Ещё')}${mb('leave', 'phone-off', 'Выйти', 'mb--end')}</div>
-        <div class="msheet2"><div class="msheet2__h"></div><div class="sheet-l">${[['headphones', 'В дороге — только звук', 'road'], ['phone', 'Позвонить мне по телефону', 'callme'], ['calendar', 'Перенести встречу', 'resched'], ['cc', 'Субтитры', 'cc'], ['wifi', 'Связь', 'netcheck']].map(([i, t, a]) => `<button data-act="${a}">${I(i, 'md')}<span>${t}</span></button>`).join('')}</div></div></div>`;
+        <div class="msheet2" id="cm-more"><div class="msheet2__h"></div><div class="sheet-l">${[['message-circle', 'Чат с Анной — файл, ссылка, слова', 'cmchat'], ['headphones', 'В дороге — только звук', 'road'], ['speaker', 'Куда идёт звук', 'audioout'], ['rotate', 'Сменить камеру', 'flip'], ['phone', 'Позвонить мне по телефону', 'callme'], ['calendar', 'Перенести встречу', 'resched'], ['cc', 'Субтитры', 'cc'], ['wifi', 'Связь', 'netcheck']].map(([i, t, a]) => `<button data-act="${a}">${I(i, 'md')}<span>${t}</span></button>`).join('')}</div></div>
+        <div class="msheet2 msheet2--tall" id="cm-chat"><div class="msheet2__h"></div><div class="row"><b class="sp">Чат с Анной</b><button class="btn2 btn2--icon btn2--sm" data-act="cmclose" aria-label="Закрыть">${I('x')}</button></div>
+          <div class="msgs mt12" id="cmlog"><div class="msg">${av('maria', 28)}<div class="msg__b"><span class="msg__n">Вы</span><span class="msg__t">Я записала слова, которые сказала ему, — прислать?</span></div></div><div class="msg">${av('anna', 28)}<div class="msg__b"><span class="msg__n">Анна</span><span class="msg__t">Да, пришлите, посмотрим вместе</span></div></div></div>
+          <div class="row mt12">${btn('', { icon: 'paperclip', cls: 'btn2--icon', act: 'toast', data: 'data-text="Файл отправлен Анне — он останется в вашей переписке"' })}<input class="in" id="cmin" placeholder="Сообщение Анне…">${btn('', { icon: 'send', kind: 'primary', cls: 'btn2--icon', act: 'cmsend' })}</div></div></div>`;
     },
-    mount() { this.acts.resched = () => { $('.msheet2').classList.remove('is-open'); modal(`<div class="modal2__t">Перенести встречу</div><div class="modal2__s">Свободные окна Анны на этой неделе:</div><div class="slots2 mt16">${['чт 10:00', 'чт 16:00', 'пт 11:00', 'пн 10:00'].map((s, i) => `<button class="${i ? '' : 'is-on'}" data-act="seg">${s}</button>`).join('')}</div><div class="modal2__f">${btn('Попросить перенос', { kind: 'primary', size: 'lg', act: 'toast', data: 'data-text="Анна получила просьбу о переносе"' })}</div>`); }; },
+    mount() { this.acts.resched = () => { $$('.msheet2').forEach((x) => x.classList.remove('is-open')); modal(`<div class="modal2__t">Перенести встречу</div><div class="modal2__s">Свободные окна Анны на этой неделе:</div><div class="slots2 mt16">${['чт 10:00', 'чт 16:00', 'пт 11:00', 'пн 10:00'].map((s, i) => `<button class="${i ? '' : 'is-on'}" data-act="seg">${s}</button>`).join('')}</div><div class="modal2__f">${btn('Попросить перенос', { kind: 'primary', size: 'lg', act: 'toast', data: 'data-text="Анна получила просьбу о переносе"' })}</div>`); }; },
   });
 
   // ───────────── входящий звонок ─────────────

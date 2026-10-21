@@ -136,7 +136,10 @@
             <div class="card mt24"><div class="row"><div class="sp"><div class="b">Проверить себя</div><div class="t-sm muted">10 секунд записи и прослушивание — подскажу, что поправить</div></div>${btn('Записать', { icon: 'circle-dot', act: 'selftest' })}</div><div id="st-out"></div></div>
             <div class="card mt12"><div class="row"><span class="rec-dot"></span><b>Запись · расшифровка · Юя</b></div><div class="t-sm muted mt8">Клиент подписал согласие кодом 3 июня. Отозвать его можно в любой момент.</div>
               ${opt('Запись звука и видео', '', true)}${opt('Расшифровка — хранится в России', '', true)}${opt('Итоги и заметки Юи — только вам', '', true)}${opt('Субтитры для клиента', '', false)}</div>
+            <div class="card mt12"><div class="b">При входе</div>${opt('Микрофон выключен', 'Включите, когда будете готовы, — или держите пробел', false)}${opt('Камера выключена', '', false)}</div>
+            <div class="row mt12 pj2__link"><span class="t-sm muted" style="flex:none">Ссылка</span><input class="in mono" value="the-essence.ai/m/anna" readonly aria-label="Ссылка на встречу" style="font-size:14px">${btn('', { icon: 'copy', cls: 'btn2--icon', act: 'toast', data: 'data-text="Ссылка скопирована — клиент войдёт без установки"' })}${btn('Пригласить', { icon: 'user-plus', act: 'invite' })}</div>
             <div class="mt24">${btn('Войти', { kind: 'primary', size: 'lg', block: true, icon: 'video', act: 'enter' })}</div>
+            <div class="ways2 mt12"><span class="t-sm muted">Другие способы:</span><a data-act="toast" data-text="Вы войдёте без звука и камеры — включите, когда будете готовы">без звука и камеры</a><a data-act="toast" data-text="Вы войдёте только для показа экрана — без звука, чтобы не было эха">только показать экран</a><a data-act="m-second">второе устройство</a></div>
             <div class="row t-sm muted mt12" style="justify-content:center;gap:14px"><a data-act="tg">показать: открыто из Telegram</a>·<a data-go="check">проверить связь</a></div></div></div></div>`;
     },
     mount(root) { P.cam.attach(root); P.micMeter($('.meter', root)); },

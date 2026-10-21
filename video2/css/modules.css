@@ -295,3 +295,30 @@
 .msg2__h .sp { min-width: 0; }
 
 @media (max-width: 760px) { .fun2__s { grid-template-columns: minmax(0, 1fr) 96px; } .fun2__b { min-width: 0; white-space: normal; } .next .btn2 { flex: 1; } }
+
+/* экран входа на телефоне: превью как селфи, кнопки не налезают на заглушку */
+@media (max-width: 760px) {
+  .pj2 { padding: 14px 16px 120px; }
+  .prev2 { aspect-ratio: 3/4; }
+  .prev2__ph .av { --s: 88px !important; }
+  .prev2__meter { width: 110px; }
+  .pj2 .fx2 { flex-wrap: wrap; }
+}
+.pj2__link .in { flex: 1; min-width: 0; }
+.ways2 { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; font-size: 14px; }
+.ways2 a { color: #E8B898; cursor: pointer; }
+/* водяной знак урока — почта зрителя, медленно плывёт */
+.wmark { position: absolute; left: 8%; top: 18%; font: 13px var(--type-mono); color: rgba(255, 255, 255, .35); pointer-events: none; animation: wmark 24s linear infinite alternate; }
+@keyframes wmark { 50% { left: 52%; top: 62%; } 100% { left: 20%; top: 40%; } }
+/* «Мы и они» */
+.vs-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .vs-g { grid-template-columns: minmax(0, 1fr); } }
+.vs-c { display: flex; flex-direction: column; }
+.vs-c .card__f { margin-top: auto; padding-top: 12px; }
+.vs-us, .vs-r { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 10px; font-size: 15px; line-height: 1.5; }
+.vs-us { padding: 10px 12px; border-radius: 12px; background: var(--color-accent-soft); }
+.vs-them { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; padding: 0 12px; }
+.vs-l { font-weight: 600; font-size: 14px; }
+.vs-r .vs-l { color: var(--color-fg-muted); font-weight: 500; }
+@media (max-width: 520px) { .vs-us, .vs-r { grid-template-columns: 1fr; gap: 2px; } }
+.vs-who, .vs-ver { flex-wrap: wrap; }
