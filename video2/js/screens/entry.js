@@ -1,110 +1,81 @@
 (function () {
-  const { D, S, add, I, av, esc, rub, num, toast, modal, closeModal, go, every, later, onLeave, $, $$ } = P;
+  const { D, S, add, I, av, esc, rub, toast, modal, closeModal, go, every, later, $, $$, btn, chip, opt, seg, pick, li, yuNote, note } = P;
   const G = 'Вход участника';
 
-  // ── настоящая камера (по желанию человека) ─────────────────────────────
-  P.cam = {
-    async start() {
-      if (S.camStream) return S.camStream;
-      try { S.camStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true }); }
-      catch (e) { toast('Камера недоступна — покажем аватар. В настоящем продукте здесь подсказка, как разрешить доступ', { icon: 'video-off' }); return null; }
-      return S.camStream;
-    },
-    stop() { if (S.camStream) { S.camStream.getTracks().forEach((t) => t.stop()); S.camStream = null; } },
-    attach(root = document) {
-      $$('video.my-cam', root).forEach((v) => { if (S.camStream) { v.srcObject = S.camStream; v.muted = true; v.play().catch(() => {}); v.hidden = false; v.parentElement.classList.add('has-cam'); } });
-    },
-  };
-
-  // уровень микрофона: настоящий, если камера/микрофон разрешены, иначе — правдоподобная имитация
-  function micMeter(el) {
-    let an = null, buf;
-    if (S.camStream && window.AudioContext) {
-      try { const ac = new AudioContext(); const src = ac.createMediaStreamSource(S.camStream); an = ac.createAnalyser(); an.fftSize = 256; src.connect(an); buf = new Uint8Array(an.frequencyBinCount); onLeave(() => ac.close()); } catch (e) { an = null; }
-    }
-    every(90, () => {
-      let v;
-      if (an) { an.getByteFrequencyData(buf); v = Math.min(1, buf.reduce((a, b) => a + b, 0) / buf.length / 70); }
-      else v = Math.max(0, Math.sin(Date.now() / 260) * .4 + Math.random() * .35);
-      $$('i', el).forEach((b, i) => b.classList.toggle('is-on', i / 14 < v));
-    });
-  }
-  P.micMeter = micMeter;
-  const meter = () => `<span class="meter">${'<i></i>'.repeat(14)}</span>`;
-
-  // ───────────────────────────── публичная страница эфира ─────────────────────────────
-  add({
-    id: 'event-page', group: G, title: 'Страница эфира и регистрация', icon: 'globe', phase: 'фаза 2А', plan: '§ 5.22 — воронка; § 5.21 — оплата; § 5.25',
-    desc: 'Время в поясе зрителя, билеты, регистрация, оплата без ухода со страницы (СБП, карты, Pay-сервисы, зарубежные карты), «в календарь», подписка на бота, подарок ведущей.',
-    tips: ['Смените пояс — пересчитается время', 'Выберите билет «С записью» → оплата → личная ссылка', '«Подарить ведущей» — режим «Подарок»'],
-    acts: {
-      ...P.common,
-      tz: (el) => { $$('.tzs button').forEach((b) => b.classList.toggle('is-on', b === el)); $('#tz-time').textContent = el.dataset.t; },
-      ticket: (el) => { $$('.ticket').forEach((t) => t.classList.toggle('is-on', t === el)); const pr = +el.dataset.p; $('#reg-btn').innerHTML = pr ? `${I('credit-card')} Оплатить ${rub(pr)}` : `${I('check')} Зарегистрироваться бесплатно`; $('#reg-btn').dataset.p = pr; },
-      register: (el) => { const pr = +(el.dataset.p || 990); if (!pr) return P.current.acts.done(); payModal(pr, 'Билет «С записью» · Тревога и опора', () => P.current.acts.done()); },
-      done: () => { $('#reg-form').innerHTML = `<div class="fade-up" style="text-align:center;padding:10px 0"><span class="yu yu--lg" style="margin:0 auto">${I('check')}</span><h3 style="font-size:20px;font-weight:300;margin:12px 0 6px">Вы зарегистрированы</h3>
-        <p class="small muted">Личная ссылка — в почте. Пересылать не нужно: она пускает одного человека.</p>
-        <div class="invite__link" style="margin:14px 0">${I('link')}<span class="invite__url">the-essence.ai/e/trevoga-i-opora?p=7Fq…</span></div>
-        <div class="col"><button class="btn btn--secondary" data-act="toast" data-text="Событие добавлено: календарь .ics скачан">${I('calendar')} Добавить в календарь</button>
-        <button class="btn btn--secondary" data-act="toast" data-text="Бот @opora_anna_bot напомнит за сутки, час и 5 минут">${I('send')} Напоминать в Telegram</button>
-        <button class="btn btn--secondary" data-act="toast" data-text="Напоминания придут в MAX">${I('messenger')} Напоминать в MAX</button>
-        <button class="btn btn--primary" data-go="lobby">${I('door')} Зал ожидания эфира</button></div></div>`; toast('Билет оплачен · чек отправлен на почту'); },
-      gift: () => giftModal(),
-    },
-    render() {
-      const e = D.event;
-      return `<div class="lp" style="--brand:var(--color-accent)">
-        <header class="lp__top"><span class="lp__logo">${I('leaf')} Опора · Анна Соколова</span><span class="sp"></span><span class="small muted">на платформе</span><img src="seal-compact.svg" width="22" height="22" alt=""><b class="small">Суть</b></header>
-        <section class="lp__hero"><div class="lp__copy"><div class="row" style="gap:8px;flex-wrap:wrap"><span class="pill pill--accent">${I('broadcast', 'xs')} Онлайн-эфир</span><span class="pill">${I('cc', 'xs')} Субтитры на 6 языках</span><span class="pill">${I('users', 'xs')} 2 847 зарегистрировались</span></div>
-          <h1>${esc(e.title)}</h1><p class="lp__lead">Полтора часа о тревоге: как отличить её от расстройства, что делать ночью, когда сердце колотится, и как вернуть себе опору. Живые вопросы, упражнения, разбор в эфире.</p>
-          <div class="lp__when"><div><div class="tiny muted">Ваше время</div><div class="lp__time"><span id="tz-time">чт, 23 октября, 18:00</span></div></div>
-            <div class="tzs seg">${[['Берлин', 'чт, 23 октября, 18:00'], ['Москва', 'чт, 23 октября, 19:00'], ['Тель-Авив', 'чт, 23 октября, 19:00'], ['Нью-Йорк', 'чт, 23 октября, 12:00']].map(([c, t], i) => `<button class="${i ? '' : 'is-on'}" data-act="tz" data-t="${t}">${c}</button>`).join('')}</div></div>
-          <div class="lp__hosts">${['anna', 'dmitry'].map((id) => `<div class="row" style="gap:10px">${av(id, 48)}<div><div class="strong">${P.person(id).name} ${P.person(id).verified ? `<span class="pill pill--ok" style="padding:1px 7px">${I('shield-check', 'xs')} проверен</span>` : ''}</div><div class="small muted">${P.person(id).role}</div></div></div>`).join('')}</div></div>
-          <div class="lp__card box" id="reg-form"><div class="eyebrow">Выберите билет</div>
-            <div class="tickets">${e.tickets.map((t, i) => `<button class="ticket ${i === 1 ? 'is-on' : ''}" data-act="ticket" data-p="${t.price}"><div class="row"><b>${t.name}</b><span class="sp"></span><b>${t.price ? rub(t.price) : 'бесплатно'}</b></div><div class="small muted">${t.note}${t.left ? ` · осталось ${t.left} мест` : ''}</div></button>`).join('')}</div>
-            <label class="lbl">Имя</label><input class="inp" value="Ольга Белова"><label class="lbl">Почта</label><input class="inp" value="olga.belova@mail.ru">
-            <label class="row small" style="margin-top:12px;gap:8px;cursor:pointer"><input type="checkbox" checked> Напоминать в Telegram или MAX</label>
-            <label class="row small" style="margin-top:8px;gap:8px;cursor:pointer;align-items:flex-start"><input type="checkbox" checked style="margin-top:2px"> <span>Согласен на обработку персональных данных — <a class="accent">отдельный документ</a></span></label>
-            <button class="btn btn--primary btn--lg" id="reg-btn" style="width:100%;margin-top:16px" data-act="register" data-p="990">${I('credit-card')} Оплатить 990 ₽</button>
-            <div class="row tiny muted" style="justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap"><span>СБП</span>·<span>SberPay</span>·<span>T-Pay</span>·<span>Mir Pay</span>·<span>карты мира</span></div></div></section>
-        <section class="lp__sec"><div class="grid g3">${[['Как отличить тревогу от расстройства', 'Критерии, которые использует психиатр, — простыми словами'], ['Что делать ночью', 'Дыхание и «5-4-3-2-1», которые работают за две минуты'], ['Опора на каждый день', 'Небольшие ритуалы, которые возвращают ощущение почвы']].map(([a, b], i) => `<div class="box"><div class="act-card__glyph">${I(['help', 'moon-stars', 'leaf'][i])}</div><div class="strong">${a}</div><div class="small muted" style="margin-top:6px">${b}</div></div>`).join('')}</div></section>
-        <section class="lp__sec lp__gift box box--glow"><div class="row" style="gap:16px;flex-wrap:wrap"><span class="act-card__glyph" style="margin:0">${I('gift')}</span><div class="sp" style="min-width:240px"><div class="strong">${esc(D.donationGoal.title)}</div><div class="small muted">Собрано ${rub(S.raised)} из ${rub(D.donationGoal.goal)}</div><div class="bar" style="margin-top:8px"><i style="width:${Math.round(S.raised / D.donationGoal.goal * 100)}%"></i></div></div><button class="btn btn--secondary" data-act="gift">${I('heart')} Подарить ведущей</button></div></section>
-        <footer class="lp__foot small muted">Платформа «Суть» — агент ИП Соколовой А. В. · оферта · политика · условия дарения · <a data-go="check" class="accent">проверить связь и устройства</a></footer></div>`;
-    },
-  });
-
-  // оплата без ухода — общая для страницы, эфира, мессенджера
+  // ── оплата не уходя со страницы или из эфира — общая для всех экранов ─────
   function payModal(amount, title, onPaid, { dark = false } = {}) {
-    modal(`<div class="eyebrow eyebrow--accent">Оплата · касса платформы</div><h2 class="pmodal__title">${rub(amount)}</h2><p class="pmodal__lead small">${esc(title)}</p>
-      <div class="paym">${[['sbp', 'СБП', 'qrcode'], ['card', 'Карта РФ', 'credit-card'], ['sber', 'SberPay', 'wallet'], ['tpay', 'T-Pay', 'wallet'], ['world', 'Карта мира', 'globe']].map(([k, t, ic], i) => `<button class="paym__i ${i ? '' : 'is-on'}" data-pm="${k}">${I(ic)} ${t}</button>`).join('')}</div>
-      <div id="paypane"><div class="row" style="gap:18px;margin-top:16px;flex-wrap:wrap"><div style="padding:8px;background:#fff;border-radius:12px">${C.qr(132, 21)}</div><div class="sp small muted" style="min-width:180px">Наведите камеру телефона — откроется приложение банка. Платёж подтвердит касса, доступ откроется сам. ${dark ? '<br><br>Эфир продолжается в мини-окне.' : ''}</div></div></div>
-      <div class="pmodal__actions"><button class="btn btn--secondary" data-act="close-modal">Отмена</button><button class="btn btn--primary" id="pay-ok">${I('check')} Я оплатил(а)</button></div>
-      <div class="tiny muted" style="margin-top:12px">Чек по 54-ФЗ придёт на почту · деньги получает касса платформы как агент специалиста</div>`, { dark });
-    $$('.paym__i').forEach((b) => (b.onclick = () => {
-      $$('.paym__i').forEach((x) => x.classList.toggle('is-on', x === b));
-      $('#paypane').innerHTML = b.dataset.pm === 'sbp' ? `<div class="row" style="gap:18px;margin-top:16px"><div style="padding:8px;background:#fff;border-radius:12px">${C.qr(132, 21)}</div><div class="sp small muted">Наведите камеру — откроется приложение банка.</div></div>`
-        : `<div style="margin-top:14px"><label class="lbl">Номер карты</label><input class="inp" value="${b.dataset.pm === 'world' ? '4111 1111 1111 1111' : '2200 7001 2345 6789'}"><div class="row" style="margin-top:8px"><input class="inp" value="12 / 28"><input class="inp" value="•••"></div>${b.dataset.pm === 'world' ? '<div class="tiny muted" style="margin-top:8px">Комиссия за зарубежную карту включена в цену — вы платите ровно указанную сумму</div>' : ''}</div>`;
-    }));
-    $('#pay-ok').onclick = () => { const b = $('#pay-ok'); b.innerHTML = `${I('refresh', 'sm', 'spin')} Ждём подтверждение кассы…`; setTimeout(() => { closeModal(); onPaid && onPaid(); }, 1300); };
+    const methods = [['sbp', 'СБП', 'qrcode'], ['card', 'Карта', 'credit-card'], ['pay', 'SberPay · T-Pay · Mir Pay', 'wallet'], ['world', 'Карта другой страны', 'globe']];
+    const paneHtml = (k) => k === 'sbp'
+      ? `<div class="row row--top mt16" style="gap:20px"><div style="padding:10px;background:#fff;border-radius:14px">${C.qr(140, 21)}</div><div class="sp muted" style="font-size:15px;line-height:1.55">Наведите камеру телефона — откроется приложение банка. Подтверждение придёт от кассы, доступ откроется сам.${dark ? '<br><br>Эфир идёт в мини-окне — вы ничего не пропустите.' : ''}</div></div>`
+      : k === 'pay' ? `<div class="mt16">${pick([{ t: 'SberPay' }, { t: 'T-Pay' }, { t: 'Mir Pay' }, { t: 'Яндекс Пэй' }])}</div>`
+        : `<label class="fld"><span class="fld__l">Номер карты</span><input class="in" value="${k === 'world' ? '4111 1111 1111 1111' : '2200 7001 2345 6789'}"></label><div class="row"><input class="in" value="12 / 28" aria-label="Срок"><input class="in" value="•••" aria-label="Код"></div>${k === 'world' ? `<div class="mt12">${note('info-circle', 'Комиссия за карту другой страны уже в цене — вы платите ровно указанную сумму.')}</div>` : ''}`;
+    modal(`<div class="t-sm muted">Оплата · касса платформы</div><div class="modal2__t" style="font-size:30px;margin-top:4px">${rub(amount)}</div><div class="modal2__s">${esc(title)}</div>
+      <div class="paym2">${methods.map(([k, t, ic], i) => `<button class="${i ? '' : 'is-on'}" data-pm="${k}">${I(ic)} ${t}</button>`).join('')}</div><div id="paypane">${paneHtml('sbp')}</div>
+      <div class="modal2__f">${btn('Оплатить', { kind: 'primary', size: 'lg', id: 'pay-ok', icon: 'check' })}</div><div class="t-xs muted mt12">Чек придёт на почту. Деньги принимает касса платформы как агент специалиста.</div>`, { dark });
+    $$('.paym2 button').forEach((b) => (b.onclick = () => { $$('.paym2 button').forEach((x) => x.classList.toggle('is-on', x === b)); $('#paypane').innerHTML = paneHtml(b.dataset.pm); }));
+    $('#pay-ok').onclick = () => { const b = $('#pay-ok'); b.disabled = true; b.innerHTML = `${I('refresh', 'sm', 'spin')} Ждём подтверждение кассы…`; setTimeout(() => { closeModal(); onPaid && onPaid(); }, 1200); };
   }
   P.payModal = payModal;
 
   function giftModal({ dark = false, onDone } = {}) {
-    modal(`<div class="eyebrow eyebrow--accent">Подарок ведущей</div><h2 class="pmodal__title">Поддержать Анну</h2><p class="pmodal__lead small">${esc(D.donationGoal.title)}. Подарок ничего не открывает и не даёт привилегий — это просто «спасибо».</p>
-      <div class="amounts">${[300, 500, 1000, 3000, 5000].map((a, i) => `<button class="amount ${i === 1 ? 'is-on' : ''}" data-a="${a}">${rub(a)}</button>`).join('')}<input class="inp amount-other" placeholder="Своя сумма"></div>
-      <label class="lbl">Сообщение (увидят все в эфире)</label><input class="inp" id="gift-msg" value="Спасибо за эфир!">
-      <div class="seg" style="margin-top:12px"><button class="is-on" data-act="seg">С именем</button><button data-act="seg">Анонимно</button></div>
-      <div class="pmodal__actions"><button class="btn btn--primary" id="gift-ok">${I('heart')} Подарить 500 ₽</button></div><div class="tiny muted">Условия дарения · подарок от физлица, налог 0 % · без регистрации</div>`, { dark });
+    modal(`<div class="modal2__t">Поддержать Анну</div><div class="modal2__s">${esc(D.donationGoal.title)}. Подарок ничего не открывает и не даёт привилегий — это просто «спасибо».</div>
+      <div class="amts">${[300, 500, 1000, 3000, 5000].map((a, i) => `<button class="${i === 1 ? 'is-on' : ''}" data-a="${a}">${rub(a)}</button>`).join('')}</div>
+      <label class="fld"><span class="fld__l">Сообщение — его увидят все в эфире</span><input class="in" id="gift-msg" value="Спасибо за эфир!"></label>
+      <div class="fld"><span class="fld__l">Как подписать</span>${seg(['С моим именем', 'Анонимно'], 0, 'seg', { block: true })}</div>
+      <div class="modal2__f">${btn('Подарить 500 ₽', { kind: 'primary', size: 'lg', id: 'gift-ok', icon: 'heart' })}</div><div class="t-xs muted mt12">Подарок от частного лица — налог 0 %. Условия дарения.</div>`, { dark });
     let amount = 500;
-    $$('.amount').forEach((b) => (b.onclick = () => { $$('.amount').forEach((x) => x.classList.toggle('is-on', x === b)); amount = +b.dataset.a; $('#gift-ok').innerHTML = `${I('heart')} Подарить ${rub(amount)}`; }));
-    $('#gift-ok').onclick = () => payModal(amount, 'Подарок ведущей', () => { S.raised += amount; toast(`Спасибо! Подарок ${rub(amount)} получен — Анна увидит его на экране`, { icon: 'heart' }); onDone && onDone(amount, $('#gift-msg')?.value); }, { dark });
+    $$('.amts button').forEach((b) => (b.onclick = () => { $$('.amts button').forEach((x) => x.classList.toggle('is-on', x === b)); amount = +b.dataset.a; $('#gift-ok').innerHTML = `${I('heart')}<span>Подарить ${rub(amount)}</span>`; }));
+    $('#gift-ok').onclick = () => { const msg = $('#gift-msg')?.value; const anon = $('.seg2 button.is-on')?.textContent === 'Анонимно'; payModal(amount, 'Подарок ведущей', () => { S.raised += amount; toast(`Спасибо! Подарок ${rub(amount)} получен — Анна увидит его на экране`, { icon: 'heart' }); onDone && onDone(amount, msg, anon); }, { dark }); };
   }
   P.giftModal = giftModal;
 
-  // ───────────────────────────── проверка связи ─────────────────────────────
+  const chatMsg = (m) => { const p = P.person(m.who); return `<div class="msg fade-up">${av(m.who, 32)}<div class="msg__b"><span class="msg__n">${esc(p.short)}</span><span class="msg__t">${esc(m.text)}</span>${m.yuia ? `<div class="msg__yu"><span class="yu2">${I('sparkles')}</span><span>${esc(m.yuia)}${m.private ? ' <span class="muted">· видно только вам</span>' : ''}</span></div>` : ''}</div></div>`; };
+  P.chatMsg = chatMsg;
+
+  // ───────────── страница эфира ─────────────
   add({
-    id: 'check', group: G, title: 'Проверить связь и устройства', icon: 'wifi', phase: 'фаза 2А', plan: '§ 5.32 — как zoom.us/test',
-    desc: 'Публичная страница: камера, микрофон, динамики, сеть до ближнего узла. Ссылка — в каждом напоминании.',
+    id: 'event-page', group: G, title: 'Страница эфира и билеты', icon: 'globe', phase: 'фаза 2А', plan: '§ 5.22, § 5.21, § 5.25',
+    desc: 'Время в поясе зрителя, ведущие, билеты, оплата не уходя со страницы, «в календарь», напоминания в Telegram и MAX, подарок ведущей.',
+    tips: ['Смените город — пересчитается время', 'Билет «С записью» → оплата → личная ссылка', '«Поддержать» — подарок ведущей'],
+    acts: {
+      tz: (el) => { $$('.tzs button').forEach((b) => b.classList.toggle('is-on', b === el)); $('#tz-time').textContent = el.dataset.t; },
+      ticket: (el) => { $$('.ticket2').forEach((t) => t.classList.toggle('is-on', t === el)); const pr = +el.dataset.p; const b = $('#reg-btn'); b.innerHTML = pr ? `${I('credit-card')}<span>Оплатить ${rub(pr)}</span>` : `${I('check')}<span>Зарегистрироваться бесплатно</span>`; b.dataset.p = pr; },
+      register: (el) => { const pr = +(el.dataset.p ?? 990); if (!pr) return P.current.acts.done(); payModal(pr, 'Билет «С записью» · Тревога и опора', () => P.current.acts.done()); },
+      done: () => { $('#reg-form').innerHTML = `<div class="fade-up" style="text-align:center"><span class="yu2 yu2--lg" style="margin:0 auto">${I('check', 'lg')}</span><div class="h2 mt16">Вы зарегистрированы</div>
+        <div class="muted mt8" style="font-size:15px">Личная ссылка — в почте. Она пускает одного человека, пересылать не нужно.</div>
+        <div class="col mt24" style="gap:8px">${btn('Добавить в календарь', { icon: 'calendar', block: true, kind: 'white', act: 'toast', data: 'data-text="Событие добавлено в календарь"' })}${btn('Напоминать в Telegram', { icon: 'send', block: true, kind: 'white', act: 'toast', data: 'data-text="Бот напомнит за сутки, за час и за 5 минут"' })}${btn('Напоминать в MAX', { icon: 'messenger', block: true, kind: 'white', act: 'toast', data: 'data-text="Напоминания придут в MAX"' })}${btn('Проверить связь заранее', { icon: 'wifi', block: true, kind: 'white', go: 'check' })}${btn('В зал ожидания', { icon: 'door', block: true, kind: 'primary', size: 'lg', go: 'lobby' })}</div></div>`; toast('Билет оплачен · чек отправлен на почту'); },
+      gift: () => giftModal({ onDone: () => P.current && P.current.id === 'event-page' && go('event-page') }),
+    },
+    render() {
+      const e = D.event, pct = Math.round(S.raised / D.donationGoal.goal * 100);
+      return `<div class="pub">
+        <header class="pub__top"><span class="pub__logo">${I('leaf', 'md')} Опора · Анна Соколова</span><span class="sp"></span><span class="t-sm muted">на платформе</span><img src="seal-compact.svg" width="22" height="22" alt=""><b class="t-sm">Суть</b></header>
+        <section class="pub__hero"><div><div class="row row--wrap" style="gap:8px">${chip(`${I('broadcast', 'xs')} Онлайн-эфир`, 'accent')}${chip(`${I('cc', 'xs')} Субтитры на 6 языках`)}${chip(`${I('users', 'xs')} 2 847 зарегистрировались`)}</div>
+          <h1 class="pub__h">${esc(e.title)}</h1><p class="pub__lead">Полтора часа о тревоге: как отличить её от расстройства, что делать ночью, когда сердце колотится, и как вернуть себе опору. Живые вопросы, упражнения, разбор в эфире.</p>
+          <div class="when"><div><div class="t-sm muted">Ваше время</div><div class="when__t" id="tz-time">чт, 23 октября, 18:00</div></div>
+            <div class="tzs seg2">${[['Берлин', 'чт, 23 октября, 18:00'], ['Москва', 'чт, 23 октября, 19:00'], ['Тель-Авив', 'чт, 23 октября, 19:00'], ['Нью-Йорк', 'чт, 23 октября, 12:00']].map(([c, t], i) => `<button class="${i ? '' : 'is-on'}" data-act="tz" data-t="${t}">${c}</button>`).join('')}</div></div>
+          <div class="col mt32" style="gap:16px">${['anna', 'dmitry'].map((id) => `<div class="row">${av(id, 56)}<div><div class="b" style="font-size:16px">${P.person(id).name} ${chip(`${I('shield-check', 'xs')} проверен`, 'ok')}</div><div class="muted" style="font-size:15px">${P.person(id).role}</div></div></div>`).join('')}</div></div>
+          <div class="pub__card" id="reg-form"><div class="h3">Выберите билет</div>
+            <div class="tickets2">${e.tickets.map((t, i) => `<button class="ticket2 ${i === 1 ? 'is-on' : ''}" data-act="ticket" data-p="${t.price}"><div class="row"><span>${t.name}</span><span class="sp"></span><span>${t.price ? rub(t.price) : 'бесплатно'}</span></div><div class="t-sm muted">${t.note}${t.left ? ` · осталось ${t.left} мест` : ''}</div></button>`).join('')}</div>
+            <label class="fld"><span class="fld__l">Имя</span><input class="in" value="Ольга Белова"></label><label class="fld"><span class="fld__l">Почта</span><input class="in" value="olga.belova@mail.ru"></label>
+            <label class="row mt16" style="font-size:14.5px;cursor:pointer;align-items:flex-start"><input type="checkbox" checked style="width:18px;height:18px;margin-top:2px"><span>Согласна на обработку персональных данных — <a class="accent">отдельный документ</a></span></label>
+            <div class="mt16">${btn('Оплатить 990 ₽', { kind: 'primary', size: 'lg', block: true, icon: 'credit-card', act: 'register', id: 'reg-btn', data: 'data-p="990"' })}</div>
+            <div class="t-xs muted mt12" style="text-align:center">СБП · SberPay · T-Pay · Mir Pay · карты других стран</div></div></section>
+        <section class="pub__sec"><div class="grid g3">${[['help', 'Тревога или расстройство', 'Признаки, по которым психиатр отличает одно от другого, — простыми словами'], ['moon-stars', 'Что делать ночью', 'Дыхание и «5-4-3-2-1» — работают за две минуты'], ['leaf', 'Опора на каждый день', 'Небольшие ритуалы, которые возвращают ощущение почвы']].map(([i, a, b]) => `<div class="card"><span class="tile-a__i">${I(i, 'lg')}</span><div class="h3 mt16">${a}</div><div class="muted mt8" style="font-size:15px">${b}</div></div>`).join('')}</div></section>
+        <section class="pub__sec"><div class="card card--hero"><div class="row row--wrap" style="gap:20px"><span class="tile-a__i">${I('gift', 'lg')}</span><div class="sp" style="min-width:240px"><div class="h3">${esc(D.donationGoal.title)}</div><div class="muted mt8">Собрано ${rub(S.raised)} из ${rub(D.donationGoal.goal)}</div><div class="bar2 mt12"><i style="width:${pct}%"></i></div></div>${btn('Поддержать', { icon: 'heart', act: 'gift', size: 'lg', kind: 'white' })}</div></div></section>
+        <footer class="pub__foot">Платформа «Суть» — агент ИП Соколовой А. В. · оферта · политика · условия дарения · <a data-go="check" class="accent">проверить связь и устройства</a></footer></div>`;
+    },
+  });
+
+  // ───────────── проверка связи ─────────────
+  function runNet() {
+    const vals = [18, 21, 47, 129];
+    $$('.netr').forEach((r, i) => later(400 + i * 350, () => { const v = r.querySelector('.netv'); v.textContent = vals[i] + ' мс'; v.className = 'netv mono ' + (vals[i] < 60 ? 'ok' : 'warn'); }));
+    later(1900, () => { const el = $('#net-res'); if (el) el.innerHTML = chip(`${I('check', 'xs')} Ближний узел — Москва, 18 мс. Задержка видео будет меньше 0,5 с`, 'ok'); });
+  }
+  add({
+    id: 'check', group: G, title: 'Проверка связи и устройств', icon: 'wifi', phase: 'фаза 2А', plan: '§ 5.32',
+    desc: 'Публичная страница: камера, микрофон, динамики, сеть до ближнего узла. Ссылка стоит в каждом напоминании.',
     tips: ['«Включить камеру» — настоящий доступ к камере', 'Сеть проверяется до всех узлов, выбирается ближний'],
     acts: {
       cam: async () => { await P.cam.start(); P.cam.attach(); },
@@ -112,132 +83,122 @@
       net: () => runNet(),
     },
     render() {
-      return `<div class="lp"><header class="lp__top"><img src="seal-compact.svg" width="26" height="26" alt=""><span class="shell-sidebar__name"><span class="shell-sidebar__brandname">Суть</span><span class="shell-sidebar__x">✕</span><span class="shell-sidebar__module">Проверка связи</span></span></header>
-        <section class="page" style="padding-top:28px"><h1 class="page__title">Проверим всё <em>до эфира</em>, а не во время</h1><p class="page__sub">Минута — и вы знаете, что вас увидят и услышат. Ничего устанавливать не нужно.</p>
-        <div class="grid g2" style="margin-top:22px">
-          <div class="box"><div class="box__title">${I('cam')} Камера</div><div class="preview"><video class="my-cam" playsinline autoplay muted hidden></video><div class="preview__ph">${I('video-off', 'xl')}<span class="small">Камера выключена</span></div></div><div class="box__foot"><button class="btn btn--primary btn--sm" data-act="cam">${I('cam')} Включить камеру</button><span class="small muted">FaceTime HD · 1280×720 · 30 к/с</span></div></div>
+      return `<div class="pub"><header class="pub__top"><img src="seal-compact.svg" width="26" height="26" alt=""><b>Суть</b><span class="muted">· проверка связи</span></header>
+        <div class="page page--wide" style="padding-top:36px"><h1 class="h1">Проверим всё до встречи, а не во время</h1><p class="lead mt8">Минута — и вы знаете, что вас увидят и услышат. Ничего устанавливать не нужно.</p>
+        <div class="grid g2 mt32">
+          <div class="card"><div class="card__t">${I('video', 'md', 'accent')} Камера</div><div class="prev2 mt16"><video class="my-cam" playsinline autoplay muted hidden></video><div class="prev2__ph">${I('video-off', 'xl')}<span>Камера выключена</span></div></div><div class="card__f">${btn('Включить камеру', { kind: 'primary', icon: 'video', act: 'cam' })}<span class="t-sm muted">FaceTime HD · 1280×720</span></div></div>
           <div class="col" style="gap:16px">
-            <div class="box"><div class="box__title">${I('mic')} Микрофон</div><div class="row" style="margin-top:12px">${meter()}<span class="small muted">Скажите что-нибудь</span></div><div class="small muted" style="margin-top:8px">${I('bluetooth', 'xs')} Bluetooth-наушники добавляют 100–250 мс задержки. Для долгих сессий лучше микрофон ноутбука и наушники для звука.</div></div>
-            <div class="box"><div class="box__title">${I('volume')} Динамики</div><div class="box__foot"><button class="btn btn--secondary btn--sm" data-act="beep">${I('play')} Проиграть сигнал</button></div></div>
-            <div class="box"><div class="box__title">${I('wifi')} Сеть до узлов</div><div id="net" class="netlist">${[['Москва', 'msk-a'], ['Москва-2', 'msk-b'], ['Франкфурт', 'fra-edge'], ['Нью-Йорк', 'use-edge']].map(([a, b]) => `<div class="netlist__i"><span>${a} <span class="tiny subtle mono">${b}</span></span><span class="mono small muted">…</span></div>`).join('')}</div><div id="net-res" class="small" style="margin-top:10px"></div></div></div></div></section></div>`;
+            <div class="card"><div class="card__t">${I('mic', 'md', 'accent')} Микрофон</div><div class="row mt16"><span class="meter"></span><span class="t-sm muted">Скажите что-нибудь</span></div><div class="mt16">${note('bluetooth', 'Наушники по Bluetooth добавляют до четверти секунды задержки. Для долгих сессий лучше микрофон ноутбука, а наушники — только для звука.')}</div></div>
+            <div class="card"><div class="row"><div class="card__t sp">${I('volume', 'md', 'accent')} Динамики</div>${btn('Проиграть сигнал', { icon: 'play', act: 'beep', kind: 'white' })}</div></div>
+            <div class="card"><div class="row"><div class="card__t sp">${I('wifi', 'md', 'accent')} Сеть до узлов</div>${btn('Ещё раз', { icon: 'refresh', act: 'net', kind: 'white', size: 'sm' })}</div><div class="mt12">${[['Москва', 'msk-a'], ['Москва-2', 'msk-b'], ['Франкфурт', 'fra-edge'], ['Нью-Йорк', 'use-edge']].map(([a, b]) => `<div class="row netr" style="padding:10px 0;font-size:15px"><span class="sp">${a} <span class="t-xs subtle mono">${b}</span></span><span class="netv mono muted">…</span></div>`).join('')}</div><div id="net-res" class="mt12"></div></div></div></div></div></div>`;
     },
-    mount(root) { micMeter($('.meter', root)); P.cam.attach(root); runNet(); },
-  });
-  function runNet() {
-    const vals = [18, 21, 47, 129];
-    $$('.netlist__i').forEach((r, i) => later(400 + i * 350, () => { r.lastElementChild.textContent = vals[i] + ' мс'; r.lastElementChild.className = 'mono small ' + (vals[i] < 60 ? 'ok' : 'warn'); }));
-    later(1900, () => { const el = $('#net-res'); if (el) el.innerHTML = `<span class="pill pill--ok">${I('check', 'xs')} Ближний узел — Москва, 18 мс. Видео в эфире будет с задержкой меньше 0,5 с</span>`; });
-  }
-
-  // ───────────────────────────── экран входа ─────────────────────────────
-  add({
-    id: 'prejoin', group: G, title: 'Экран входа в комнату', icon: 'door', phase: 'фаза 2А / 2Б', plan: '§ 5.8; § 5.10 — экран входа; Приложение И — «Проверить себя»',
-    desc: 'Камера и устройства, фон и свет, подсказка про Bluetooth, «Проверить себя» (10 секунд записи и прослушивание), плашка записи и ИИ с согласием по целям, прогрев соединения до ближнего узла.',
-    tips: ['Включите камеру — это настоящая камера', '«Проверить себя» записывает 10 секунд', 'Согласие по целям не блокирует вход'],
-    acts: {
-      ...P.common,
-      cam: async () => { await P.cam.start(); P.cam.attach(); micMeter($('.meter')); },
-      fx: (el) => { $$('.fx').forEach((f) => f.classList.toggle('is-on', f === el)); $('.preview')?.setAttribute('data-fx', el.dataset.fx); toast(el.dataset.fx === 'sys' ? 'Системный «Портрет» Apple — считает нейропроцессор, батарея не тратится' : `Эффект: ${el.textContent.trim()}`); },
-      selftest: (el) => selfTest(el),
-      tg: () => $('#inapp').classList.toggle('is-show'),
-      enter: () => { toast('Соединение прогрето — вход за 0,6 с', { icon: 'bolt' }); go(P.current.params.to || 'call'); },
-    },
-    render(p) {
-      return `<div class="pj" data-theme="dark">
-        <div class="pj__top"><a class="pj__back" data-go="hub">${I('arrow-left')} Встречи</a><span class="sp"></span><span class="pill">${I('server', 'xs')} Москва · msk-a · 18 мс · соединение прогрето</span></div>
-        <div class="inapp" id="inapp">${I('alert-triangle')} Вы открыли ссылку внутри Telegram — звук и камера там работают хуже. <button class="btn btn--primary btn--sm">Открыть в браузере</button></div>
-        <div class="pj__grid">
-          <div class="pj__left">
-            <div class="preview preview--lg" data-fx="none"><video class="my-cam" playsinline autoplay muted hidden></video><div class="preview__ph">${av('anna', 120)}<span class="small">Камера выключена</span><button class="btn btn--primary btn--sm" data-act="cam">${I('cam')} Включить камеру</button></div>
-              <div class="preview__bar">${meter()}</div><span class="preview__name">Анна Соколова</span></div>
-            <div class="pj__ctrls"><button class="rbtn" data-act="toast" data-text="Микрофон: MacBook Pro · встроенный">${I('mic', 'md')}</button><button class="rbtn" data-act="cam">${I('cam', 'md')}</button>
-              <span class="sp"></span><span class="tiny subtle">Фон и свет</span>${[['none', 'Нет'], ['blur', 'Размытие'], ['bg', 'Кабинет'], ['sys', 'Портрет Apple']].map(([k, t], i) => `<button class="fx ${i ? '' : 'is-on'}" data-act="fx" data-fx="${k}">${t}</button>`).join('')}</div>
-            <div class="pj__devs"><label>${I('mic', 'xs')}<select><option>MacBook Pro — микрофон</option><option>AirPods Pro (Bluetooth)</option></select></label><label>${I('volume', 'xs')}<select><option>AirPods Pro</option><option>Динамики MacBook</option></select></label><label>${I('cam', 'xs')}<select><option>FaceTime HD</option><option>iPhone Анны (камера Continuity)</option></select></label></div>
-            <div class="hint">${I('bluetooth')} <span>Микрофон ноутбука + AirPods для звука — голос будет без задержки Bluetooth. <a class="accent" data-act="toast" data-text="Запомнили для этой пары устройств">Сделать так</a></span></div>
-            <div class="hint">${I('device-mobile')} <span>Камера iPhone как веб-камера — картинка заметно лучше встроенной.</span></div>
-          </div>
-          <div class="pj__right">
-            <div class="eyebrow">Индивидуальная сессия · 10:00–11:00</div><h1 class="pj__title">Мария Иванова, <em>9-я встреча</em></h1>
-            <div class="row small muted" style="gap:8px">${av('maria', 26)} Мария в зале ожидания · заполнила анкету «как вы сегодня»: <b class="accent">6 из 10</b></div>
-            <div class="selftest box"><div class="row"><div class="sp"><div class="strong">Проверить себя</div><div class="small muted">10 секунд записи и прослушивание — подскажу, что поправить</div></div><button class="btn btn--secondary btn--sm" data-act="selftest">${I('circle-dot')} Записать</button></div><div id="st-out"></div></div>
-            <div class="disclose box"><div class="row" style="gap:8px"><span class="rec-dot"></span><b>Идёт запись · расшифровка · Юя</b></div>
-              <div class="small muted" style="margin:6px 0 10px">Клиент подписал согласие кодом 03.06 · его можно отозвать в любой момент</div>
-              ${[['Запись звука и видео', true], ['Расшифровка (GigaAM, хранится в России)', true], ['ИИ-разбор и итоги — только для вас', true], ['Субтитры для клиента', false]].map(([t, on]) => `<div class="optrow" style="padding:8px 0"><div class="optrow__main small">${t}</div><button class="tgl ${on ? 'is-on' : ''}" data-act="tgl"></button></div>`).join('')}</div>
-            <button class="btn btn--primary btn--lg pj__go" data-act="enter">${I('video')} Войти</button>
-            <div class="row tiny subtle" style="justify-content:center;gap:12px;margin-top:10px"><a data-act="tg">показать: открыто из Telegram</a>·<a data-go="check">проверить связь</a></div>
-          </div></div></div>`;
-    },
-    mount(root) { P.cam.attach(root); micMeter($('.meter', root)); },
+    mount(root) { P.micMeter($('.meter', root)); P.cam.attach(root); runNet(); },
   });
 
-  function selfTest(btn) {
-    const out = $('#st-out');
-    let t = 10; btn.disabled = true;
-    out.innerHTML = `<div class="row small" style="margin-top:10px;gap:8px"><span class="rec-dot"></span> Запись… <b id="st-t">10</b> с — скажите пару фраз обычным голосом</div>`;
+  // ───────────── экран входа ─────────────
+  function selfTest(b) {
+    const out = $('#st-out'); let t = 10; b.disabled = true;
+    out.innerHTML = `<div class="row mt12"><span class="rec-dot"></span> Запись… <b id="st-t">10</b> с — скажите пару фраз обычным голосом</div>`;
     let rec, chunks = [];
     if (S.camStream && window.MediaRecorder) { try { rec = new MediaRecorder(S.camStream); rec.ondataavailable = (e) => chunks.push(e.data); rec.start(); } catch (e) { rec = null; } }
     const h = every(1000, () => {
       t--; const el = $('#st-t'); if (el) el.textContent = t;
-      if (t <= 0) {
-        clearInterval(h); btn.disabled = false;
-        const finish = (url) => { out.innerHTML = `<div class="fade-up" style="margin-top:12px">${url ? `<video src="${url}" controls playsinline style="width:100%;border-radius:10px;max-height:180px;background:#000"></video>` : `<div class="row small" style="gap:8px">${I('play')} Прослушать запись ${C.wave(40)}</div>`}
-          <div class="col small" style="gap:6px;margin-top:10px"><span class="ok">${I('check', 'xs')} Голос чистый, громкость −18 дБ — хорошо</span><span class="warn">${I('alert-triangle', 'xs')} Свет сзади: лицо темнее фона. Повернитесь к окну или включите «Портрет»</span><span class="ok">${I('check', 'xs')} Эха нет — вы в наушниках</span></div></div>`; };
-        if (rec) { rec.onstop = () => finish(URL.createObjectURL(new Blob(chunks, { type: rec.mimeType }))); rec.stop(); } else finish(null);
-      }
+      if (t > 0) return;
+      clearInterval(h); b.disabled = false;
+      const finish = (url) => { out.innerHTML = `<div class="fade-up mt12">${url ? `<video src="${url}" controls playsinline style="width:100%;border-radius:12px;max-height:180px;background:#000"></video>` : `<div class="row">${I('play')} Прослушать ${C.wave(40)}</div>`}
+        <div class="col mt12" style="gap:8px;font-size:14.5px"><span class="ok">${I('check', 'xs')} Голос чистый, громкость хорошая</span><span class="warn">${I('alert-triangle', 'xs')} Окно за спиной: лицо темнее фона. Повернитесь к свету или включите «Портрет»</span><span class="ok">${I('check', 'xs')} Эха нет — вы в наушниках</span></div></div>`; };
+      if (rec) { rec.onstop = () => finish(URL.createObjectURL(new Blob(chunks, { type: rec.mimeType }))); rec.stop(); } else finish(null);
     });
   }
-
-  // ───────────────────────────── зал ожидания 1:1 (телефон клиента) ─────────────────────────────
   add({
-    id: 'waiting', group: G, title: 'Зал ожидания сессии 1:1 (клиент)', icon: 'hourglass', frame: 'phone', phase: 'фаза 4', plan: 'Приложение Ж.1 — зал ожидания для сессии 1:1; § 5.26 — согласие кодом',
-    desc: 'Пока клиент ждёт: проверка устройств, анкета «как вы сегодня», согласие с подписью кодом (один раз на специалиста), оплата до входа — и специалист впускает.',
+    id: 'prejoin', group: G, title: 'Экран входа в комнату', icon: 'door', phase: 'фазы 2А / 2Б', plan: '§ 5.8, § 5.10, Приложение И — «Проверить себя»',
+    desc: 'Камера и устройства, фон и свет, подсказки про Bluetooth и камеру телефона, «Проверить себя» (10 секунд записи), плашка записи и Юи, прогрев соединения до ближнего узла.',
+    tips: ['Включите камеру — это настоящая камера', '«Проверить себя» записывает 10 секунд', 'Ссылка внизу показывает подсказку «открыто в Telegram»'],
     acts: {
-      mood: (el) => { $$('.mood button').forEach((b) => b.classList.toggle('is-on', b === el)); },
-      sign: () => { $('#sign').innerHTML = `<div class="fade-up"><div class="small">Код из SMS на +7 9•• ••• 12-40</div><div class="code">${'<input maxlength="1" inputmode="numeric">'.repeat(4)}</div></div>`; const ins = $$('.code input'); ins[0].focus(); ins.forEach((inp, i) => inp.oninput = () => { if (inp.value && ins[i + 1]) ins[i + 1].focus(); if (ins.every((x) => x.value)) { $('#sign').innerHTML = `<span class="pill pill--ok">${I('check', 'xs')} Подписано простой электронной подписью · 21.10 09:51</span>`; toast('Согласие подписано — действует до отзыва'); } }); },
-      pay: (el) => P.payModal(6500, 'Сессия с Анной Соколовой · 60 мин', () => { el.outerHTML = `<span class="pill pill--ok">${I('check', 'xs')} Оплачено · чек на почте</span>`; }, { dark: true }),
+      cam: async () => { await P.cam.start(); P.cam.attach(); },
+      fx: (el) => { $$('.fx2 button').forEach((f) => f.classList.toggle('is-on', f === el)); toast(el.dataset.fx === 'sys' ? 'Системный «Портрет» Apple — считает нейропроцессор, батарея почти не тратится' : `Фон: ${el.textContent.trim()}`); },
+      selftest: (el) => selfTest(el),
+      tg: () => $('#inapp').classList.toggle('is-show'),
+      enter: () => { toast('Соединение прогрето — вход за 0,6 с', { icon: 'bolt' }); go(P.current.params.to || 'call'); },
+    },
+    render() {
+      return `<div class="pj2" data-theme="dark"><div class="row row--wrap"><a class="row t-sm" data-go="hub" style="gap:6px;color:#B5AB9D">${I('arrow-left')} Встречи</a><span class="sp"></span><span class="top-pill" style="background:rgba(244,239,231,.08)">${I('server', 'xs')} Москва · 18 мс · соединение прогрето</span></div>
+        <div class="inapp2" id="inapp">${I('alert-triangle')} <span class="sp">Ссылка открыта внутри Telegram — там хуже работают звук и камера.</span>${btn('Открыть в браузере', { kind: 'primary', size: 'sm' })}</div>
+        <div class="pj2__grid">
+          <div><div class="prev2"><video class="my-cam" playsinline autoplay muted hidden></video><div class="prev2__ph">${av('anna', 112)}<span>Камера выключена</span>${btn('Включить камеру', { kind: 'primary', icon: 'video', act: 'cam' })}</div><div class="prev2__meter"><span class="meter"></span></div>
+              <div class="prev2__ctl">${P.rb('mic', '', 'toast', { data: 'data-text="Микрофон: MacBook Pro"', title: 'Микрофон' })}${P.rb('video', '', 'cam', { title: 'Камера' })}</div></div>
+            <div class="fx2">${[['none', 'Без фона'], ['blur', 'Размытие'], ['bg', 'Кабинет'], ['sys', 'Портрет Apple']].map(([k, t], i) => `<button class="${i ? '' : 'is-on'}" data-act="fx" data-fx="${k}">${t}</button>`).join('')}</div>
+            <div class="devs2"><select aria-label="Микрофон"><option>Микрофон MacBook Pro</option><option>AirPods Pro</option></select><select aria-label="Динамики"><option>AirPods Pro</option><option>Динамики MacBook</option></select><select aria-label="Камера"><option>FaceTime HD</option><option>Камера iPhone</option></select></div>
+            <div class="col mt16" style="gap:8px">${note('bluetooth', 'Микрофон ноутбука плюс AirPods для звука — голос будет без задержки Bluetooth. <a class="accent" data-act="toast" data-text="Запомнили для этой пары устройств">Сделать так</a>')}${note('device-mobile', 'Камера iPhone как веб-камера даёт картинку заметно лучше встроенной.')}</div></div>
+          <div><div class="t-sm muted">Индивидуальная сессия · 10:00–11:00</div><h1 class="h1 mt8" style="font-size:32px">Мария Иванова, 9-я встреча</h1>
+            <div class="row mt16" style="font-size:15px">${av('maria', 32)}<span>Мария в зале ожидания. Анкета «как вы сегодня»: <b style="color:#E8B898">6 из 10</b></span></div>
+            <div class="card mt24"><div class="row"><div class="sp"><div class="b">Проверить себя</div><div class="t-sm muted">10 секунд записи и прослушивание — подскажу, что поправить</div></div>${btn('Записать', { icon: 'circle-dot', act: 'selftest' })}</div><div id="st-out"></div></div>
+            <div class="card mt12"><div class="row"><span class="rec-dot"></span><b>Запись · расшифровка · Юя</b></div><div class="t-sm muted mt8">Клиент подписал согласие кодом 3 июня. Отозвать его можно в любой момент.</div>
+              ${opt('Запись звука и видео', '', true)}${opt('Расшифровка — хранится в России', '', true)}${opt('Итоги и заметки Юи — только вам', '', true)}${opt('Субтитры для клиента', '', false)}</div>
+            <div class="mt24">${btn('Войти', { kind: 'primary', size: 'lg', block: true, icon: 'video', act: 'enter' })}</div>
+            <div class="row t-sm muted mt12" style="justify-content:center;gap:14px"><a data-act="tg">показать: открыто из Telegram</a>·<a data-go="check">проверить связь</a></div></div></div></div>`;
+    },
+    mount(root) { P.cam.attach(root); P.micMeter($('.meter', root)); },
+  });
+
+  // ───────────── зал ожидания клиента 1:1 ─────────────
+  add({
+    id: 'waiting', group: G, title: 'Зал ожидания сессии (клиент)', icon: 'hourglass', frame: 'phone', pair: 'prejoin', phase: 'фаза 4', plan: 'Приложение Ж.1, § 5.26',
+    desc: 'Пока клиент ждёт: проверка устройств, анкета «как вы сегодня», согласие подписью кодом, оплата до входа. Специалист впускает одной кнопкой.',
+    tips: ['Выберите число в анкете', '«Подписать кодом» — введите любые 4 цифры', '«Оплатить» — оплата без переписки о деньгах'],
+    acts: {
+      mood: (el) => $$('.mood2 button').forEach((b) => b.classList.toggle('is-on', b === el)),
+      sign: () => { $('#sign').innerHTML = `<div class="fade-up"><div class="t-sm muted">Код из SMS на +7 9•• ••• 12-40</div><div class="code2">${'<input maxlength="1" inputmode="numeric" aria-label="цифра">'.repeat(4)}</div></div>`; const ins = $$('.code2 input'); ins[0].focus(); ins.forEach((inp, i) => (inp.oninput = () => { if (inp.value && ins[i + 1]) ins[i + 1].focus(); if (ins.every((x) => x.value)) { $('#sign').innerHTML = chip(`${I('check', 'xs')} Подписано · 21.10, 09:51`, 'ok'); toast('Согласие подписано — действует до отзыва'); } })); },
+      pay: (el) => payModal(6500, 'Сессия с Анной Соколовой · 60 мин', () => { el.outerHTML = chip(`${I('check', 'xs')} Оплачено · чек на почте`, 'ok'); }),
       admitted: () => { toast('Анна впустила вас', { icon: 'door' }); go('call-mobile'); },
     },
     render() {
-      return `<div class="mw"><div class="mw__head">${av('anna', 64, 'ring')}<div class="mw__t">Анна скоро впустит вас</div><div class="small muted">Сессия 10:00–11:00 · подключение готово</div><div class="mw__pulse"></div></div>
-        <div class="mw__body">
-          <div class="mcard"><div class="row"><span class="ok">${I('check-circle')}</span><span class="sp small">Камера, микрофон и связь в порядке</span><span class="tiny subtle">18 мс</span></div></div>
-          <div class="mcard"><div class="strong small">Как вы сегодня?</div><div class="mood">${Array.from({ length: 10 }, (_, i) => `<button class="${i === 5 ? 'is-on' : ''}" data-act="mood">${i + 1}</button>`).join('')}</div>
-            <textarea class="inp" style="margin-top:10px;min-height:64px" placeholder="О чём хочется поговорить?">Опять не спала перед планёркой, но отказалась от лишнего проекта</textarea><div class="tiny subtle" style="margin-top:6px">Видит только Анна</div></div>
-          <div class="mcard"><div class="strong small">Согласие на запись и расшифровку</div><div class="tiny muted" style="margin:4px 0 10px">Цели отдельно: запись ✓ расшифровка ✓ ИИ-разбор ✓ · хранение 90 дней · отзыв одной кнопкой</div><div id="sign"><button class="btn btn--secondary btn--sm" data-act="sign">${I('pencil')} Подписать кодом</button></div></div>
-          <div class="mcard row"><div class="sp"><div class="strong small">Сессия · 6 500 ₽</div><div class="tiny muted">оплатите до входа — без переписки о деньгах</div></div><button class="btn btn--primary btn--sm" data-act="pay">Оплатить</button></div>
-          <button class="btn btn--secondary" style="width:100%" data-act="admitted">${I('door')} (прототип) Анна впускает</button></div></div>`;
+      return `<div class="mob"><div class="mob__body" style="padding-top:60px"><div style="text-align:center">${av('anna', 80, 'av--ring')}<div class="h2 mt16">Анна скоро впустит вас</div><div class="t-sm muted mt8">Сессия 10:00–11:00 · подключение готово</div></div>
+          <div class="card mt24" style="padding:16px"><div class="row" style="font-size:15px"><span class="ok">${I('check-circle', 'md')}</span><span class="sp">Камера, микрофон и связь в порядке</span><span class="t-xs muted">18 мс</span></div></div>
+          <div class="card mt12" style="padding:16px"><div class="b">Как вы сегодня?</div><div class="mood2">${Array.from({ length: 10 }, (_, i) => `<button class="${i === 5 ? 'is-on' : ''}" data-act="mood">${i + 1}</button>`).join('')}</div>
+            <textarea class="in mt12" rows="3" placeholder="О чём хочется поговорить?">Опять не спала перед планёркой, но отказалась от лишнего проекта</textarea><div class="t-xs muted mt8">${I('lock', 'xs')} Видит только Анна</div></div>
+          <div class="card mt12" style="padding:16px"><div class="b">Согласие на запись и расшифровку</div><div class="t-sm muted mt8">По целям отдельно: запись, расшифровка, разбор Юей. Хранение 90 дней, отзыв — одной кнопкой.</div><div id="sign" class="mt12">${btn('Подписать кодом', { icon: 'pencil', act: 'sign', kind: 'white' })}</div></div>
+          <div class="card mt12" style="padding:16px"><div class="row"><div class="sp"><div class="b">Сессия · 6 500 ₽</div><div class="t-sm muted">Оплатите до входа — без переписки о деньгах</div></div>${btn('Оплатить', { kind: 'primary', act: 'pay' })}</div></div>
+          <div class="mt16">${btn('Прототип: Анна впускает', { icon: 'door', block: true, act: 'admitted', kind: 'white' })}</div></div></div>`;
     },
-    pair: 'prejoin',
   });
 
-  // ───────────────────────────── зал ожидания эфира ─────────────────────────────
+  // ───────────── зал ожидания эфира ─────────────
+  const sendLobby = () => {
+    const inp = $('#lin'); const v = inp.value.trim(); if (!v) return;
+    $('#lmsgs').insertAdjacentHTML('beforeend', chatMsg({ who: 'olga', text: v })); inp.value = '';
+    later(900, () => { const m = $('#lmsgs'); if (!m) return; m.insertAdjacentHTML('beforeend', `<div class="msg fade-up"><span class="yu2">${I('sparkles')}</span><div class="msg__b"><span class="msg__n">Юя</span><span class="msg__t">Да, Ольга: у вас билет «С записью» — запись будет навсегда, с главами и расшифровкой.</span> <span class="muted t-xs">· видно только вам</span></div></div>`); m.scrollTop = m.scrollHeight; });
+  };
   add({
-    id: 'lobby', group: G, title: 'Зал ожидания эфира', icon: 'clock', phase: 'фаза 2Б', plan: '§ 5.11 — брендированный зал ожидания; Приложение Ж.13 — лобби с чатом',
-    desc: 'Обратный отсчёт, бренд клиента, чат до начала, Юя отвечает на «будет ли запись», соединение прогревается заранее.',
-    acts: { send: () => sendLobby() },
+    id: 'lobby', group: G, title: 'Зал ожидания эфира', icon: 'clock', phase: 'фаза 2Б', plan: '§ 5.11, Приложение Ж.13',
+    desc: 'Обратный отсчёт, оформление ведущей, чат до начала, Юя отвечает на «будет ли запись», соединение прогревается заранее.',
+    tips: ['Напишите вопрос в чат — Юя ответит лично', '«Эфир начался» — переход к зрителю'],
+    acts: { send: sendLobby },
     render() {
-      return `<div class="lobby" data-theme="dark"><div class="lobby__bg" style="background-image:url(img/people/p32.jpg)"></div>
-        <div class="lobby__grid"><div class="lobby__main"><span class="lp__logo">${I('leaf')} Опора · Анна Соколова</span>
-          <div class="eyebrow" style="margin-top:40px">Эфир начнётся через</div><div class="lobby__count mono" id="cd">00:04:59</div>
-          <h1>${esc(D.event.title)}</h1><div class="row" style="gap:12px;margin-top:20px">${av('anna', 44)}${av('dmitry', 44)}<div class="small muted">Анна Соколова и Дмитрий Орлов уже в закулисье — проверяют звук</div></div>
-          <div class="row" style="gap:8px;margin-top:28px;flex-wrap:wrap"><span class="pill">${I('users', 'xs')} 1 284 ждут</span><span class="pill">${I('server', 'xs')} Франкфурт · 24 мс</span><span class="pill">${I('cc', 'xs')} субтитры: Deutsch</span><button class="btn btn--secondary btn--sm" data-go="viewer">${I('play')} (прототип) Эфир начался</button></div></div>
-          <div class="lobby__chat"><div class="strong small" style="padding:14px 16px">Чат до начала</div><div class="lobby__msgs" id="lmsgs">${D.chatSeed.slice(0, 5).map(msgHtml).join('')}</div>
-            <div class="lobby__in"><input class="inp" id="lin" placeholder="Написать в чат…" value="А запись будет?"><button class="rbtn" data-act="send">${I('send')}</button></div></div></div></div>`;
+      return `<div class="lob" data-theme="dark"><div class="lob__bg" style="background-image:url(img/people/p32.jpg)"></div>
+        <div class="lob__g"><div class="lob__main"><span class="row" style="gap:8px;color:#E8B898;font-weight:600">${I('leaf', 'md')} Опора · Анна Соколова</span>
+          <div class="muted mt32" style="font-size:16px">Эфир начнётся через</div><div class="lob__cd" id="cd">04:59</div>
+          <h1 class="h1 mt24" style="font-size:34px;max-width:720px">${esc(D.event.title)}</h1><div class="row mt24">${av('anna', 48)}${av('dmitry', 48)}<div class="muted" style="font-size:15px">Анна и Дмитрий уже в закулисье — проверяют звук</div></div>
+          <div class="row row--wrap mt32" style="gap:8px"><span class="top-pill">${I('users', 'xs')} 1 284 ждут</span><span class="top-pill">${I('server', 'xs')} Франкфурт · 24 мс</span><span class="top-pill">${I('cc', 'xs')} субтитры: Deutsch</span>${btn('Прототип: эфир начался', { icon: 'play', go: 'viewer', kind: 'primary' })}</div></div>
+          <div class="lob__chat"><div class="h3" style="padding:0 20px 12px">Чат до начала</div><div class="msgs" id="lmsgs" style="flex:1;overflow:auto;padding:0 20px">${D.chatSeed.slice(0, 5).map(chatMsg).join('')}</div>
+            <div class="pn__f"><input class="in" id="lin" placeholder="Написать в чат…" value="А запись будет?" style="background:rgba(244,239,231,.08);color:#F4EFE7">${btn('', { icon: 'send', act: 'send', kind: 'primary', cls: 'btn2--icon' })}</div></div></div></div>`;
     },
     mount() {
-      let s = 299; every(1000, () => { s--; const el = $('#cd'); if (el) el.textContent = `00:${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; });
+      let s = 299; every(1000, () => { s = Math.max(0, s - 1); const el = $('#cd'); if (el) el.textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; });
       $('#lin').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendLobby(); });
     },
   });
-  function msgHtml(m) {
-    const p = P.person(m.who);
-    return `<div class="cmsg fade-up">${av(m.who, 26)}<div class="cmsg__b"><b>${esc(p.short || p.name)}</b> ${esc(m.text)}${m.yuia ? `<div class="cmsg__yu"><span class="yu">${I('sparkles')}</span> ${esc(m.yuia)}${m.private ? ' <span class="tiny subtle">· видно только вам</span>' : ''}</div>` : ''}</div></div>`;
-  }
-  P.msgHtml = msgHtml;
-  function sendLobby() {
-    const inp = $('#lin'); const v = inp.value.trim(); if (!v) return;
-    $('#lmsgs').insertAdjacentHTML('beforeend', msgHtml({ who: 'olga', text: v }));
-    inp.value = '';
-    later(900, () => { $('#lmsgs').insertAdjacentHTML('beforeend', `<div class="cmsg cmsg--yu fade-up"><span class="yu">${I('sparkles')}</span><div class="cmsg__b"><b>Юя</b> Да, Ольга: у вас билет «С записью» — запись будет навсегда по вашей ссылке, с главами и расшифровкой. <span class="tiny subtle">· видно только вам</span></div></div>`); const m = $('#lmsgs'); m.scrollTop = m.scrollHeight; });
-  }
+
+  // ───────────── ссылка уже открыта на другом устройстве ─────────────
+  add({
+    id: 'ticket-busy', group: G, title: 'Ссылка открыта на другом устройстве', icon: 'device-mobile', frame: 'phone', phase: 'фазы 2А / 5', plan: '§ 1.7 п. 3, § 5.21 — один активный вход на билет',
+    desc: 'Билет пускает одного человека. Если ссылку открыли на втором устройстве, человек сам выбирает, где смотреть, — без писем в поддержку.',
+    acts: { here: () => { toast('Эфир переехал на этот телефон. На компьютере показ остановлен'); go('viewer-mobile'); } },
+    render() {
+      return `<div class="mob"><div class="mob__body" style="padding-top:80px;text-align:center"><span class="tile-a__i" style="margin:0 auto;width:64px;height:64px">${I('device-desktop', 'xl')}</span>
+        <div class="h2 mt24">Эфир уже открыт на другом устройстве</div><div class="muted mt12" style="font-size:15px;line-height:1.55">Ваш билет пускает одного человека. Сейчас эфир идёт на компьютере: Chrome, macOS, Москва, вошли в 19:02.</div>
+        <div class="col mt32" style="gap:10px">${btn('Смотреть здесь', { kind: 'primary', size: 'lg', block: true, icon: 'device-mobile', act: 'here' })}${btn('Остаться на компьютере', { size: 'lg', block: true, go: 'event-page' })}</div>
+        <div class="mt24">${note('shield-check', 'Это не вы? Нажмите «Смотреть здесь» — чужое устройство отключится, а Юя пришлёт вам новую ссылку.')}</div></div></div>`;
+    },
+  });
 })();

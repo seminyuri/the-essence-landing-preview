@@ -68,4 +68,7 @@
   <symbol id="moon-stars" viewBox="0 0 24 24"><path d="M12 3h.4A7.5 7.5 0 0 0 21 12.8 9 9 0 1 1 12 3zM17 4a2 2 0 0 0 2 2 2 2 0 0 0-2 2 2 2 0 0 0-2-2 2 2 0 0 0 2-2"/></symbol>
   <symbol id="route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M12 19h4.5a3.5 3.5 0 0 0 0-7h-8a3.5 3.5 0 0 1 0-7H12"/></symbol>
   <symbol id="drag" viewBox="0 0 24 24"><path d="M8 9l4-4 4 4M16 15l-4 4-4-4"/></symbol>
+  <symbol id="cards" viewBox="0 0 24 24"><rect x="3" y="6" width="11" height="15" rx="2" transform="rotate(-8 8.5 13.5)"/><rect x="10" y="3" width="11" height="15" rx="2"/><path d="M15.5 8.5l1 2 2 .3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2-.3z"/></symbol>
+  <symbol id="heart-hand" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.6 12 20 12 20z"/></symbol>
+  <symbol id="scale" viewBox="0 0 24 24"><path d="M4 18h16M6 18V9M10 18V5M14 18v-7M18 18v-4"/></symbol>
 </svg>
