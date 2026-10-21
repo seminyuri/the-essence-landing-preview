@@ -1,0 +1,21 @@
+/* Дизайн-система the-essence — копия для прототипа */
+
+html,
+body {
+  overflow-x: clip;
+}
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+::selection {
+  background: color-mix(in oklch, var(--color-accent) 26%, transparent);
+  color: var(--color-fg);
+  text-shadow: none;
+}
+.container {
+  max-width: 96rem;
+  margin-inline: auto;
+  padding-inline: clamp(10px, 2vw, 36px);
+}
