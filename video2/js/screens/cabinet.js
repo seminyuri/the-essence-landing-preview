@@ -60,7 +60,7 @@
           <div class="mt16">${btn('Войти', { kind: 'white', size: 'lg', icon: 'video', go: 'call-mobile', block: true })}</div><button class="btn2 btn2--block mt8" data-act="brief">${I('sparkles')} Подготовка от Юи</button></div>
           <div class="h3 mt24">Дальше сегодня и на неделе</div><div class="list mt8">${D.sessions.slice(1, 4).map((s) => li({ lead: `<div class="li__time"><b>${s.time}</b><span>${s.day}</span></div>`, t: esc(s.title.split(' · ')[0]), s: esc(s.sub.split(' · ')[0]), go: kindGo[s.kind] })).join('')}</div>
           <div class="h3 mt24">Новые сообщения</div><div class="list mt8">${D.messengerChats.filter((c) => c.unread).slice(0, 3).map((c) => li({ lead: c.who ? av(c.who, 44) : `<span class="li__ic">${I('users')}</span>`, t: esc(c.who ? P.person(c.who).name : c.title), s: esc(c.last), right: `<span class="ub">${c.unread}</span>`, go: 'messenger' })).join('')}</div></div>
-        <nav class="mob__tab">${[['grid', 'Сегодня', 1], ['messenger', 'Чаты'], ['play', 'Записи'], ['wallet', 'Деньги'], ['dots', 'Ещё']].map(([i, t, on]) => `<a class="${on ? 'is-on' : ''}" data-act="tab" data-text="${t}">${I(i, 'md')}${t}</a>`).join('')}</nav></div>`;
+        <nav class="mob__tab mobile-bottom-nav">${[['grid', 'Сегодня', 1], ['messenger', 'Чаты'], ['play', 'Записи'], ['wallet', 'Деньги'], ['dots', 'Ещё']].map(([i, t, on]) => `<a class="mobile-bottom-nav__item ${on ? 'is-on mobile-bottom-nav__item--current' : ''}" data-act="tab" data-text="${t}">${I(i, 'md')}${t}</a>`).join('')}</nav></div>`;
     },
   });
 

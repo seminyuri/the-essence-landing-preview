@@ -250,9 +250,10 @@
 .mob { height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; background: var(--color-bg); color: var(--color-fg); }
 .mob__top { padding: 58px 20px 10px; display: flex; align-items: center; gap: 10px; }
 .mob__body { flex: 1; overflow-y: auto; padding: 8px 16px 24px; }
-.mob__tab { display: flex; justify-content: space-around; padding: 8px 8px 28px; border-top: 1px solid var(--color-border); background: var(--color-bg); }
-.mob__tab a { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--color-fg-muted); padding: 6px 10px; border-radius: 12px; }
-.mob__tab a.is-on { color: var(--color-accent); font-weight: 600; }
+/* нижняя панель телефона = .mobile-bottom-nav продукта; в рамке телефона — не fixed и видна на любой ширине окна */
+.mob__tab { display: flex; position: static; height: auto; justify-content: space-around; padding: 6px 8px 26px; border-top: var(--hairline-width) solid var(--color-border); background: var(--color-bg-elevated); }
+.mob__tab a { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--color-fg-muted); padding: 6px 10px; border-radius: 12px; min-width: 56px; }
+.mob__tab a.is-on { color: var(--color-accent-strong); font-weight: 600; }
 .mcall2 { height: 100%; position: relative; background: #141210; color: #F4EFE7; }
 .mcall2__remote { position: absolute; inset: 0; background-size: cover; background-position: center 25%; }
 .mcall2__top { position: absolute; top: 56px; left: 16px; right: 16px; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 16px; background: rgba(20, 18, 16, .55); backdrop-filter: blur(10px); z-index: 3; font-size: 15px; }
@@ -332,6 +333,10 @@
   .rec-pill { padding: 0 10px; }
   .rec-pill__t { display: none; }
   .rm__top .btn2 { flex: none; }
+  /* на телефоне второстепенные кнопки шапки — только значок, название встречи не сжимается до трёх букв */
+  .rm__top .btn2:not(.btn2--primary):not(.btn2--danger) { width: 40px; height: 40px; padding: 0; }
+  .rm__top .btn2:not(.btn2--primary):not(.btn2--danger) > span { display: none; }
+  .rm__title { min-width: 42%; display: block; }
   .st-grid { grid-auto-rows: 168px; align-content: start; overflow-y: auto; }
   .st-grid .tl { min-height: 0; }
   .mhint { bottom: 84px; font-size: 14px; flex-wrap: wrap; }

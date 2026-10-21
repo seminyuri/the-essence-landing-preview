@@ -8,7 +8,7 @@
   // ───────────── подключение специалиста ─────────────
   const OB = ['Профиль', 'Проверка', 'Налоговый статус', 'Оферта', 'Выплаты', 'Готово'];
   add({
-    id: 'onboarding', after: 'hub-mobile', group: G, title: 'Подключение специалиста', icon: 'user-plus', phase: 'фазы 2А / 4', plan: '§ 5.25 п. 3–4 — самозанятость и проверка статуса, § 5.28 — «проверенный специалист», агентская оферта',
+    id: 'onboarding', after: 'hub-mobile', group: G, eyebrow: 'Первый запуск', title: 'Подключение специалиста', icon: 'user-plus', phase: 'фазы 2А / 4', plan: '§ 5.25 п. 3–4 — самозанятость и проверка статуса, § 5.28 — «проверенный специалист», агентская оферта',
     desc: 'Шесть шагов до первых денег: профиль, проверка документов, налоговый статус — самозанятость оформляется за пять минут и проверяется в ФНС, агентская оферта с подписью кодом, выплаты. Без статуса доступен режим «Подарок».',
     tips: ['Шаги кликабельны', '«Налоговый статус» → «Проверить в ФНС»', '«Оферта» → посчитайте, сколько получите'],
     acts: {
@@ -37,7 +37,7 @@
           <div>${note('shield-check', 'Деньги за билеты с записью доступны после окна возврата: конец мероприятия плюс 3 дня. Подарки не задерживаются — по ним нет возвратов.')}</div></div>`,
         `<div class="card card--hero" style="text-align:center;padding:48px 24px"><span class="yu2 yu2--lg" style="margin:0 auto">${I('check', 'lg')}</span><div class="h1 mt16">Можно работать</div><div class="lead mt8">Страница опубликована, касса подключена, чеки формируются сами.</div><div class="row row--wrap mt24" style="justify-content:center;gap:8px">${btn('Первая встреча из шаблона', { kind: 'primary', size: 'lg', icon: 'template', go: 'new' })}${btn('Моя страница', { size: 'lg', go: 'specialist-page' })}</div></div>`,
       ];
-      return shellV('hub', page({ title: 'Подключение', sub: 'Шесть шагов — около 15 минут. Можно прерваться и вернуться.', body: `${steps}<div class="fade-up">${panes[st]}</div><div class="row mt32">${st > 0 ? btn('Назад', { icon: 'arrow-left', act: 'ostep', data: `data-s="${st - 1}"`, size: 'lg' }) : ''}<span class="sp"></span>${st < 5 ? btn('Дальше', { kind: 'primary', size: 'lg', act: 'ostep', data: `data-s="${st + 1}"` }) : ''}</div>` }));
+      return shellV('', page({ title: 'Подключение', sub: 'Шесть шагов — около 15 минут. Можно прерваться и вернуться.', body: `${steps}<div class="fade-up">${panes[st]}</div><div class="row mt32">${st > 0 ? btn('Назад', { icon: 'arrow-left', act: 'ostep', data: `data-s="${st - 1}"`, size: 'lg' }) : ''}<span class="sp"></span>${st < 5 ? btn('Дальше', { kind: 'primary', size: 'lg', act: 'ostep', data: `data-s="${st + 1}"` }) : ''}</div>` }));
     },
   });
 

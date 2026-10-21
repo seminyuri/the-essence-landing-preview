@@ -1,5 +1,5 @@
 (function () {
-  const { add, I, esc, screens, btn } = P;
+  const { add, I, esc, screens, btn, chip } = P;
 
   const GROUPS = {
     'Старт': 'Сравнение с Zoom, Meet, Телемостом, МТС Линк и GetCourse по фактам разборов',
@@ -33,15 +33,16 @@
       const groups = {};
       screens.filter((s) => s.id !== 'map' && !s.hidden).forEach((s) => (groups[s.group] = groups[s.group] || []).push(s));
       const n = screens.filter((s) => !s.hidden).length - 1;
-      return `<div class="pub"><div class="mhero">
-        <div class="row row--wrap" style="gap:10px"><img src="seal-compact.svg" width="32" height="32" alt=""><span class="app__brand-name">Суть <span class="app__brand-x">✕</span> <span class="app__brand-mod">Встречи и эфиры 2.0</span></span><span class="chip2 chip2--accent">прототип · данные вымышленные</span></div>
+      return `<div class="pub"><div class="mhero"><div class="mhero__l">
+        <div class="row row--wrap" style="gap:10px"><img class="shell-sidebar__mark" src="seal-compact.svg" width="28" height="28" alt=""><span class="shell-sidebar__name" style="font-size:16px"><span class="shell-sidebar__brandname">Суть</span> <span class="shell-sidebar__x">✕</span> <span class="shell-sidebar__module">Видео 2.0</span></span>${chip('прототип · данные вымышленные', 'accent')}</div>
         <h1 class="h1 mt24">Эфиры, сессии и практика в одном кабинете — и Юя рядом на каждой встрече</h1>
         <p class="lead">Кликабельный прототип плана «Видеомодуль 2.0». Листайте стрелками внизу экрана или клавишами ← →. Кнопка «i» объясняет, что на экране и где это в плане.</p>
         <div class="row row--wrap mt24">${btn('Начать с кабинета', { kind: 'primary', size: 'lg', icon: 'play', go: 'hub' })}${btn('Эфир', { size: 'lg', icon: 'broadcast', go: 'stage' })}${btn('Сессия 1:1', { size: 'lg', icon: 'video', go: 'call' })}${btn('Мы и они', { size: 'lg', icon: 'scale', go: 'versus' })}${btn('Что из плана где', { size: 'lg', icon: 'list-check', act: 'cover' })}</div>
         <div class="row row--wrap mt32" style="gap:40px">${[[n, n % 10 === 1 && n % 100 !== 11 ? 'экран' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 'экрана' : 'экранов'], [Object.keys(groups).length, 'разделов'], [COVER.reduce((a, g) => a + g[1].length, 0), 'возможностей плана показано'], ['← →', 'листать экраны']].map(([v, l]) => `<div><div class="h1">${v}</div><div class="t-sm muted">${l}</div></div>`).join('')}</div></div>
+        <aside class="mhero__r card"><div class="eyebrow">разделы</div><div class="list mt8">${Object.entries(groups).map(([g, items]) => `<a class="li li--click" data-go="${items[0].id}" style="min-height:44px;padding:8px 10px"><span class="li__m t-sm">${esc(g)}</span><span class="shell-nav__count">${items.length}</span>${I('chevron-right', 'sm', 'subtle')}</a>`).join('')}</div></aside></div>
         <div class="page page--wide" style="padding-top:8px">
         ${Object.entries(groups).map(([g, items]) => `<section class="sec"><div class="sec__h"><h2 class="h2">${esc(g)}</h2><span class="t-sm muted">${esc(GROUPS[g] || '')}</span></div>
-          <div class="mgrid">${items.map((s) => `<a class="mcard" data-go="${s.id}"><div class="row"><span class="tile-a__i" style="background:var(--c-surface)">${I(s.icon || 'dot', 'lg')}</span><span class="sp"></span>${s.frame === 'phone' ? `<span class="chip2">${I('device-mobile', 'xs')} телефон</span>` : ''}</div><div class="mcard__t">${esc(s.title)}</div><div class="mcard__s">${esc(s.desc || '')}</div></a>`).join('')}</div></section>`).join('')}
+          <div class="mgrid">${items.map((s) => `<a class="mcard" data-go="${s.id}"><div class="row"><span class="tile-a__i">${I(s.icon || 'dot', 'lg')}</span><span class="sp"></span>${s.frame === 'phone' ? `<span class="chip2">${I('device-mobile', 'xs')} телефон</span>` : ''}</div><div class="mcard__t">${esc(s.title)}</div><div class="mcard__s">${esc(s.desc || '')}</div></a>`).join('')}</div></section>`).join('')}
         <section class="sec" id="cover"><div class="sec__h"><h2 class="h2">Что из плана и где</h2></div>
           <div class="grid g2">${COVER.map(([g, rows]) => `<div class="card"><div class="card__t">${g}</div><div class="list mt8">${rows.map(([t, sid]) => `<a class="li li--click" data-go="${sid}" style="min-height:52px;padding:10px 12px"><span class="li__m t-sm">${t}</span><span class="t-xs muted">${esc((screens.find((x) => x.id === sid) || {}).title || sid)}</span>${I('chevron-right', 'sm', 'subtle')}</a>`).join('')}</div></div>`).join('')}</div>
           <div class="note mt16">${I('info-circle')}<div>Оболочка, правая панель модулей, поиск, колокол и карточки — из дизайн-системы the-essence, как в действующих модулях (экран <a class="accent" data-go="ds">«Дизайн-система»</a>). Календарь, задачник, CRM, базу знаний и почту прототип не перерисовывает — показывает, как в них живёт видео (<a class="accent" data-go="touchpoints">«Видео в других модулях»</a>). Астрологических схем нет: Юя учитывает дату рождения, но рассказывает о человеке языком психолога.</div></div></section>

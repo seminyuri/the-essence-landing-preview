@@ -129,11 +129,22 @@
   }
   // командная палитра — как «/» и ⌘K в продукте: экраны, люди, действия
   function palette() {
-    const m = modal(`<div class="cmdk"><div class="cmdk__in">${I('search', 'md')}<input class="cmdk__q" placeholder="Встречи, записи, люди, экраны…" autofocus><kbd class="kbd">Esc</kbd></div><div class="cmdk__list"></div></div>`);
+    const m = modal(`<div class="cmdk"><div class="cmdk__in">${I('search', 'md')}<input class="cmdk__q" placeholder="Встречи, записи, люди, экраны…" aria-label="Поиск" autofocus><kbd class="kbd">Esc</kbd></div><div class="cmdk__list"></div></div>`);
     const q = $('.cmdk__q', m), list = $('.cmdk__list', m);
-    const rows = () => { const s = q.value.trim().toLowerCase(); const hit = visible().filter((x) => !s || (x.title + ' ' + x.group).toLowerCase().includes(s)).slice(0, 9);
-      list.innerHTML = hit.length ? hit.map((x, i) => `<a class="cmdk__row ${i ? '' : 'is-on'}" data-go="${x.id}">${I(x.icon || 'dot')}<span class="sp">${esc(x.title)}</span><span class="cmdk__grp">${esc(x.group)}</span></a>`).join('') : '<div class="cmdk__empty">Ничего не нашлось</div>'; };
-    q.addEventListener('input', rows); q.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const r = $('.cmdk__row', list); r && go(r.dataset.go); } });
+    // одно окно на всё: встречи, записи, люди и экраны — как палитра «/» продукта
+    const ALL = [
+      ...D.sessions.map((x) => ({ t: x.title, g: `встреча · ${x.day} ${x.time}`, icon: 'calendar', go: x.kind === 'stage' ? 'event' : x.kind === 'call' ? 'prejoin' : x.kind })),
+      ...D.recordings.map((x) => ({ t: x.title, g: `запись · ${x.date}`, icon: 'play', go: 'recording' })),
+      ...Object.values(D.people).filter((x) => x.role).map((x) => ({ t: x.name, g: `человек · ${x.role}`, icon: 'user', go: x.id === 'maria' ? 'messenger' : 'specialist-page' })),
+      ...visible().map((x) => ({ t: x.title, g: `экран · ${x.group}`, icon: x.icon || 'dot', go: x.id })),
+    ];
+    const rows = () => { const s = q.value.trim().toLowerCase(); const hit = ALL.filter((x) => !s || (x.t + ' ' + x.g).toLowerCase().includes(s)).slice(0, 10);
+      list.innerHTML = hit.length ? hit.map((x, i) => `<a class="cmdk__row ${i ? '' : 'is-on'}" data-go="${x.go}">${I(x.icon)}<span class="sp">${esc(x.t)}</span><span class="cmdk__grp">${esc(x.g)}</span></a>`).join('') : '<div class="cmdk__empty">Ничего не нашлось</div>'; };
+    q.addEventListener('input', rows); q.addEventListener('keydown', (e) => {
+      const all = $$('.cmdk__row', list), i = all.findIndex((r) => r.classList.contains('is-on'));
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const n = all[(i + (e.key === 'ArrowDown' ? 1 : -1) + all.length) % all.length]; all.forEach((r) => r.classList.toggle('is-on', r === n)); n && n.scrollIntoView({ block: 'nearest' }); }
+      if (e.key === 'Enter') { const r = all[i] || all[0]; r && go(r.dataset.go); }
+    });
     rows(); setTimeout(() => q.focus(), 30);
   }
   // мобильная панель модулей — Shell::MobileModuleSwitcherComponent

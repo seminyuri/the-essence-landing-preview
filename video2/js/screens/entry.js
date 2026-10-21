@@ -123,7 +123,7 @@
       enter: () => { toast('Соединение прогрето — вход за 0,6 с', { icon: 'bolt' }); go(P.current.params.to || 'call'); },
     },
     render() {
-      return `<div class="pj2" data-theme="dark"><div class="row row--wrap"><a class="row t-sm" data-go="hub" style="gap:6px;color:#B5AB9D">${I('arrow-left')} Встречи</a><span class="sp"></span><span class="top-pill" style="background:rgba(244,239,231,.08)">${I('server', 'xs')} Москва · 18 мс · соединение прогрето</span></div>
+      return `<div class="pj2" data-theme="dark"><div class="row row--wrap"><a class="row t-sm" data-go="hub" style="gap:6px;color:#B5AB9D">${I('arrow-left')} Видео</a><span class="sp"></span><span class="top-pill" style="background:rgba(244,239,231,.08)">${I('server', 'xs')} Москва · 18 мс · соединение прогрето</span></div>
         <div class="inapp2" id="inapp">${I('alert-triangle')} <span class="sp">Ссылка открыта внутри Telegram — там хуже работают звук и камера.</span>${btn('Открыть в браузере', { kind: 'primary', size: 'sm', act: 'inapp' })}</div>
         <div class="pj2__grid">
           <div><div class="prev2"><video class="my-cam" playsinline autoplay muted hidden></video><div class="prev2__ph">${av('anna', 112)}<span>Камера выключена</span>${btn('Включить камеру', { kind: 'primary', icon: 'video', act: 'cam' })}</div><div class="prev2__meter"><span class="meter"></span></div>

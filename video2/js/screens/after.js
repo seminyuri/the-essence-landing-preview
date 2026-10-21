@@ -1,5 +1,5 @@
 (function () {
-  const { D, S, add, I, av, esc, toast, go, $, $$, btn, chip, seg, li, yuNote, note, page } = P;
+  const { D, S, add, I, av, esc, toast, go, $, $$, btn, chip, seg, li, yuNote, note, page, shell, videoNav } = P;
   const G = 'После встречи';
   const TPL = { 'Индивидуальная': ['Запрос сессии', 'Ключевые темы', 'Применённые техники', 'Динамика', 'Цитаты'], 'Первичная': ['С чем пришёл', 'История запроса', 'Гипотезы', 'План работы', 'Договорённости'], 'Супервизия': ['Случай', 'Вопрос к супервизору', 'Перенос и контрперенос', 'Что попробовать'], 'Группа': ['Тема встречи', 'Кто что принёс', 'Групповая динамика', 'Задание группе'] };
   const SUM = { 'Запрос сессии': 'Тревога перед планёрками и сон; первый успешный отказ коллеге 19 октября.', 'Ключевые темы': 'Страх оценки и его связь с отцом («почему не пятёрка») — звучит вторую встречу подряд. Телесная опора: «жар в груди, потом легче дышать».', 'Применённые техники': 'Сократический диалог, фиксация телесного ощущения как ресурса, рефрейминг отказа, метафорическая карта «Дорога».', 'Динамика': 'Анкета перед входом — 6 из 10 (неделю назад было 4). GAD-7: 7.', 'Цитаты': '«Я сказала „нет“, и мир не рухнул» — 14:22' };
@@ -19,10 +19,10 @@
     },
     render(p) {
       const from = p.from === 'inperson' ? 'Олег Мартынов · очная встреча' : 'Мария Иванова · 9-я встреча';
-      return `<div class="pub" style="background:var(--c-canvas)"><div class="page page--wide"><div class="row" style="margin-bottom:24px"><div class="seg2 whoseg">${[['Специалист', 'spec'], ['Клиент', 'client']].map(([t, v], i) => `<button class="${i ? '' : 'is-on'}" data-act="who" data-v="${v}">${t}</button>`).join('')}</div><span class="sp"></span>${btn('В кабинет', { icon: 'grid', go: 'hub', kind: 'white' })}</div>
-        <div class="end-spec"><div class="phead"><div class="phead__t"><div class="t-sm muted">Встреча завершена · 58 мин · итоги готовы через 3 мин 12 с</div><h1 class="h1 mt8">${from}</h1></div></div>
+      return shell({ module: 'Видео', active: 'video', compose: { label: 'Начать встречу', icon: 'video', go: 'prejoin' }, nav: videoNav('recordings'), body: `<div class="page page--wide"><div class="row" style="margin-bottom:24px"><div class="seg2 whoseg">${[['Специалист', 'spec'], ['Клиент', 'client']].map(([t, v], i) => `<button class="${i ? '' : 'is-on'}" data-act="who" data-v="${v}">${t}</button>`).join('')}</div><span class="sp"></span>${btn('Открыть запись', { icon: 'play', go: 'recording', kind: 'white' })}</div>
+        <div class="end-spec"><div class="phead"><div class="phead__t"><span class="eyebrow">Встреча завершена · 58 мин · итоги через 3 мин 12 с</span><h1 class="h1">${from}</h1></div></div>
           <div class="grid g-main g-main--wide">
-            <div class="col" style="gap:16px"><div class="card card--white"><div class="row row--wrap"><div class="card__t sp"><span class="yu2">${I('sparkles')}</span> Итоги для вас</div><div class="seg2 tplseg">${Object.keys(TPL).map((t, i) => `<button class="${i ? '' : 'is-on'}" data-act="tpl" data-v="${t}">${t}</button>`).join('')}</div></div>
+            <div class="col" style="gap:16px"><div class="card card--white"><div class="row row--wrap"><div class="card__t sp" style="min-width:170px;white-space:nowrap"><span class="yu2">${I('sparkles')}</span> Итоги для вас</div><div class="seg2 tplseg">${Object.keys(TPL).map((t, i) => `<button class="${i ? '' : 'is-on'}" data-act="tpl" data-v="${t}">${t}</button>`).join('')}</div></div>
                 <div id="sumb">${TPL['Индивидуальная'].map((k) => `<div class="sumb"><b>${k}</b><p>${SUM[k]}</p></div>`).join('')}</div>
                 <div class="row t-sm muted mt16" style="gap:6px">${I('lock', 'xs')} Видны только вам · по расшифровке каждого говорящего · <a class="accent" data-go="recording">открыть расшифровку</a></div></div>
               <div class="card card--white"><div class="card__t">Задачи из встречи</div>${['Подготовить для Марии аудио «телесная опора» на 5 минут', 'Обсудить на супервизии: оценивающая фигура отца', 'Напомнить Марии про дневник мыслей в пятницу'].map((t, i) => `<label class="row tpick" style="padding:12px 0;cursor:pointer;font-size:15px"><input type="checkbox" ${i < 2 ? 'checked' : ''} style="width:20px;height:20px"><span>${t}</span></label>`).join('')}
@@ -36,7 +36,7 @@
           <div class="h3 mt24">Следующая встреча с Анной</div><div class="slots2 mt12">${['пн 27 · 18:00', 'вт 28 · 10:00', 'чт 30 · 12:00'].map((t, i) => `<button class="${i === 1 ? 'is-on' : ''}" data-act="slot" data-t="${t}">${t}</button>`).join('')}</div>
           <div class="mt16">${btn('Записаться и оплатить · вт 28 · 10:00', { kind: 'primary', size: 'lg', block: true, icon: 'credit-card', act: 'paynext', id: 'slot-pay' })}</div>
           <div class="h3 mt24">Как была связь?</div><div class="stars2 mt8">${[0, 1, 2, 3, 4].map((i) => `<button data-act="rate" data-i="${i}" aria-label="${i + 1} из 5">${I('star', 'lg')}</button>`).join('')}</div>
-          <div class="mt24">${note('lock', 'Запись хранится 90 дней. Вы видите, кто её открывал. <a class="accent" data-go="client-cabinet">Мой кабинет</a>')}</div></div></div></div></div>`;
+          <div class="mt24">${note('lock', 'Запись хранится 90 дней. Вы видите, кто её открывал. <a class="accent" data-go="client-cabinet">Мой кабинет</a>')}</div></div></div></div>` });
     },
   });
 
@@ -60,7 +60,7 @@
           <div data-cp="p" class="mt12" hidden><div class="h3">Согласия</div>${[['Запись встреч', 'с 3 июня'], ['Расшифровка', 'с 3 июня'], ['Разбор Юей для Анны', 'с 3 июня']].map(([t, s]) => `<div class="opt"><div class="opt__m"><div class="opt__t">${t}</div><div class="opt__s">${s}</div></div>${btn('Отозвать', { size: 'sm', act: 'revoke' })}</div>`).join('')}
             <div class="h3 mt24">Кто открывал мои записи</div>${c.access.map(([w, t, what]) => li({ lead: `<span class="li__ic">${I(w.startsWith('Анна') ? 'user' : 'shield-check')}</span>`, t: w, s: `${t} · ${what}` })).join('')}
             <div class="mt12">${btn('Скачать все мои данные', { icon: 'download', block: true, act: 'toast', data: 'data-text="Архив будет готов через несколько минут — пришлём ссылку на почту"' })}</div></div></div>
-        <nav class="mob__tab">${[['grid', 'Главная', 1], ['messenger', 'Чат'], ['calendar', 'Записаться'], ['user', 'Профиль']].map(([i, t, on]) => `<a class="${on ? 'is-on' : ''}" ${t === 'Чат' ? 'data-go="messenger"' : 'data-act="toast" data-text="' + t + '"'}>${I(i, 'md')}${t}</a>`).join('')}</nav></div>`;
+        <nav class="mob__tab mobile-bottom-nav">${[['grid', 'Главная', 1], ['messenger', 'Чат'], ['calendar', 'Записаться'], ['user', 'Профиль']].map(([i, t, on]) => `<a class="mobile-bottom-nav__item ${on ? 'is-on mobile-bottom-nav__item--current' : ''}" ${t === 'Чат' ? 'data-go="messenger"' : 'data-act="toast" data-text="' + t + '"'}>${I(i, 'md')}${t}</a>`).join('')}</nav></div>`;
     },
   });
 })();

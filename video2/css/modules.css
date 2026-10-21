@@ -11,7 +11,8 @@
 .recs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 1100px) { .recs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .recs { grid-template-columns: 1fr; } }
-.rec { border-radius: 20px; overflow: hidden; background: var(--c-fill); transition: transform var(--motion-duration-fast); }
+.rec { border-radius: var(--radius-2xl); overflow: hidden; background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border); box-shadow: var(--shadow-card); transition: transform var(--motion-duration-fast), border-color var(--motion-duration-fast); }
+.rec:hover { border-color: var(--color-border-strong); }
 .rec:hover { transform: translateY(-2px); }
 .rec__th { position: relative; aspect-ratio: 16/9; background-size: cover; background-position: center 30%; }
 .rec__th::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(15, 13, 8, .6)); }
@@ -30,8 +31,8 @@
 .player2__track { position: relative; flex: 1; height: 8px; border-radius: 99px; background: var(--c-fill-2); }
 .player2__track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: var(--color-accent); }
 .player2__track b { position: absolute; top: -3px; width: 3px; height: 14px; border-radius: 2px; background: var(--color-fg-subtle); }
-.chap { display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 14px; background: var(--c-fill); font-size: 15px; }
-.chap:hover { background: var(--c-fill-2); }
+.chap { display: flex; gap: 14px; align-items: center; padding: 13px 16px; border-radius: var(--radius-lg); background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border); font-size: 15px; transition: border-color var(--motion-duration-fast); }
+.chap:hover { border-color: var(--color-border-strong); }
 .chap .mono { color: var(--color-accent); font-size: 14px; }
 .trl { padding: 12px 14px; border-radius: 14px; cursor: pointer; }
 .trl:hover { background: var(--c-fill); }
@@ -54,9 +55,9 @@
 
 /* шаги мастера */
 .steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
-.steps button { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 16px 0 8px; border-radius: 14px; border: 0; background: var(--c-fill); font-size: 15px; color: var(--color-fg-muted); }
-.steps button span { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--c-surface); font-size: 14px; font-weight: 600; }
-.steps button.is-on { background: var(--color-accent-soft); color: var(--color-fg); font-weight: 600; }
+.steps button { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 16px 0 8px; border-radius: 999px; border: var(--hairline-width) solid var(--color-border-strong); background: var(--color-bg-elevated); font-size: 14.5px; color: var(--color-fg-muted); }
+.steps button span { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--color-bg-muted); font-size: 13px; font-weight: 600; font-family: var(--type-mono); }
+.steps button.is-on { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-fg); font-weight: 600; }
 .steps button.is-on span { background: var(--color-accent); color: var(--color-accent-on); }
 .steps button.is-done span { background: var(--color-success-soft); color: var(--color-success-text); }
 
