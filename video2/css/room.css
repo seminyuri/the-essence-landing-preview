@@ -463,3 +463,14 @@
 .mjoin__opt { margin-top: 8px; }
 .mjoin__opt .opt__s { color: #B5AB9D; }
 @media (max-width: 760px) { .rm__bar .rb--core:not(.rb--sq):not(.rb--end) > span:not(.rb__n):not(.rb__dot) { display: none; } .rm__bar .rb--core:not(.rb--sq):not(.rb--end) { padding: 0 14px; } }
+
+/* расстановка: заместители — круглое окно участника с «носом» взгляда; листы — подписанное место без фигуры */
+.fig--sub { --fc: #E8B898; }
+.fig__body--sub { width: 66px; height: 66px; padding: 0; background: #141210; box-shadow: 0 0 0 3px var(--fc), 0 8px 22px rgba(0, 0, 0, .4); }
+.fig__body--sub .av { transform: rotate(calc(-1 * var(--r))); }
+.fig--sub .fig__label i { font-style: normal; color: #B5AB9D; margin-left: 6px; font-size: 12px; }
+.fig--sub.is-sel .fig__body { box-shadow: 0 0 0 3px #141210, 0 0 0 6px #E8B898; }
+.fig--sheet .fig__body--sheet { width: 112px; height: 72px; border-radius: 6px; background: #F4EFE7; color: #1A1612; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.fig__body--sheet b { font-size: 13px; font-weight: 600; text-align: center; line-height: 1.2; transform: rotate(calc(-1 * var(--r))); }
+.fig__arrow { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); color: #8A6350; }
+.fig--sheet.is-sel .fig__body { box-shadow: 0 0 0 3px #141210, 0 0 0 6px #E8B898; }

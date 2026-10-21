@@ -1,0 +1,453 @@
+/* Копия из the-essence develop a4059ecec (app/assets/stylesheets/yuia/_panel.css) — НЕ ПРАВИТЬ здесь. */
+/* Панель «Юя» — правая шторка с кабинетом ассистента.
+ *
+ * ЗАМЫСЕЛ: «порог». Панель — не виджет, а дверной проём в комнату, где живёт
+ * ассистент. Кабинет за фреймом нарисован в тёплой церемониальной палитре
+ * (печать, янтарь по глубокому умбру, зерно), и между продуктом и кабинетом
+ * был видимый шов: серая системная шторка, а внутри неё вдруг тёплая комната.
+ * Здесь шов снимается — проём светится изнутри, и переход читается как одно
+ * движение, а не как открытие чужого окна.
+ *
+ * Все цвета — токены продукта. Акцент в системе уже сиена/янтарь, а тёмный фон
+ * (#0F0D08) совпадает с фоном кабинета: «тёплое» тут не произвол, а то, что и
+ * так лежит в палитре, просто до сих пор не звучало.
+ */
+
+.yuia {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  pointer-events: none;
+
+  /* Производные — чтобы не повторять color-mix в двадцати местах и чтобы обе
+     темы получили одинаковую ЛОГИКУ, а не два набора значений. */
+  --yuia-glow: color-mix(in oklch, var(--color-accent) 26%, transparent);
+  --yuia-glow-soft: color-mix(in oklch, var(--color-accent) 12%, transparent);
+  --yuia-jamb: color-mix(in oklch, var(--color-accent) 55%, transparent);
+  --yuia-surface: color-mix(in oklch, var(--color-accent) 4%, var(--color-bg-elevated));
+  /* Свет, падающий из проёма НА СТРАНИЦУ. Отдельный токен и заметно сильнее
+     остальных: первая версия была настолько деликатной, что на светлой теме её
+     просто не было видно — замысел «дверь в тёплую комнату» не доезжал вовсе.
+     Проверено глазами на 1440×900, а не подобрано по интуиции. */
+  --yuia-spill: color-mix(in oklch, var(--color-accent) 46%, transparent);
+}
+
+.yuia[data-state="closed"] { visibility: hidden; }
+.yuia[data-state="open"]   { visibility: visible; }
+
+/* Затемнение — только на узких экранах: на десктопе шторка не должна
+   блокировать работу со страницей (пользователь диктует Юе, глядя в задачу). */
+.yuia__scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklch, var(--color-fg) 34%, transparent);
+  opacity: 0;
+  transition: opacity var(--motion-duration-base) var(--motion-ease);
+}
+
+/* ── проём ─────────────────────────────────────────────────────────────────
+   Тень не «карточная», а световая: тёплый свет падает из открытой двери влево,
+   на страницу. Отсюда глубина без единой лишней рамки. */
+.yuia__surface {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(460px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(120% 46% at 50% 0%, var(--yuia-glow-soft) 0%, transparent 62%),
+    var(--yuia-surface);
+  box-shadow:
+    -14px 0 28px -14px var(--yuia-spill),
+    -70px 0 120px -40px var(--yuia-spill),
+    var(--shadow-pop);
+  transform: translateX(100%);
+  transition: transform var(--motion-duration-base) cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+/* Косяк двери: не бордюр, а полоса света — ярче вверху, у источника. */
+.yuia__surface::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: linear-gradient(180deg,
+    var(--color-accent) 0%,
+    var(--yuia-jamb) 34%,
+    color-mix(in oklch, var(--color-accent) 18%, transparent) 100%);
+  box-shadow: 0 0 12px 0 var(--yuia-spill);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Зерно: снимает «пластиковость» плоской заливки. Данные inline — сеть не
+   трогаем; CSP разрешает data: для img-src (проверено в конфиге, не на веру). */
+.yuia__surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+  opacity: .028;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.yuia[data-state="open"] .yuia__surface { transform: translateX(0); }
+.yuia[data-state="open"] .yuia__scrim   { pointer-events: auto; }
+
+/* ── появление комнаты ─────────────────────────────────────────────────────
+   Сначала открывается дверь, потом проявляется то, что внутри. Задержки
+   короткие намеренно: это акцент, а не спектакль. */
+@keyframes yuia-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.yuia[data-state="open"] .yuia__head { animation: yuia-rise .5s var(--motion-ease) .10s both; }
+.yuia[data-state="open"] .yuia__body { animation: yuia-rise .5s var(--motion-ease) .18s both; }
+.yuia[data-state="open"] .yuia__foot { animation: yuia-rise .5s var(--motion-ease) .26s both; }
+
+/* ── шапка ─────────────────────────────────────────────────────────────── */
+.yuia__head {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-bottom: var(--hairline-width) solid
+    color-mix(in oklch, var(--color-accent) 14%, var(--color-border));
+}
+
+.yuia__brand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Печать — источник света. Дышит очень медленно: это присутствие, а не
+   анимация ради анимации. */
+.yuia__seal {
+  grid-row: 1 / span 2;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: var(--radius-full);
+  animation: yuia-breathe 7s var(--motion-ease) infinite;
+}
+
+@keyframes yuia-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 var(--yuia-spill), 0 0 20px -2px var(--yuia-spill); }
+  50%      { box-shadow: 0 0 0 7px transparent, 0 0 34px 2px var(--yuia-spill); }
+}
+
+/* Имя — серифом: единственное место в продукте, где ассистент говорит от себя.
+   Роль — микро-моноширинным, как подпись в кабинете: один и тот же приём по
+   обе стороны порога, и шов исчезает. */
+.yuia__name {
+  grid-column: 2;
+  font-family: var(--type-italic);
+  font-weight: 500;
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--color-fg);
+}
+
+.yuia__role {
+  grid-column: 2;
+  font-family: var(--type-mono);
+  font-size: 9.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--color-accent) 70%, var(--color-fg-subtle));
+}
+
+.yuia__actions { display: flex; align-items: center; gap: var(--space-1); }
+
+.yuia__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-fg-subtle);
+  cursor: pointer;
+  transition: background var(--motion-duration-fast) var(--motion-ease),
+              color var(--motion-duration-fast) var(--motion-ease),
+              transform var(--motion-duration-fast) var(--motion-ease);
+}
+
+.yuia__icon-btn:hover {
+  background: color-mix(in oklch, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.yuia__icon-btn:active { transform: none; }
+
+.yuia__body { position: relative; z-index: 3; flex: 1; min-height: 0; }
+
+.yuia__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: var(--color-bg);
+}
+
+/* ── состояния подключения ─────────────────────────────────────────────────
+   Не серый текст по центру, а редакционная карточка: знак, заголовок и одно
+   ясное действие. Состояние читается за секунду. */
+.yuia__status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: clamp(var(--space-6), 22vh, 190px) var(--space-6) var(--space-6);
+  text-align: center;
+  color: var(--color-fg-muted);
+  background:
+    radial-gradient(90% 60% at 50% 30%, var(--yuia-glow-soft) 0%, transparent 70%),
+    var(--yuia-surface);
+}
+
+/* Кабинет уже что-то показывает (экран PIN или сам чат) — заглушку убираем,
+   даже если рукопожатие ещё не случилось. */
+.yuia__status[data-state="ready"],
+.yuia__status[data-state="loaded"],
+.yuia__status[data-state="window"] { display: none; }
+
+/* Подсказка «открыть отдельным окном» НЕ перекрывает кабинет: человек мог
+   просто медленно вводить PIN — она садится полосой снизу. */
+.yuia__status[data-state="slow"] {
+  inset: auto 0 0 0;
+  border-top: var(--hairline-width) solid var(--color-border);
+  background: var(--color-bg-elevated);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  justify-items: start;
+  font-size: 13px;
+}
+
+.yuia__msg { display: none; max-width: 32ch; }
+.yuia__status[data-state="connecting"] .yuia__msg--connecting { display: block; }
+.yuia__status[data-state="slow"]  .yuia__msg--slow  { display: block; }
+.yuia__status[data-state="error"] .yuia__msg--error { display: block; }
+/* Нет клиентского сертификата — говорим причину прямо, а не «медленно». */
+.yuia__status[data-state="certificate"] .yuia__msg--certificate { display: block; }
+/* Браузер не дал открыть окно — для того, у кого кабинет не идёт во фрейме,
+   это единственный путь, поэтому причина должна быть на экране. */
+.yuia__status[data-state="popup"] .yuia__msg--popup { display: block; }
+/* Связка ключей не дала подписать рукопожатие — сертификат при этом ЕСТЬ. */
+.yuia__status[data-state="handshake"] .yuia__msg--handshake { display: block; }
+
+/* Причины неудачи выпуска ключа. Их четыре, и они требуют РАЗНЫХ действий:
+   повторить, обновить страницу, подождать, сходить в профиль. Пока состояние
+   было одно на всех, человеку показывали «попробуйте ещё раз» и там, где
+   повтор не мог помочь никогда. */
+.yuia__status[data-state="offline"] .yuia__msg--offline { display: block; }
+.yuia__status[data-state="expired"] .yuia__msg--expired { display: block; }
+.yuia__status[data-state="busy"]    .yuia__msg--busy    { display: block; }
+.yuia__status[data-state="denied"]  .yuia__msg--denied  { display: block; }
+
+/* Полоса «Юя не сможет ответить»: доступ ассистента к модели не действует.
+   Не поверх кабинета, а НАД ним — кабинет при этом открывается нормально, и
+   прятать его нечестно; сказать надо до того, как человек напишет вопрос. */
+.yuia__notice {
+  position: relative;
+  z-index: 3;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: var(--hairline-width) solid
+    color-mix(in oklch, var(--color-warning, #c9822f) 35%, var(--color-border));
+  background: color-mix(in oklch, var(--color-warning, #c9822f) 10%, transparent);
+  color: var(--color-fg);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.yuia__notice-link {
+  margin-left: var(--space-2);
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+/* Неудачная проба, причину которой знает УЗЕЛ: комната не на ногах / кабинету
+   сменили замок. Совет по ним противоположен «поставьте сертификат», которым
+   шторка отвечала на всё до 22.08.2026. */
+.yuia__status[data-state="room"]    .yuia__msg--room    { display: block; }
+.yuia__status[data-state="rotated"] .yuia__msg--rotated { display: block; }
+
+/* Общий текст отказа нужен ровно тогда, когда сервер своего не прислал:
+   две фразы об одном подряд читаются как сбой вёрстки. */
+.yuia__msg--denied:has([data-yuia-panel-target="serverMessage"]:not([hidden])) .yuia__msg-fallback {
+  display: none;
+}
+
+/* Знак состояния: тонкое кольцо — «ожидание», «замок», «сбой» читаются ритмом
+   и цветом, без иконочного зоопарка. */
+.yuia__mark {
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in oklch, var(--color-accent) 40%, transparent);
+  box-shadow: 0 0 26px -8px var(--yuia-spill);
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
+}
+
+.yuia__mark svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* «Подключаюсь» — кольцо медленно вращается: ожидание видно, но не мигает. */
+.yuia__status[data-state="connecting"] .yuia__mark {
+  border-style: dashed;
+  animation: yuia-spin 9s linear infinite;
+}
+
+@keyframes yuia-spin { to { transform: rotate(360deg); } }
+
+.yuia__title {
+  display: block;
+  font-family: var(--type-italic);
+  font-size: 17px;
+  color: var(--color-fg);
+  margin-bottom: var(--space-1);
+}
+
+.yuia__btn {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid color-mix(in oklch, var(--color-accent) 45%, transparent);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+  font-size: 13.5px;
+  transition: background var(--motion-duration-fast) var(--motion-ease),
+              border-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.yuia__btn:hover {
+  background: color-mix(in oklch, var(--color-accent) 10%, transparent);
+  border-color: var(--color-accent);
+}
+
+/* ── подвал: голос ─────────────────────────────────────────────────────── */
+
+/* Голос доступен ТОЛЬКО при живом кабинете: текст распознавания уезжает в него,
+   и предлагать говорить, пока кабинет не ответил, — обещание, которое некому
+   выполнить. Состояние ставит yuia_panel_controller (setStatus) на корень
+   панели; до первого ответа атрибута нет вовсе, и это тоже «не готов». */
+.yuia:not([data-cabinet="ready"]) .yuia__foot { display: none; }
+
+.yuia__foot {
+  position: relative;
+  z-index: 3;
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--hairline-width) solid
+    color-mix(in oklch, var(--color-accent) 12%, var(--color-border));
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+}
+
+.yuia__voice {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid color-mix(in oklch, var(--color-accent) 30%, transparent);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  font-size: 13px;
+  transition: color var(--motion-duration-fast) var(--motion-ease),
+              border-color var(--motion-duration-fast) var(--motion-ease);
+}
+
+.yuia__voice:hover { color: var(--color-accent); border-color: var(--color-accent); }
+
+.yuia__voice-label { display: none; }
+[data-voice-state="idle"]        .yuia__voice-label--idle        { display: inline; }
+[data-voice-state="listening"]   .yuia__voice-label--listening   { display: inline; }
+[data-voice-state="denied"]      .yuia__voice-label--denied      { display: inline; }
+[data-voice-state="unsupported"] .yuia__voice-label--unsupported { display: inline; }
+[data-voice-state="failed"]      .yuia__voice-label--failed      { display: inline; }
+[data-voice-state="busy"]        .yuia__voice-label--busy        { display: inline; }
+
+/* Слушаем — расходящиеся кольца, как звук от источника. Не «красная точка
+   записи»: та кричит «тебя пишут», а здесь ассистент слушает. */
+[data-voice-state="listening"] .yuia__voice {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+[data-voice-state="listening"] .yuia__voice::before,
+[data-voice-state="listening"] .yuia__voice::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--color-accent);
+  animation: yuia-ring 2.6s var(--motion-ease) infinite;
+  pointer-events: none;
+}
+
+[data-voice-state="listening"] .yuia__voice::after { animation-delay: 1.3s; }
+
+@keyframes yuia-ring {
+  0%   { opacity: .55; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.16); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yuia__surface, .yuia__scrim { transition: none; }
+  .yuia__seal,
+  .yuia__status[data-state="connecting"] .yuia__mark,
+  [data-voice-state="listening"] .yuia__voice::before,
+  [data-voice-state="listening"] .yuia__voice::after,
+  .yuia[data-state="open"] .yuia__head,
+  .yuia[data-state="open"] .yuia__body,
+  .yuia[data-state="open"] .yuia__foot { animation: none; }
+}
+
+/* Мобильная раскладка: шторка на весь экран + затемнение. */
+@media (max-width: 640px) {
+  .yuia__surface { width: 100vw; }
+  .yuia__surface::before { display: none; }
+  .yuia[data-state="open"] .yuia__scrim { opacity: 1; }
+}
+
+/* Пока открыта шторка Юи, плавающая кнопка поддержки прячется: она fixed и
+   лежит выше по z-index, поэтому наезжает на подвал панели. Поднимать панель
+   ещё выше — гонка z-index с чужим компонентом; честнее показывать один
+   ассистентский слой за раз.
+   Условие читается с самой панели, а не с класса на body: панель переживает
+   переход по приложению (data-turbo-permanent), а body Turbo заменяет — класс
+   бы потерялся, и кнопка поддержки вылезла бы поверх открытой шторки. */
+body:has(.yuia[data-state="open"]) .wg-launcher { display: none; }

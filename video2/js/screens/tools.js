@@ -66,34 +66,53 @@
     },
   });
 
-  // ───────────── расстановка ─────────────
+  // ───────────── расстановка — инструмент внутри любой встречи ─────────────
+  // Не отдельный тип встречи: включается из «Ещё» в сессии 1:1, в группе и в эфире.
+  // Три способа: фигурки (клиент может двигать сам), заместители (участники группы
+  // встают на поле своими окнами и двигают себя), листы — подписанные места на полу, без фигур.
   const FIG = { m: ['Мужчина', 'figure'], f: ['Женщина', 'figure'], c: ['Ребёнок', 'figure'], o: ['Объект', 'box'], s: ['Чувство', 'heart'] };
-  let figs, sel = 1;
+  const SUBS = ['sofia', 'ivan', 'kira', 'vera', 'lev', 'nina'];
+  const CTX = {
+    call: { sub: '· сессия с Марией · она видит поле и двигает фигурки сама', back: ['Вернуться к сессии', 'call'], modes: ['figs', 'sheets'] },
+    group: { sub: '· группа «Опора» · запрос Ольги · 7 участников видят поле', back: ['Вернуться к встрече', 'meeting'], modes: ['figs', 'subs', 'sheets'] },
+    stage: { sub: '· эфир · зрители видят поле, на сцене вы и Ольга', back: ['Вернуться в эфир', 'stage'], modes: ['figs', 'sheets'] },
+  };
+  const MODES = { figs: ['Фигурки', 'Фигурки с направлением взгляда'], subs: ['Заместители', 'Участники встают на поле своими окнами и двигают себя'], sheets: ['Листы', 'Подписанные места на полу — без фигур'] };
+  let figs, sel = 1, mode = 'figs';
   const resetFigs = () => (figs = [
     { id: 1, k: 'f', label: 'Ольга', x: 46, y: 55, r: 0 }, { id: 2, k: 'm', label: 'Отец', x: 30, y: 30, r: 140 }, { id: 3, k: 'f', label: 'Мать', x: 62, y: 28, r: 210 },
     { id: 4, k: 'c', label: 'Ольга-ребёнок', x: 24, y: 70, r: 60 }, { id: 5, k: 's', label: 'Тревога', x: 72, y: 66, r: 270 }]);
   resetFigs();
-  const figHtml = (f) => `<div class="fig fig--${f.k} ${f.id === sel ? 'is-sel' : ''}" data-fid="${f.id}" style="left:${f.x}%;top:${f.y}%;--r:${f.r}deg"><span class="fig__body"><span class="fig__nose"></span>${I(FIG[f.k][1], 'md')}</span><span class="fig__label">${esc(f.label)}</span></div>`;
+  const figHtml = (f, i) => {
+    const pos = `data-fid="${f.id}" style="left:${f.x}%;top:${f.y}%;--r:${f.r}deg"`;
+    if (mode === 'subs') return `<div class="fig fig--sub ${f.id === sel ? 'is-sel' : ''}" ${pos}><span class="fig__body fig__body--sub">${av(SUBS[i % SUBS.length], 54)}<span class="fig__nose"></span></span><span class="fig__label">${esc(f.label)}<i>${esc(P.person(SUBS[i % SUBS.length]).short)}</i></span></div>`;
+    if (mode === 'sheets') return `<div class="fig fig--sheet ${f.id === sel ? 'is-sel' : ''}" ${pos}><span class="fig__body fig__body--sheet"><b>${esc(f.label)}</b><span class="fig__arrow">${I('arrow-up', 'xs')}</span></span></div>`;
+    return `<div class="fig fig--${f.k} ${f.id === sel ? 'is-sel' : ''}" ${pos}><span class="fig__body"><span class="fig__nose"></span>${I(FIG[f.k][1], 'md')}</span><span class="fig__label">${esc(f.label)}</span></div>`;
+  };
   const selBox = () => { const f = figs.find((x) => x.id === sel); const b = $('#selbox'); if (!b || !f) return; b.innerHTML = `<input class="in" id="fig-name" value="${esc(f.label)}" aria-label="Подпись"><div class="row mt8" style="gap:8px">${btn('', { icon: 'rotate', act: 'rot', data: 'data-d="-30" title="Повернуть влево"', cls: 'btn2--icon' })}${btn('', { icon: 'refresh', act: 'rot', data: 'data-d="30" title="Повернуть вправо"', cls: 'btn2--icon' })}<span class="t-sm muted">${f.r}°</span></div>`; $('#fig-name').onchange = () => { f.label = $('#fig-name').value; redraw(); }; };
-  const redraw = () => { const fl = $('#field'); if (!fl) return; $$('.fig', fl).forEach((x) => x.remove()); fl.insertAdjacentHTML('beforeend', figs.map(figHtml).join('')); selBox(); };
+  const redraw = () => { const fl = $('#field'); if (!fl) return; $$('.fig', fl).forEach((x) => x.remove()); fl.insertAdjacentHTML('beforeend', figs.map(figHtml).join('')); fl.dataset.mode = mode; selBox(); };
   add({
     id: 'constellation', group: G, title: 'Расстановка', icon: 'node', more: 'group', phase: 'фаза 5+', plan: '§ 5.24, § 6.6',
-    desc: 'Общее поле с фигурками-заместителями. Ведущая двигает и поворачивает их — направление взгляда важно. Участнику можно дать право двигать свою фигурку. Снимки этапов уходят в итог сессии.',
-    tips: ['Перетащите фигурку', 'Поверните кнопками или колесом мыши', '«Снимок этапа» — сохранится в итог'],
+    desc: 'Не отдельный тип встречи, а инструмент внутри любой: в сессии 1:1, в группе и в эфире — «Ещё» → «Расстановка». Три способа: фигурки, заместители (участники встают на поле своими окнами) и листы — подписанные места без фигур. Направление взгляда важно; снимки этапов уходят в итог встречи.',
+    tips: ['Сверху справа — где идёт расстановка: сессия, группа или эфир', 'В панели переключите способ: фигурки, заместители, листы', 'Перетащите и поверните фигуру; «Снимок этапа» уйдёт в итог'],
     acts: {
       addfig: (el) => { const id = Math.max(...figs.map((f) => f.id)) + 1; figs.push({ id, k: el.dataset.k, label: FIG[el.dataset.k][0], x: 50, y: 50, r: 0 }); sel = id; redraw(); },
       rot: (el) => { const f = figs.find((x) => x.id === sel); f.r = (f.r + +el.dataset.d + 360) % 360; redraw(); },
-      snap: () => { const n = $$('.snap2').length + 1; $('#snaps').insertAdjacentHTML('beforeend', `<div class="snap2 fade-up mt8"><div class="snap__f">${figs.map((f) => `<i style="left:${f.x}%;top:${f.y}%" class="fig--${f.k}"></i>`).join('')}</div><span class="t-xs muted">Этап ${n}</span></div>`); toast(`Снимок этапа ${n} сохранён в итог сессии`); },
+      cmode: (el) => { mode = el.dataset.v; $$('.cmode button').forEach((b) => b.classList.toggle('is-on', b === el)); $('#cmode-s').textContent = MODES[mode][1]; redraw(); toast(mode === 'subs' ? 'Заместители видят своё место на поле и двигают себя сами' : `Способ: ${MODES[mode][0].toLowerCase()}`); },
+      snap: () => { const n = $$('.snap2').length + 1; $('#snaps').insertAdjacentHTML('beforeend', `<div class="snap2 fade-up mt8"><div class="snap__f">${figs.map((f) => `<i style="left:${f.x}%;top:${f.y}%" class="fig--${f.k}"></i>`).join('')}</div><span class="t-xs muted">Этап ${n}</span></div>`); toast(`Снимок этапа ${n} сохранён в итог встречи`); },
       reset: () => { resetFigs(); sel = 1; redraw(); },
     },
-    render() {
-      return P.room({ top: { title: 'Расстановка', sub: '· запрос Ольги · 7 участников видят поле', extra: toRoom },
-        stage: `<div class="field2" id="field"><div class="field2__grid"></div>${figs.map(figHtml).join('')}</div>`,
-        panels: P.pn('tools', 'Фигурки', `<div class="grid g2" style="gap:8px">${Object.entries(FIG).map(([k, [t]]) => `<button class="trk" style="margin:0" data-act="addfig" data-k="${k}"><span class="fig--${k}" style="width:14px;height:14px;border-radius:50%;background:var(--fc)"></span>${t}</button>`).join('')}</div>
-          <div class="pn__sec">Выбрана</div><div id="selbox"></div>${opt('Заместители двигают свои фигурки', '', false, { text: 'Заместители могут двигать свои фигурки' })}
+    render(p) {
+      const c = CTX[p.ctx] || CTX.group; if (!c.modes.includes(mode)) mode = 'figs';
+      const back = btn(c.back[0], { icon: 'arrow-left', go: c.back[1], size: 'sm' });
+      return P.room({ top: { title: 'Расстановка', sub: c.sub, extra: back },
+        stage: `<div class="field2" id="field" data-mode="${mode}"><div class="field2__grid"></div>${figs.map(figHtml).join('')}</div>`,
+        panels: P.pn('tools', 'Расстановка', `<div class="pn__sec" style="margin-top:0">Способ</div><div class="seg2 seg2--block cmode">${c.modes.map((m) => `<button class="${m === mode ? 'is-on' : ''}" data-act="cmode" data-v="${m}">${MODES[m][0]}</button>`).join('')}</div><div class="t-xs muted mt8" id="cmode-s">${MODES[mode][1]}</div>
+          <div class="pn__sec">Добавить</div><div class="grid g2" style="gap:8px">${Object.entries(FIG).map(([k, [t]]) => `<button class="trk" style="margin:0" data-act="addfig" data-k="${k}"><span class="fig--${k}" style="width:14px;height:14px;border-radius:50%;background:var(--fc)"></span>${t}</button>`).join('')}</div>
+          <div class="pn__sec">Выбрана</div><div id="selbox"></div>${opt(p.ctx === 'call' ? 'Клиент двигает фигурки сам' : 'Участники двигают свои фигуры', '', p.ctx === 'call', { text: 'Право двигать фигуры выдано' })}
           <div class="col mt12" style="gap:8px">${btn('Снимок этапа', { kind: 'primary', icon: 'cam', act: 'snap', block: true })}${btn('Начальная позиция', { icon: 'refresh', act: 'reset', block: true })}</div>
           <div class="pn__sec">Этапы</div><div id="snaps"></div><div class="pn__sec">Заметки ведущей</div><textarea class="in" rows="4">Мать отворачивается от Ольги-ребёнка. После поворота матери Ольга сказала «стало теплее».</textarea>`, { open: true }),
-        bar: `${P.rbBase()}${P.rbPanel('tools', 'node', 'Фигурки', { on: true })}${P.rbReact()}${P.rb('dots', '', 'more', { title: 'Ещё' })}${P.rbEnd('Завершить')}` });
+        bar: `${P.rbBase()}${P.rbPanel('tools', 'node', 'Расстановка', { on: true })}${P.rbReact()}${P.rb('dots', '', 'more', { title: 'Ещё' })}${P.rbEnd('Завершить')}` });
     },
     mount(root) {
       selBox();

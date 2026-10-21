@@ -84,7 +84,7 @@
         <label class="fld"><span class="fld__l" style="color:#B5AB9D">Как вас зовут</span><input class="in" value="Ольга Белова" style="background:rgba(244,239,231,.08);color:#F4EFE7"></label>
         <div class="mjoin__opt">${opt('Ведущая может включать мой микрофон', 'Удобно в группе и практике — не нужно тянуться к кнопке', false)}</div>
         <div class="mt16">${btn('Войти', { kind: 'primary', size: 'lg', block: true, icon: 'video', act: 'join' })}</div>
-        <div class="t-xs muted mt12" style="text-align:center;line-height:1.5">Без установки и регистрации. Встреча записывается, субтитры и Юя включены — это видно всем. ${I('server', 'xs')} Москва · 21 мс</div></div></div>`;
+        <div class="t-xs muted mt12" style="text-align:center;line-height:1.5">Без установки и регистрации. Встреча записывается, субтитры и Юя включены — это видно всем.</div></div></div>`;
       const strip = people.filter((x) => !['anna', 'olga'].includes(x)).map((x, i) => `<div class="mstrip__t" style="background-image:url(${P.person(x).photo})"><span>${i % 3 === 1 ? I('mic-off', 'xs') : ''}${P.person(x).short}</span>${hands.includes(x) ? `<b>${I('hand', 'xs')}</b>` : ''}</div>`).join('');
       const mb = (act, icon, t, cls = '') => `<button class="mb ${cls}" data-act="${act}"><span class="mb__c">${I(icon, 'md')}</span>${t}</button>`;
       return `<div class="mcall2 mgrp"><div class="mcall2__remote" style="background-image:url(img/people/p32.jpg)"></div>

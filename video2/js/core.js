@@ -54,6 +54,7 @@
     cleanups.forEach((f) => { try { f(); } catch (e) { console.error(e); } }); cleanups = [];
     closeModal(true);
     document.body.classList.remove('drawer-open');
+    const yp = $('#yuia-panel'); if (yp) yp.dataset.state = 'closed';
     const { id, params } = parseHash();
     const def = byId[id] || byId.map;
     current = def; def.params = params;
@@ -68,7 +69,7 @@
 
   // ── оболочка — разметка продукта, а не своя ───────────────────────────
   // Классы и порядок взяты из the-essence develop: Shell::SidebarHeaderComponent,
-  // Shell::SidebarActionComponent, .shell-nav, .shell-ws, Shell::AppRailComponent (MODULES),
+  // Shell::SidebarActionComponent, .shell-nav, Shell::AppRailComponent (MODULES), Shell::YuiaPanelComponent,
   // .wg-launcher поддержки. Стили — css/ds/shell.css, копия продукта. Новые модули плана
   // (§ 1.8) стоят в рельсе рядом с родственными действующими и помечены isNew.
   const RAIL = [
@@ -76,7 +77,7 @@
     { icon: 'square-check', key: 'tasks', label: 'Задачи · PM', hint: 'Задачник уже работает. Договорённости из итогов встречи Юя ставит сюда задачами со ссылкой на момент записи.', go: 'touchpoints' },
     { icon: 'mail', key: 'mail', label: 'Почта', hint: 'Почта уже работает. Приглашения, напоминания и итоги встречи уходят из вашего ящика.' },
     { icon: 'messenger', key: 'messenger', label: 'Мессенджер', go: 'messenger', isNew: true },
-    { icon: 'sparkles', key: 'yuia', label: 'Юя', go: 'yuia', yuia: true },
+    { icon: 'sparkles', key: 'yuia', label: 'Юя', act: 'yuiapanel', yuia: true },
     { icon: 'calendar', key: 'calendar', label: 'Календарь', hint: 'Календарь уже работает. Каждая встреча видео — его событие, кнопка «Войти» стоит прямо в событии.', go: 'touchpoints' },
     { icon: 'video', key: 'video', label: 'Видео', go: 'hub' },
     { icon: 'users', key: 'crm', label: 'CRM и сценарии', go: 'scenarios' },
@@ -94,7 +95,7 @@
   const railItem = (m, active) => {
     const tip = `<span class="shell-apprail__tip" aria-hidden="true">${m.label}${m.isNew ? ' · новый модуль' : ''}</span>`;
     const cls = `shell-apprail__item ${m.yuia ? 'shell-apprail__item--yuia' : ''} ${m.key === active ? 'is-active' : ''} ${m.isNew ? 'is-new' : ''}`;
-    const act = m.hint ? `data-act="railhint" data-text="${esc(m.hint)}" ${m.go ? `data-to="${m.go}"` : ''}` : `data-go="${m.go}"`;
+    const act = m.act ? `data-act="${m.act}"` : m.hint ? `data-act="railhint" data-text="${esc(m.hint)}" ${m.go ? `data-to="${m.go}"` : ''}` : `data-go="${m.go}"`;
     return `<a class="${cls}" ${act} aria-label="${esc(m.label)}" ${m.key === active ? 'aria-current="page"' : ''}>${I(m.icon, 'md')}${tip}</a>`;
   };
   const bellMenu = () => `<div class="shell-bell__menu" role="menu"><div class="shell-bell__head"><span class="shell-bell__heading">Уведомления</span><button class="shell-bell__markall" data-act="bellread" title="Прочитать все">${I('list-check')}</button></div>
@@ -109,7 +110,7 @@
     const brand = `<a class="shell-sidebar__brand" data-go="map"><img class="shell-sidebar__mark" src="seal-compact.svg" alt="" width="28" height="28"><span class="shell-sidebar__name"><span class="shell-sidebar__brandname">Суть</span> <span class="shell-sidebar__x" aria-hidden="true">✕</span> <span class="shell-sidebar__module">${module}</span></span></a>`;
     const searchBtn = `<button type="button" class="shell-search-btn shell-search-btn--wide" data-act="palette" aria-label="${esc(search || 'Поиск')}">${I('search')}<span class="shell-search-btn__ph">${esc(search || (module === 'Видео' ? 'Поиск встреч, записей, людей' : `Поиск: ${module.toLowerCase()}`))}</span><kbd class="shell-search-btn__kbd" aria-hidden="true">/</kbd></button>`;
     const composeHtml = compose ? `<a class="shell-compose" ${attrs(compose)}>${I(compose.icon || 'plus')}<span>${compose.label}</span></a>` : '';
-    const ws = `<div class="shell-ws"><button type="button" class="shell-ws__current" data-go="specialist-page"><span class="shell-ws__logo">А</span><span class="shell-ws__info"><span class="shell-ws__name">Суть · Анна Соколова</span><span class="shell-ws__role">Специалист · проверена</span></span>${I('chevron-down', 'xs', 'shell-ws__chev')}</button></div>`;
+    // плашки пространства (.shell-ws) нет: у специалиста в видео одно пространство — переключать нечего (решение Юрия 21.10)
     const rail = `<nav class="shell-apprail" aria-label="Модули">
       <div class="shell-apprail__profile"><button type="button" class="shell-apprail__item shell-apprail__item--profile" data-act="railmenu" aria-label="Анна Соколова"><span class="shell-avatar">${person('anna').photo ? `<img class="shell-avatar__img" src="${person('anna').photo}" alt="">` : 'А'}</span></button>${profileMenu()}</div>
       <div class="shell-apprail__bell"><div class="shell-bell"><button type="button" class="shell-bell__trigger" data-act="railmenu" aria-label="Уведомления">${I('bell', 'md')}<span class="shell-bell__badge"><span class="shell-bell__count">${BELL.length}</span></span></button>${bellMenu()}</div></div>
@@ -123,9 +124,37 @@
     </nav>`;
     const mobile = `<header class="mshell" role="banner"><button type="button" class="mshell__btn" data-act="drawer" aria-label="Открыть меню">${I('menu', 'md')}</button><span class="mshell__label">${module}</span><span class="mshell__end"><button type="button" class="mshell__btn" data-act="modswitch" aria-label="Модули">${I('layout-grid', 'md')}</button><button type="button" class="mshell__btn" data-act="toast" data-text="${BELL.length} новых: оплата, гость в зале ожидания, задачи из итогов" aria-label="Уведомления">${I('bell', 'md')}<span class="mshell__dot"></span></button><a class="mshell__btn" data-go="specialist-page" aria-label="Профиль"><span class="shell-avatar" style="width:30px;height:30px">${person('anna').photo ? `<img class="shell-avatar__img" src="${person('anna').photo}" alt="">` : 'А'}</span></a></span></header>`;
     return `<div class="cal-app">${mobile}<div class="shell-drawer-overlay" data-act="drawer"></div><div class="cal-body">
-      <aside class="shell-sidebar">${brand}<div class="shell-sidebar__scroll">${searchBtn}${composeHtml}<nav class="shell-nav">${navHtml}</nav></div>${ws}</aside>
+      <aside class="shell-sidebar">${brand}<div class="shell-sidebar__scroll">${searchBtn}${composeHtml}<nav class="shell-nav">${navHtml}</nav></div></aside>
       <main class="cal-main" id="main">${body}</main>${rail}</div>
       <button type="button" class="wg-launcher" data-act="toast" data-text="Чат поддержки платформы — общий для всех модулей" aria-label="Поддержка">${I('message-circle', 'lg')}</button></div>`;
+  }
+
+  // ── шторка Юи — Shell::YuiaPanelComponent продукта (.yuia, yuia/_panel.css) ──────────
+  // Юя — это чат. Итоги встречи приходят сюда: платформа сама пишет Юе «встреча закончилась,
+  // вот расшифровка», Юя делает итоги, кладёт конспект в базу знаний и отвечает здесь.
+  const YC = [
+    { me: true, t: 'Подготовь меня к встрече с Марией' },
+    { t: 'Девятая встреча. В прошлый раз — страх оценки и отказ коллеге 19 октября. Анкета сегодня 6 из 10 (неделю назад 4). Спросите, как прошла планёрка в четверг.' },
+    { auto: true, t: 'Встреча закончилась · Мария Иванова · 9-я встреча · 58 мин', s: 'Расшифровка готова — каждый говорящий отдельно' },
+    { t: 'Итоги готовы: запрос, темы, техники, динамика и цитаты. Конспект положила в базу знаний → «Клиенты / Мария И.». Поставила задачу «Подобрать статьи о дыхательных практиках» на пятницу.', acts: [['Итоги', 'end'], ['Конспект', 'touchpoints'], ['Запись', 'recording']] },
+  ];
+  const ycRow = (m) => m.auto ? `<div class="yc__auto">${I('video', 'sm')}<div><b>${m.t}</b><div class="t-xs muted">${m.s} · автосообщение платформы</div></div></div>`
+    : `<div class="yc__m ${m.me ? 'yc__m--me' : ''}">${m.t}${m.acts ? `<div class="row row--wrap mt8" style="gap:6px">${m.acts.map(([t, g]) => `<a class="chip chip--accent chip2 chip2--accent" data-go="${g}">${t}</a>`).join('')}</div>` : ''}</div>`;
+  function yuiaPanel() {
+    let el = $('#yuia-panel');
+    if (!el) {
+      el = document.createElement('div'); el.className = 'yuia'; el.id = 'yuia-panel'; el.dataset.state = 'closed'; el.dataset.cabinet = 'ready';
+      el.innerHTML = `<div class="yuia__scrim" data-act="yuiapanel"></div><aside class="yuia__surface" role="dialog" aria-label="Юя">
+        <header class="yuia__head"><span class="yuia__brand"><img class="yuia__seal" src="seal-compact.svg" alt="" width="24" height="24"><span class="yuia__name">Юя</span><span class="yuia__role">Ассистент</span></span>
+          <span class="yuia__actions"><button type="button" class="yuia__icon-btn" data-act="toast" data-text="Чат с Юей откроется в отдельном окне" title="Открыть в отдельном окне">${I('external-link', 'sm')}</button><button type="button" class="yuia__icon-btn" data-act="yuiapanel" title="Закрыть">${I('x', 'sm')}</button></span></header>
+        <div class="yuia__body"><div class="yc" id="yc">${YC.map(ycRow).join('')}</div></div>
+        <div class="yuia__foot yc__foot"><input class="in" id="yc-in" placeholder="Спросите Юю…" aria-label="Сообщение Юе">${btn('', { icon: 'send', kind: 'primary', act: 'ycsend', cls: 'btn2--icon' })}</div></aside>`;
+      document.body.appendChild(el);
+      $('#yc-in', el).addEventListener('keydown', (e) => { if (e.key === 'Enter') GLOBAL.ycsend(); });
+    }
+    const open = el.dataset.state !== 'open';
+    el.dataset.state = open ? 'open' : 'closed';
+    if (open) { const b = $('#yc', el); b.scrollTop = b.scrollHeight; setTimeout(() => $('#yc-in', el)?.focus(), 200); }
   }
   // командная палитра — как «/» и ⌘K в продукте: экраны, люди, действия
   function palette() {
@@ -148,7 +177,7 @@
     rows(); setTimeout(() => q.focus(), 30);
   }
   // мобильная панель модулей — Shell::MobileModuleSwitcherComponent
-  const modSwitch = () => modal(`<div class="modal2__t">Модули</div><div class="mswitch">${RAIL.map((m) => `<a class="mswitch__i ${m.key === (current.shellActive || '') ? 'is-on' : ''}" ${m.hint ? `data-act="railhint" data-text="${esc(m.hint)}" ${m.go ? `data-to="${m.go}"` : ''}` : `data-go="${m.go}"`}><span class="mswitch__ic">${I(m.icon, 'md')}</span><span>${m.label}</span>${m.isNew ? '<span class="mswitch__new">новый</span>' : ''}</a>`).join('')}</div>`);
+  const modSwitch = () => modal(`<div class="modal2__t">Модули</div><div class="mswitch">${RAIL.map((m) => `<a class="mswitch__i ${m.key === (current.shellActive || '') ? 'is-on' : ''}" ${m.act ? `data-act="${m.act}"` : m.hint ? `data-act="railhint" data-text="${esc(m.hint)}" ${m.go ? `data-to="${m.go}"` : ''}` : `data-go="${m.go}"`}><span class="mswitch__ic">${I(m.icon, 'md')}</span><span>${m.label}</span>${m.isNew ? '<span class="mswitch__new">новый</span>' : ''}</a>`).join('')}</div>`);
   // пункты — как в video/shared/_sidebar продукта (Обзор · Сейчас идёт · Запланировано · Записи) + новое по плану
   const videoNav = (on) => [
     { icon: 'grid', label: 'Обзор', go: 'hub', on: on === 'hub' },
@@ -195,6 +224,8 @@
     railhint: (el) => { closeModal(true); toast(esc(el.dataset.text), { icon: 'info-circle' }); if (el.dataset.to) later(900, () => go(el.dataset.to)); },
     modswitch: () => modSwitch(),
     palette: () => palette(),
+    yuiapanel: () => yuiaPanel(),
+    ycsend: () => { const i = $('#yc-in'); if (!i || !i.value.trim()) return; const b = $('#yc'); b.insertAdjacentHTML('beforeend', ycRow({ me: true, t: esc(i.value) })); i.value = ''; b.scrollTop = b.scrollHeight; later(700, () => { b.insertAdjacentHTML('beforeend', ycRow({ t: 'Сделаю. Отвечу здесь же, когда будет готово — обычно меньше минуты.' })); b.scrollTop = b.scrollHeight; }); },
   };
   const ROOM_ACTS = {};
   document.addEventListener('click', (ev) => {

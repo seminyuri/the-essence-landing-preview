@@ -68,15 +68,16 @@
   });
 
   // ───────────── проверка связи ─────────────
+  // проверка интернета — человеческим языком; узлы и миллисекунды видит только дежурный платформы
   function runNet() {
-    const vals = [18, 21, 47, 129];
-    $$('.netr').forEach((r, i) => later(400 + i * 350, () => { const v = r.querySelector('.netv'); v.textContent = vals[i] + ' мс'; v.className = 'netv mono ' + (vals[i] < 60 ? 'ok' : 'warn'); }));
-    later(1900, () => { const el = $('#net-res'); if (el) el.innerHTML = chip(`${I('check', 'xs')} Ближний узел — Москва, 18 мс. Задержка видео будет меньше 0,5 с`, 'ok'); });
+    const steps = ['Скорость', 'Устойчивость', 'Видео в обе стороны'];
+    $$('.netr').forEach((r, i) => later(400 + i * 450, () => { const v = r.querySelector('.netv'); v.innerHTML = `${I('check-circle', 'sm')} хорошо`; v.className = 'netv ok'; }));
+    later(1900, () => { const el = $('#net-res'); if (el) el.innerHTML = chip(`${I('check', 'xs')} Интернет хороший — вас будет чётко видно и слышно`, 'ok'); });
   }
   add({
     id: 'check', group: G, title: 'Проверка связи и устройств', icon: 'wifi', phase: 'фаза 2А', plan: '§ 5.32',
-    desc: 'Публичная страница: камера, микрофон, динамики, сеть до ближнего узла. Ссылка стоит в каждом напоминании.',
-    tips: ['«Включить камеру» — настоящий доступ к камере', 'Сеть проверяется до всех узлов, выбирается ближний'],
+    desc: 'Публичная страница: камера, микрофон, динамики, интернет. Ответ простыми словами — «хорошо» или что сделать. Ссылка стоит в каждом напоминании.',
+    tips: ['«Включить камеру» — настоящий доступ к камере', 'Интернет проверяется сам: результат — словами, без цифр'],
     acts: {
       cam: async () => { await P.cam.start(); P.cam.attach(); },
       beep: () => { try { const ac = new AudioContext(); const o = ac.createOscillator(); const g = ac.createGain(); o.frequency.value = 660; g.gain.value = .08; o.connect(g); g.connect(ac.destination); o.start(); setTimeout(() => { o.stop(); ac.close(); }, 600); } catch (e) {} toast('Слышали короткий сигнал? Динамики в порядке'); },
@@ -90,7 +91,7 @@
           <div class="col" style="gap:16px">
             <div class="card"><div class="card__t">${I('mic', 'md', 'accent')} Микрофон</div><div class="row mt16"><span class="meter"></span><span class="t-sm muted">Скажите что-нибудь</span></div><div class="mt16">${note('bluetooth', 'Наушники по Bluetooth добавляют до четверти секунды задержки. Для долгих сессий лучше микрофон ноутбука, а наушники — только для звука.')}</div></div>
             <div class="card"><div class="row"><div class="card__t sp">${I('volume', 'md', 'accent')} Динамики</div>${btn('Проиграть сигнал', { icon: 'play', act: 'beep', kind: 'white' })}</div></div>
-            <div class="card"><div class="row"><div class="card__t sp">${I('wifi', 'md', 'accent')} Сеть до узлов</div>${btn('Ещё раз', { icon: 'refresh', act: 'net', kind: 'white', size: 'sm' })}</div><div class="mt12">${[['Москва', 'msk-a'], ['Москва-2', 'msk-b'], ['Франкфурт', 'fra-edge'], ['Нью-Йорк', 'use-edge']].map(([a, b]) => `<div class="row netr" style="padding:10px 0;font-size:15px"><span class="sp">${a} <span class="t-xs subtle mono">${b}</span></span><span class="netv mono muted">…</span></div>`).join('')}</div><div id="net-res" class="mt12"></div></div></div></div></div></div>`;
+            <div class="card"><div class="row"><div class="card__t sp">${I('wifi', 'md', 'accent')} Интернет</div>${btn('Ещё раз', { icon: 'refresh', act: 'net', kind: 'white', size: 'sm' })}</div><div class="mt12">${['Скорость', 'Устойчивость', 'Видео в обе стороны'].map((a) => `<div class="row netr" style="padding:10px 0;font-size:15px"><span class="sp">${a}</span><span class="netv muted">проверяю…</span></div>`).join('')}</div><div id="net-res" class="mt12"></div></div></div></div></div></div>`;
     },
     mount(root) { P.micMeter($('.meter', root)); P.cam.attach(root); runNet(); },
   });
@@ -112,7 +113,7 @@
   }
   add({
     id: 'prejoin', group: G, title: 'Экран входа в комнату', icon: 'door', phase: 'фазы 2А / 2Б', plan: '§ 5.8, § 5.10, Приложение И — «Проверить себя»',
-    desc: 'Камера и устройства, фон и свет, подсказки про Bluetooth и камеру телефона, «Проверить себя» (10 секунд записи), плашка записи и Юи, прогрев соединения до ближнего узла.',
+    desc: 'Камера и устройства, фон и свет, подсказки про Bluetooth и камеру телефона, «Проверить себя» (10 секунд записи), плашка записи и Юи. Соединение готовится заранее, пока вы здесь, — вход мгновенный, без технических подробностей.',
     tips: ['Включите камеру — это настоящая камера', '«Проверить себя» записывает 10 секунд', 'Ссылка внизу показывает подсказку «открыто в Telegram»'],
     acts: {
       cam: async () => { await P.cam.start(); P.cam.attach(); },
@@ -120,10 +121,10 @@
       selftest: (el) => selfTest(el),
       tg: () => $('#inapp').classList.toggle('is-show'),
       inapp: () => modal(`<div class="modal2__t">Откройте встречу в браузере</div><div class="modal2__s">Встроенный браузер Telegram хуже работает с камерой и микрофоном. Ссылка уже скопирована.</div><div class="col mt16" style="gap:10px;font-size:15px"><div class="row row--top"><b class="accent">1</b><span>Нажмите «⋯» в правом верхнем углу Telegram</span></div><div class="row row--top"><b class="accent">2</b><span>Выберите «Открыть в браузере» — встреча откроется в Safari или Chrome с тем же входом</span></div></div><div class="modal2__f">${btn('Понятно', { kind: 'primary', size: 'lg', act: 'close-modal' })}</div>`, { dark: true }),
-      enter: () => { toast('Соединение прогрето — вход за 0,6 с', { icon: 'bolt' }); go(P.current.params.to || 'call'); },
+      enter: () => { go(P.current.params.to || 'call'); },
     },
     render() {
-      return `<div class="pj2" data-theme="dark"><div class="row row--wrap"><a class="row t-sm" data-go="hub" style="gap:6px;color:#B5AB9D">${I('arrow-left')} Видео</a><span class="sp"></span><span class="top-pill" style="background:rgba(244,239,231,.08)">${I('server', 'xs')} Москва · 18 мс · соединение прогрето</span></div>
+      return `<div class="pj2" data-theme="dark"><div class="row row--wrap"><a class="row t-sm" data-go="hub" style="gap:6px;color:#B5AB9D">${I('arrow-left')} Видео</a><span class="sp"></span><span class="top-pill" style="background:rgba(244,239,231,.08)">${I('check-circle', 'xs')} Связь хорошая</span></div>
         <div class="inapp2" id="inapp">${I('alert-triangle')} <span class="sp">Ссылка открыта внутри Telegram — там хуже работают звук и камера.</span>${btn('Открыть в браузере', { kind: 'primary', size: 'sm', act: 'inapp' })}</div>
         <div class="pj2__grid">
           <div><div class="prev2"><video class="my-cam" playsinline autoplay muted hidden></video><div class="prev2__ph">${av('anna', 112)}<span>Камера выключена</span>${btn('Включить камеру', { kind: 'primary', icon: 'video', act: 'cam' })}</div><div class="prev2__meter"><span class="meter"></span></div>
@@ -158,7 +159,7 @@
     },
     render() {
       return `<div class="mob"><div class="mob__body" style="padding-top:60px"><div style="text-align:center">${av('anna', 80, 'av--ring')}<div class="h2 mt16">Анна скоро впустит вас</div><div class="t-sm muted mt8">Сессия 10:00–11:00 · подключение готово</div></div>
-          <div class="card mt24" style="padding:16px"><div class="row" style="font-size:15px"><span class="ok">${I('check-circle', 'md')}</span><span class="sp">Камера, микрофон и связь в порядке</span><span class="t-xs muted">18 мс</span></div></div>
+          <div class="card mt24" style="padding:16px"><div class="row" style="font-size:15px"><span class="ok">${I('check-circle', 'md')}</span><span class="sp">Камера, микрофон и связь в порядке</span></div></div>
           <div class="card mt12" style="padding:16px"><div class="b">Как вы сегодня?</div><div class="mood2">${Array.from({ length: 10 }, (_, i) => `<button class="${i === 5 ? 'is-on' : ''}" data-act="mood">${i + 1}</button>`).join('')}</div>
             <textarea class="in mt12" rows="3" placeholder="О чём хочется поговорить?">Опять не спала перед планёркой, но отказалась от лишнего проекта</textarea><div class="t-xs muted mt8">${I('lock', 'xs')} Видит только Анна</div></div>
           <div class="card mt12" style="padding:16px"><div class="b">Согласие на запись и расшифровку</div><div class="t-sm muted mt8">По целям отдельно: запись, расшифровка, разбор Юей. Хранение 90 дней, отзыв — одной кнопкой.</div><div id="sign" class="mt12">${btn('Подписать кодом', { icon: 'pencil', act: 'sign', kind: 'white' })}</div></div>
@@ -175,7 +176,7 @@
   };
   add({
     id: 'lobby', group: G, title: 'Зал ожидания эфира', icon: 'clock', phase: 'фаза 2Б', plan: '§ 5.11, Приложение Ж.13',
-    desc: 'Обратный отсчёт, оформление ведущей, чат до начала, Юя отвечает на «будет ли запись», соединение прогревается заранее.',
+    desc: 'Обратный отсчёт, оформление ведущей, чат до начала, Юя отвечает на «будет ли запись». Соединение готовится заранее — в начале эфира не будет ожидания.',
     tips: ['Напишите вопрос в чат — Юя ответит лично', '«Эфир начался» — переход к зрителю'],
     acts: { send: sendLobby },
     render() {
@@ -183,7 +184,7 @@
         <div class="lob__g"><div class="lob__main"><span class="row" style="gap:8px;color:#E8B898;font-weight:600">${I('leaf', 'md')} Опора · Анна Соколова</span>
           <div class="muted mt32" style="font-size:16px">Эфир начнётся через</div><div class="lob__cd" id="cd">04:59</div>
           <h1 class="h1 mt24" style="font-size:34px;max-width:720px">${esc(D.event.title)}</h1><div class="row mt24">${av('anna', 48)}${av('dmitry', 48)}<div class="muted" style="font-size:15px">Анна и Дмитрий уже в закулисье — проверяют звук</div></div>
-          <div class="row row--wrap mt32" style="gap:8px"><span class="top-pill">${I('users', 'xs')} 1 284 ждут</span><span class="top-pill">${I('server', 'xs')} Франкфурт · 24 мс</span><span class="top-pill">${I('cc', 'xs')} субтитры: Deutsch</span>${btn('Прототип: эфир начался', { icon: 'play', go: 'viewer', kind: 'primary' })}</div></div>
+          <div class="row row--wrap mt32" style="gap:8px"><span class="top-pill">${I('users', 'xs')} 1 284 ждут</span><span class="top-pill">${I('check-circle', 'xs')} связь хорошая</span><span class="top-pill">${I('cc', 'xs')} субтитры: Deutsch</span>${btn('Прототип: эфир начался', { icon: 'play', go: 'viewer', kind: 'primary' })}</div></div>
           <div class="lob__chat"><div class="h3" style="padding:0 20px 12px">Чат до начала</div><div class="msgs" id="lmsgs" style="flex:1;overflow:auto;padding:0 20px">${D.chatSeed.slice(0, 5).map(chatMsg).join('')}</div>
             <div class="pn__f"><input class="in" id="lin" placeholder="Написать в чат…" value="А запись будет?" style="background:rgba(244,239,231,.08);color:#F4EFE7">${btn('', { icon: 'send', act: 'send', kind: 'primary', cls: 'btn2--icon' })}</div></div></div></div>`;
     },
