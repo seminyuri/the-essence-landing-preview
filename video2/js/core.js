@@ -67,7 +67,7 @@
   ];
   const EXIST = [['kanban', 'Задачи'], ['mail', 'Почта'], ['calendar', 'Календарь'], ['crm', 'CRM']];
   function shell({ module, active, compose, nav = [], body }) {
-    const navHtml = nav.map((n) => n.sec ? `<div class="nav__sec">${n.sec}</div>` : `<a class="nav__i ${n.on ? 'is-on' : ''}" ${attrs(n)}>${I(n.icon, 'md')}<span>${n.label}</span>${n.live ? '<span class="nav__live">LIVE</span>' : ''}${n.count != null ? `<span class="nav__cnt">${n.count}</span>` : ''}</a>`).join('');
+    const navHtml = nav.map((n) => n.sec ? `<div class="nav__sec">${n.sec}</div>` : `<a class="nav__i ${n.on ? 'is-on' : ''}" ${n.go || n.act ? attrs(n) : n.on ? `data-go="${current.id}"` : `data-act="toast" data-text="Раздел «${esc(n.label)}» в прототипе не нарисован — открыт главный экран модуля"`}>${I(n.icon, 'md')}<span>${n.label}</span>${n.live ? '<span class="nav__live">LIVE</span>' : ''}${n.count != null ? `<span class="nav__cnt">${n.count}</span>` : ''}</a>`).join('');
     const rail = [...EXIST.map(([i, l]) => `<button class="rail__i" data-act="toast" data-text="«${l}» уже работает в платформе — в прототип видеомодуля не входит" title="${l}">${I(i, 'md')}</button>`), '<span class="rail__sep"></span>',
       ...MODULES.map(([i, k, l, g]) => `<a class="rail__i ${k === active ? 'is-on' : ''}" data-go="${g}" title="${l}">${I(i, 'md')}</a>`)].join('');
     return `<div class="app"><div class="mhead">${btn('', { icon: 'menu', kind: 'ghost', act: 'drawer', cls: 'btn2--icon' })}<span class="app__brand-name">Суть <span class="app__brand-x">✕</span> <span class="app__brand-mod">${module}</span></span></div>
