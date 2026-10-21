@@ -1,0 +1,95 @@
+/* Копия из the-essence develop a4059ecec — НЕ ПРАВИТЬ здесь: правка идёт в продукт, сюда — новой копией. */
+/* =============================================================================
+   COMPATIBILITY ALIAS LAYER (deprecated — being removed module-by-module).
+
+   The canonical design system is `_design_tokens.css` → `--color-*`
+   (rose-gold, themed via [data-theme]/[data-persona], WCAG-tuned).
+
+   This file used to be a SECOND, parallel token system (the "System A"
+   generation: own sand/monokai primitives, a separate `--bg-*`/`--text-*`
+   vocabulary, and a dark theme that remapped to a Monokai code-editor
+   palette). It had ~0 first-class consumers but still drove a handful of
+   non-PM views (shared sidebar, dashboard/onboarding layouts, admin reauth)
+   through the `tokens/_tailwind-extend.css` utility classes and the
+   `tokens/_utilities.css` body base.
+
+   To make the design system SINGLE-SOURCE (one vocabulary, one place to
+   change a value) without breaking those not-yet-converted views, every
+   legacy semantic token now ALIASES the canonical `--color-*` token.
+   Consequences:
+     • The whole site resolves to ONE palette (`--color-*`).
+     • The Monokai dark block is gone — theming is inherited from the
+       canonical tokens, so the old "dark theme renders Monokai" latent bug
+       cannot happen.
+     • No `[data-theme="dark"]` overrides needed here.
+
+   Removal path: gate `206_system_a_residue` counts remaining call-sites of
+   these legacy names + the `tokens/_tailwind-extend.css` / `tokens/_utilities.css`
+   classes. As each module is converted to `--color-*`/components (§41 waves),
+   the count drops; at 0 this file and its siblings are deleted. NEW code MUST
+   use `--color-*` directly — never these aliases.
+   ============================================================================= */
+
+:root {
+  /* Backgrounds */
+  --bg-primary:    var(--color-bg);
+  --bg-secondary:  var(--color-bg-muted);
+  --bg-elevated:   var(--color-bg-elevated);
+  --bg-card:       var(--color-bg-muted);
+
+  /* Text */
+  --text-primary:   var(--color-fg);
+  --text-secondary: var(--color-fg-muted);
+  --text-muted:     var(--color-fg-subtle);
+  --text-inverse:   var(--color-accent-on);
+
+  /* Borders */
+  --border-default: var(--color-border);
+  --border-muted:   var(--color-border-strong);
+
+  /* Brand / accent */
+  --accent:       var(--color-accent);
+  --accent-hover: var(--color-accent-strong);
+  --accent-text:  var(--color-accent-strong);
+  --accent-glow:  var(--color-accent-soft);
+
+  /* Semantic status (no canonical `info` → maps to accent, on-brand) */
+  --success:    var(--color-success);
+  --success-bg: var(--color-success-soft);
+  --warning:    var(--color-warning);
+  --warning-bg: var(--color-warning-soft);
+  --error:      var(--color-danger);
+  --error-bg:   var(--color-danger-soft);
+  --info:       var(--color-accent);
+  --info-bg:    var(--color-accent-soft);
+
+  /* Текст ПО мягкому фону. Сплошной `--success` / `--warning` / `--error`
+     рассчитан на белый фон; положенный на свой же `*-bg`, он даёт 3,06–4,36
+     при пороге WCAG AA 4,5 — так и падал бейдж «Ожидает» на чекауте. Эти
+     четыре берут `--color-*-text` дизайн-системы (у них в комментарии прямо
+     написано «WCAG-AA text on *-soft») и дают 4,75–5,40. Пара к `--accent-text`
+     выше — у него та же роль. */
+  --success-text: var(--color-success-text);
+  --warning-text: var(--color-warning-text);
+  --error-text:   var(--color-danger-text);
+  --info-text:    var(--color-accent-strong);
+
+  /* Glassmorphism (atmosphere tokens land in _design_tokens.css — task #28;
+     until then, derive from canonical surfaces) */
+  --glass-bg:     var(--bg-glass);
+  --glass-border: var(--color-border);
+  --glass-shadow: var(--shadow-card);
+
+  /* Shadow specific to the legacy vocabulary (canonical --shadow-soft/
+     --shadow-glow live in _design_tokens.css and must NOT be redefined here). */
+  --shadow-medium: var(--shadow-card);
+
+  /* Typography → canonical type tokens */
+  --font-display: var(--type-display);
+  --font-body:    var(--type-body);
+  --font-mono:    var(--type-mono);
+
+  /* Gradients (flattened onto canonical surfaces) */
+  --bg-gradient:      var(--color-bg);
+  --sidebar-gradient: transparent;
+}

@@ -18,16 +18,20 @@
 
   // ── небольшие строительные блоки ──────────────────────────────────────
   const attrs = (o = {}) => `${o.go ? `data-go="${o.go}"` : ''} ${o.params ? `data-params="${o.params}"` : ''} ${o.act ? `data-act="${o.act}"` : ''} ${o.data || ''}`;
-  const btn = (label, o = {}) => `<button class="btn2 ${o.kind ? 'btn2--' + o.kind : ''} ${o.size ? 'btn2--' + o.size : ''} ${o.block ? 'btn2--block' : ''} ${o.cls || ''}" ${attrs(o)} ${o.id ? `id="${o.id}"` : ''}>${o.icon ? I(o.icon) : ''}${label ? `<span>${label}</span>` : ''}</button>`;
-  const chip = (t, tone = '') => `<span class="chip2 ${tone ? 'chip2--' + tone : ''}">${t}</span>`;
+  // разметка несёт и класс компонента продукта (ButtonComponent, ChipComponent, StatCard, Tabs, Segmented,
+  // undo-toast) — разработчик видит, какой компонент брать; размеры и мелочи — классы прототипа
+  const BTN = { primary: 'btn--primary', white: 'btn--secondary', ghost: 'btn--ghost', danger: 'btn--danger' };
+  const CHIP = { ok: 'chip--success', warn: 'chip--warning', bad: 'chip--danger', accent: 'chip--accent', live: 'chip--danger' };
+  const btn = (label, o = {}) => `<button class="btn ${BTN[o.kind] || 'btn--secondary'} btn2 ${o.kind ? 'btn2--' + o.kind : ''} ${o.size ? 'btn2--' + o.size : ''} ${o.block ? 'btn2--block' : ''} ${o.cls || ''}" ${attrs(o)} ${o.id ? `id="${o.id}"` : ''}>${o.icon ? I(o.icon) : ''}${label ? `<span>${label}</span>` : ''}</button>`;
+  const chip = (t, tone = '') => `<span class="chip ${CHIP[tone] || 'chip--muted'} chip2 ${tone ? 'chip2--' + tone : ''}">${t}</span>`;
   const sw = (on, o = {}) => `<button class="sw ${on ? 'is-on' : ''}" data-act="${o.act || 'sw'}" ${o.text ? `data-text="${esc(o.text)}"` : ''} aria-label="переключатель"></button>`;
   const opt = (t, s, on, o = {}) => `<div class="opt"><div class="opt__m"><div class="opt__t">${t}</div>${s ? `<div class="opt__s">${s}</div>` : ''}</div>${sw(on, o)}</div>`;
-  const seg = (items, on = 0, act = 'seg', o = {}) => `<div class="seg2 ${o.block ? 'seg2--block' : ''}">${items.map((x, i) => { const [label, val] = Array.isArray(x) ? x : [x, i]; return `<button class="${i === on ? 'is-on' : ''}" data-act="${act}" data-v="${val}">${label}</button>`; }).join('')}</div>`;
+  const seg = (items, on = 0, act = 'seg', o = {}) => `<div class="segmented seg2 ${o.block ? 'seg2--block' : ''}">${items.map((x, i) => { const [label, val] = Array.isArray(x) ? x : [x, i]; return `<button class="segmented__option ${i === on ? 'is-on' : ''}" data-act="${act}" data-v="${val}">${label}</button>`; }).join('')}</div>`;
   const pick = (items, on = 0, act = 'pick') => `<div class="pick">${items.map((x, i) => `<button class="pick__i ${i === on ? 'is-on' : ''}" data-act="${act}" data-v="${x.v ?? i}"><span class="pick__r"></span><span><span class="pick__t">${x.t}</span>${x.s ? `<span class="pick__s" style="display:block">${x.s}</span>` : ''}</span></button>`).join('')}</div>`;
   const li = (o) => `<div class="li ${o.go || o.act ? 'li--click' : ''}" ${attrs(o)}>${o.lead || ''}<div class="li__m"><div class="li__t">${o.t}</div>${o.s ? `<div class="li__s">${o.s}</div>` : ''}</div>${o.right || ''}</div>`;
-  const kpi = (l, v, s = '') => `<div class="card kpi"><div class="kpi__l">${l}</div><div class="kpi__v">${v}</div>${s ? `<div class="kpi__s">${s}</div>` : ''}</div>`;
+  const kpi = (l, v, s = '') => `<div class="card kpi stat-card"><div class="kpi__l stat-card__label">${l}</div><div class="kpi__v stat-card__value">${v}</div>${s ? `<div class="kpi__s">${s}</div>` : ''}</div>`;
   const tile = (o) => `<button class="tile-a ${o.primary ? 'tile-a--primary' : ''}" ${attrs(o)}><span class="tile-a__i">${I(o.icon, 'lg')}</span><span><span class="tile-a__t" style="display:block">${o.t}</span>${o.s ? `<span class="tile-a__s" style="display:block">${o.s}</span>` : ''}</span></button>`;
-  const tabs = (key, items, on = 0) => `<div class="tabs2" data-tabs="${key}">${items.map((x, i) => `<button class="${i === on ? 'is-on' : ''}" data-act="tab" data-pane="${i}">${x}</button>`).join('')}</div>`;
+  const tabs = (key, items, on = 0) => `<div class="tabs tabs2" data-tabs="${key}">${items.map((x, i) => `<button class="tabs__tab ${i === on ? 'is-on tabs__tab--current' : ''}" data-act="tab" data-pane="${i}">${x}</button>`).join('')}</div>`;
   const pane = (key, i, html, on = 0) => `<div data-pane-of="${key}" data-pane="${i}" ${i === on ? '' : 'hidden'}>${html}</div>`;
   const yuNote = (html, extra = '') => `<div class="yu-note"><span class="yu2">${I('sparkles')}</span><div class="yu-note__b">${html}</div>${extra}</div>`;
   const note = (icon, html) => `<div class="note">${I(icon)}<div>${html}</div></div>`;
@@ -62,41 +66,97 @@
     updateNav();
   }
 
-  // ── оболочка ──────────────────────────────────────────────────────────
-  const MODULES = [
-    ['video', 'video', 'Встречи и эфиры', 'hub'], ['messenger', 'messenger', 'Мессенджер', 'messenger'], ['wallet', 'sales', 'Продажи', 'sales'],
-    ['graduation-cap', 'school', 'Школа', 'school'], ['template', 'pages', 'Страницы и рассылки', 'pages'], ['automation', 'scenarios', 'Сценарии', 'scenarios'],
+  // ── оболочка — разметка продукта, а не своя ───────────────────────────
+  // Классы и порядок взяты из the-essence develop: Shell::SidebarHeaderComponent,
+  // Shell::SidebarActionComponent, .shell-nav, .shell-ws, Shell::AppRailComponent (MODULES),
+  // .wg-launcher поддержки. Стили — css/ds/shell.css, копия продукта. Новые модули плана
+  // (§ 1.8) стоят в рельсе рядом с родственными действующими и помечены isNew.
+  const RAIL = [
+    { icon: 'home', key: 'dashboard', label: 'Главная', hint: 'Главная платформы уже работает. Видео кладёт на неё карточку ближайшей встречи с кнопкой «Войти».' },
+    { icon: 'square-check', key: 'tasks', label: 'Задачи · PM', hint: 'Задачник уже работает. Договорённости из итогов встречи Юя ставит сюда задачами со ссылкой на момент записи.', go: 'touchpoints' },
+    { icon: 'mail', key: 'mail', label: 'Почта', hint: 'Почта уже работает. Приглашения, напоминания и итоги встречи уходят из вашего ящика.' },
+    { icon: 'messenger', key: 'messenger', label: 'Мессенджер', go: 'messenger', isNew: true },
+    { icon: 'sparkles', key: 'yuia', label: 'Юя', go: 'yuia', yuia: true },
+    { icon: 'calendar', key: 'calendar', label: 'Календарь', hint: 'Календарь уже работает. Каждая встреча видео — его событие, кнопка «Войти» стоит прямо в событии.', go: 'touchpoints' },
+    { icon: 'video', key: 'video', label: 'Видео', go: 'hub' },
+    { icon: 'users', key: 'crm', label: 'CRM и сценарии', go: 'scenarios' },
+    { icon: 'receipt', key: 'sales', label: 'Продажи', go: 'sales', isNew: true },
+    { icon: 'template', key: 'pages', label: 'Страницы и рассылки', go: 'pages', isNew: true },
+    { icon: 'graduation-cap', key: 'school', label: 'Школа', go: 'school', isNew: true },
+    { icon: 'book', key: 'kb', label: 'База знаний', hint: 'База знаний уже работает. Конспект и главы встречи ложатся в неё документом.', go: 'touchpoints' },
+    { icon: 'file-text', key: 'reports', label: 'Отчёты', go: 'analytics' },
   ];
-  const EXIST = [['kanban', 'Задачи'], ['mail', 'Почта'], ['calendar', 'Календарь'], ['crm', 'CRM']];
-  function shell({ module, active, compose, nav = [], body }) {
-    const navHtml = nav.map((n) => n.sec ? `<div class="nav__sec">${n.sec}</div>` : `<a class="nav__i ${n.on ? 'is-on' : ''}" ${n.go || n.act ? attrs(n) : n.on ? `data-go="${current.id}"` : `data-act="toast" data-text="Раздел «${esc(n.label)}» в прототипе не нарисован — открыт главный экран модуля"`}>${I(n.icon, 'md')}<span>${n.label}</span>${n.live ? '<span class="nav__live">LIVE</span>' : ''}${n.count != null ? `<span class="nav__cnt">${n.count}</span>` : ''}</a>`).join('');
-    const rail = [...EXIST.map(([i, l]) => `<button class="rail__i" data-act="toast" data-text="«${l}» уже работает в платформе — в прототип видеомодуля не входит" title="${l}">${I(i, 'md')}</button>`), '<span class="rail__sep"></span>',
-      ...MODULES.map(([i, k, l, g]) => `<a class="rail__i ${k === active ? 'is-on' : ''}" data-go="${g}" title="${l}">${I(i, 'md')}</a>`)].join('');
-    return `<div class="app"><div class="mhead">${btn('', { icon: 'menu', kind: 'ghost', act: 'drawer', cls: 'btn2--icon' })}<span class="app__brand-name">Суть <span class="app__brand-x">✕</span> <span class="app__brand-mod">${module}</span></span></div>
-      <aside class="app__side"><a class="app__brand" data-go="map"><img src="seal-compact.svg" alt=""><span class="app__brand-name">Суть <span class="app__brand-x">✕</span> <span class="app__brand-mod">${module}</span></span></a>
-        ${compose ? `<button class="compose" ${attrs(compose)}>${I(compose.icon || 'plus')} ${compose.label}</button>` : ''}
-        <nav class="nav">${navHtml}</nav>
-        <a class="app__ws" data-go="yuia">${av('anna', 36)}<span class="sp"><span class="b t-sm" style="display:block">Анна Соколова</span><span class="t-xs muted">Психолог · проверена</span></span></a></aside>
-      <main class="app__main" id="main">${body}</main>
-      <nav class="app__rail">${rail}<span class="sp"></span><button class="rail__i" data-act="toast" data-text="3 уведомления: 2 оплаты и вопрос в зале ожидания" title="Уведомления">${I('bell', 'md')}<span class="rail__dot"></span></button><a class="rail__i" data-go="ops" title="Дежурный">${I('server', 'md')}</a></nav></div>`;
+  const BELL = [
+    ['wallet', 'success', 'Оплата 4 500 ₽ · Мария Иванова', 'Сессия завтра в 10:00 · через ЮKassa', '2 мин'],
+    ['door', 'accent', 'Гость ждёт в зале ожидания', 'Кабинет Анны · пустить или написать', '5 мин'],
+    ['square-check', 'muted', '3 задачи из итогов встречи', 'Супервизия «Опора» · срок пятница', '1 ч'],
+  ];
+  const railItem = (m, active) => {
+    const tip = `<span class="shell-apprail__tip" aria-hidden="true">${m.label}${m.isNew ? ' · новый модуль' : ''}</span>`;
+    const cls = `shell-apprail__item ${m.yuia ? 'shell-apprail__item--yuia' : ''} ${m.key === active ? 'is-active' : ''} ${m.isNew ? 'is-new' : ''}`;
+    const act = m.hint ? `data-act="railhint" data-text="${esc(m.hint)}" ${m.go ? `data-to="${m.go}"` : ''}` : `data-go="${m.go}"`;
+    return `<a class="${cls}" ${act} aria-label="${esc(m.label)}" ${m.key === active ? 'aria-current="page"' : ''}>${I(m.icon, 'md')}${tip}</a>`;
+  };
+  const bellMenu = () => `<div class="shell-bell__menu" role="menu"><div class="shell-bell__head"><span class="shell-bell__heading">Уведомления</span><button class="shell-bell__markall" data-act="bellread" title="Прочитать все">${I('list-check')}</button></div>
+    <div class="shell-bell__list">${BELL.map(([ic, tone, t, s, w]) => `<div class="shell-bell__row is-unread"><span class="shell-bell__row-flag"></span><a class="shell-bell__row-main" data-go="${ic === 'door' ? 'call' : ic === 'wallet' ? 'sales' : 'end'}"><span class="shell-bell__icon shell-bell__icon--${tone}">${I(ic)}</span><span class="shell-bell__row-body"><span class="shell-bell__row-title">${t}</span><span class="shell-bell__row-sub">${s}</span><span class="shell-bell__row-time">${w} назад</span></span></a></div>`).join('')}</div></div>`;
+  const profileMenu = () => `<div class="shell-menu shell-menu--rail" role="menu"><div class="shell-menu__head">${av('anna', 42)}<div style="min-width:0"><div class="shell-menu__name">Анна Соколова</div><div class="shell-menu__email">anna@the-essence.ai</div></div></div><div class="shell-menu__div"></div>
+    <a class="shell-menu__item" data-go="specialist-page">${I('user')} Публичная страница</a><a class="shell-menu__item" data-go="yuia">${I('sparkles')} Юя и доверие</a><a class="shell-menu__item" data-go="privacy">${I('shield-check')} Приватность</a><div class="shell-menu__div"></div><a class="shell-menu__item shell-menu__item--danger" data-act="toast" data-text="В прототипе выход не нужен">${I('log-out')} Выйти</a></div>`;
+  function shell({ module, active, compose, nav = [], body, search }) {
+    if (current) current.shellActive = active;
+    // надпись над заголовком, как в продукте («ВИДЕО · ЗАПИСИ»): если экран не задал свою
+    if (!/class="phead__t"><span class="eyebrow/.test(body) && !/class="crumbs/.test(body)) { const on = nav.find((n) => n.on); const tail = on ? on.label : (current && current.eyebrow) || ''; body = body.replace('<div class="phead__t">', `<div class="phead__t"><span class="eyebrow">${esc(module)}${tail && tail !== module ? ' · ' + esc(tail) : ''}</span>`); }
+    const navHtml = nav.map((n) => n.sec ? `<div class="shell-nav-label"><span>${n.sec}</span></div>` : `<a class="shell-nav__item ${n.on ? 'is-active' : ''}" ${n.go || n.act ? attrs(n) : n.on ? `data-go="${current.id}"` : `data-act="toast" data-text="Раздел «${esc(n.label)}» в прототипе не нарисован — открыт главный экран модуля"`}><span class="shell-nav__icon">${I(n.icon)}</span><span class="shell-nav__label">${n.label}</span>${n.live ? '<span class="shell-nav__badge shell-nav__badge--live">LIVE</span>' : ''}${n.count != null ? `<span class="shell-nav__count">${n.count}</span>` : ''}</a>`).join('');
+    const brand = `<a class="shell-sidebar__brand" data-go="map"><img class="shell-sidebar__mark" src="seal-compact.svg" alt="" width="28" height="28"><span class="shell-sidebar__name"><span class="shell-sidebar__brandname">Суть</span> <span class="shell-sidebar__x" aria-hidden="true">✕</span> <span class="shell-sidebar__module">${module}</span></span></a>`;
+    const searchBtn = `<button type="button" class="shell-search-btn shell-search-btn--wide" data-act="palette" aria-label="${esc(search || 'Поиск')}">${I('search')}<span class="shell-search-btn__ph">${esc(search || (module === 'Видео' ? 'Поиск встреч, записей, людей' : `Поиск: ${module.toLowerCase()}`))}</span><kbd class="shell-search-btn__kbd" aria-hidden="true">/</kbd></button>`;
+    const composeHtml = compose ? `<a class="shell-compose" ${attrs(compose)}>${I(compose.icon || 'plus')}<span>${compose.label}</span></a>` : '';
+    const ws = `<div class="shell-ws"><button type="button" class="shell-ws__current" data-go="specialist-page"><span class="shell-ws__logo">А</span><span class="shell-ws__info"><span class="shell-ws__name">Суть · Анна Соколова</span><span class="shell-ws__role">Специалист · проверена</span></span>${I('chevron-down', 'xs', 'shell-ws__chev')}</button></div>`;
+    const rail = `<nav class="shell-apprail" aria-label="Модули">
+      <div class="shell-apprail__profile"><button type="button" class="shell-apprail__item shell-apprail__item--profile" data-act="railmenu" aria-label="Анна Соколова"><span class="shell-avatar">${person('anna').photo ? `<img class="shell-avatar__img" src="${person('anna').photo}" alt="">` : 'А'}</span></button>${profileMenu()}</div>
+      <div class="shell-apprail__bell"><div class="shell-bell"><button type="button" class="shell-bell__trigger" data-act="railmenu" aria-label="Уведомления">${I('bell', 'md')}<span class="shell-bell__badge"><span class="shell-bell__count">${BELL.length}</span></span></button>${bellMenu()}</div></div>
+      <div class="shell-apprail__div" aria-hidden="true"></div>
+      ${RAIL.map((m) => railItem(m, active)).join('')}
+      <span class="shell-apprail__spacer"></span>
+      <div class="shell-apprail__div" aria-hidden="true"></div>
+      ${active === 'admin' ? railItem({ icon: 'shield-check', key: 'admin', label: 'Админка', go: 'ops' }, active) : ''}
+      ${railItem({ icon: 'message-circle', key: 'support', label: 'Помощь', hint: 'Помощь платформы: справка и чат с командой — тот же, что за круглой кнопкой внизу.' }, active)}
+      ${railItem({ icon: 'settings', key: 'settings', label: 'Настройки модуля', go: active === 'video' ? 'new' : 'privacy' }, active)}
+    </nav>`;
+    const mobile = `<header class="mshell" role="banner"><button type="button" class="mshell__btn" data-act="drawer" aria-label="Открыть меню">${I('menu', 'md')}</button><span class="mshell__label">${module}</span><span class="mshell__end"><button type="button" class="mshell__btn" data-act="modswitch" aria-label="Модули">${I('layout-grid', 'md')}</button><button type="button" class="mshell__btn" data-act="toast" data-text="${BELL.length} новых: оплата, гость в зале ожидания, задачи из итогов" aria-label="Уведомления">${I('bell', 'md')}<span class="mshell__dot"></span></button><a class="mshell__btn" data-go="specialist-page" aria-label="Профиль"><span class="shell-avatar" style="width:30px;height:30px">${person('anna').photo ? `<img class="shell-avatar__img" src="${person('anna').photo}" alt="">` : 'А'}</span></a></span></header>`;
+    return `<div class="cal-app">${mobile}<div class="shell-drawer-overlay" data-act="drawer"></div><div class="cal-body">
+      <aside class="shell-sidebar">${brand}<div class="shell-sidebar__scroll">${searchBtn}${composeHtml}<nav class="shell-nav">${navHtml}</nav></div>${ws}</aside>
+      <main class="cal-main" id="main">${body}</main>${rail}</div>
+      <button type="button" class="wg-launcher" data-act="toast" data-text="Чат поддержки платформы — общий для всех модулей" aria-label="Поддержка">${I('message-circle', 'lg')}</button></div>`;
   }
+  // командная палитра — как «/» и ⌘K в продукте: экраны, люди, действия
+  function palette() {
+    const m = modal(`<div class="cmdk"><div class="cmdk__in">${I('search', 'md')}<input class="cmdk__q" placeholder="Встречи, записи, люди, экраны…" autofocus><kbd class="kbd">Esc</kbd></div><div class="cmdk__list"></div></div>`);
+    const q = $('.cmdk__q', m), list = $('.cmdk__list', m);
+    const rows = () => { const s = q.value.trim().toLowerCase(); const hit = visible().filter((x) => !s || (x.title + ' ' + x.group).toLowerCase().includes(s)).slice(0, 9);
+      list.innerHTML = hit.length ? hit.map((x, i) => `<a class="cmdk__row ${i ? '' : 'is-on'}" data-go="${x.id}">${I(x.icon || 'dot')}<span class="sp">${esc(x.title)}</span><span class="cmdk__grp">${esc(x.group)}</span></a>`).join('') : '<div class="cmdk__empty">Ничего не нашлось</div>'; };
+    q.addEventListener('input', rows); q.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const r = $('.cmdk__row', list); r && go(r.dataset.go); } });
+    rows(); setTimeout(() => q.focus(), 30);
+  }
+  // мобильная панель модулей — Shell::MobileModuleSwitcherComponent
+  const modSwitch = () => modal(`<div class="modal2__t">Модули</div><div class="mswitch">${RAIL.map((m) => `<a class="mswitch__i ${m.key === (current.shellActive || '') ? 'is-on' : ''}" ${m.hint ? `data-act="railhint" data-text="${esc(m.hint)}" ${m.go ? `data-to="${m.go}"` : ''}` : `data-go="${m.go}"`}><span class="mswitch__ic">${I(m.icon, 'md')}</span><span>${m.label}</span>${m.isNew ? '<span class="mswitch__new">новый</span>' : ''}</a>`).join('')}</div>`);
+  // пункты — как в video/shared/_sidebar продукта (Обзор · Сейчас идёт · Запланировано · Записи) + новое по плану
   const videoNav = (on) => [
-    { icon: 'grid', label: 'Главная', go: 'hub', on: on === 'hub' },
-    { icon: 'broadcast', label: 'Эфир сейчас', go: 'stage', live: true },
-    { icon: 'presentation', label: 'Эфиры', go: 'event', on: on === 'event', count: 2 },
+    { icon: 'grid', label: 'Обзор', go: 'hub', on: on === 'hub' },
+    { icon: 'video', label: 'Сейчас идёт', go: 'stage', live: true },
+    { icon: 'calendar', label: 'Запланировано', go: 'new', on: on === 'new', count: 4 },
     { icon: 'play', label: 'Записи', go: 'recordings', on: on === 'recordings', count: 48 },
+    { icon: 'presentation', label: 'Эфиры', go: 'event', on: on === 'event', count: 2 },
     { icon: 'chart-bar', label: 'Отчёты', go: 'report', on: on === 'report' },
     { sec: 'Комнаты' },
     { icon: 'door', label: 'Кабинет Анны', go: 'call' },
     { icon: 'users', label: 'Группа «Опора»', go: 'meeting' },
     { sec: 'Настройки' },
-    { icon: 'template', label: 'Шаблоны встреч', go: 'new', on: on === 'new' },
+    { icon: 'template', label: 'Шаблоны встреч', go: 'new', params: 'tpl=call' },
     { icon: 'sparkles', label: 'Юя и доверие', go: 'yuia', on: on === 'yuia' },
   ];
 
   // ── всплывающие и окна ────────────────────────────────────────────────
   function toast(text, { undo, icon = 'check-circle' } = {}) {
-    const el = document.createElement('div'); el.className = 'ptoast';
+    const el = document.createElement('div'); el.className = 'undo-toast ptoast';
     el.innerHTML = `${I(icon)}<span>${text}</span>${undo ? '<button class="ptoast__undo">Отменить</button>' : ''}`;
     $('#toasts').appendChild(el); requestAnimationFrame(() => el.classList.add('is-in'));
     if (undo) el.querySelector('.ptoast__undo').onclick = () => { undo(); el.remove(); toast('Отменено', { icon: 'undo' }); };
@@ -112,16 +172,22 @@
   function closeModal(instant) { $$('.mwrap').forEach((el) => { if (instant) el.remove(); else { el.classList.remove('is-in'); setTimeout(() => el.remove(), 180); } }); }
 
   // ── общие действия ────────────────────────────────────────────────────
-  const tabAct = (el) => { const box = el.closest('[data-tabs]'); const key = box.dataset.tabs; $$('button', box).forEach((t) => t.classList.toggle('is-on', t === el)); $$(`[data-pane-of="${key}"]`).forEach((p) => (p.hidden = p.dataset.pane !== el.dataset.pane)); };
+  const tabAct = (el) => { const box = el.closest('[data-tabs]'); const key = box.dataset.tabs; $$('button', box).forEach((t) => { t.classList.toggle('is-on', t === el); t.classList.toggle('tabs__tab--current', t === el); }); $$(`[data-pane-of="${key}"]`).forEach((p) => (p.hidden = p.dataset.pane !== el.dataset.pane)); };
   const segAct = (el) => $$('button', el.parentElement).forEach((b) => b.classList.toggle('is-on', b === el));
   const pickAct = (el) => $$('.pick__i', el.closest('.pick')).forEach((c) => c.classList.toggle('is-on', c === el));
   const swAct = (el) => { el.classList.toggle('is-on'); if (el.dataset.text && el.classList.contains('is-on')) toast(el.dataset.text); };
   const GLOBAL = {
     'close-modal': () => closeModal(), toast: (el) => toast(esc(el.dataset.text)), drawer: () => document.body.classList.toggle('drawer-open'),
     tab: tabAct, seg: segAct, pick: pickAct, sw: swAct,
+    railmenu: (el) => { const box = el.parentElement.querySelector('.shell-bell__menu, .shell-menu'); const open = !box.classList.contains('is-open'); $$('.shell-apprail .is-open').forEach((x) => x.classList.remove('is-open')); box.classList.toggle('is-open', open); },
+    bellread: (el) => { $$('.shell-bell__row.is-unread').forEach((r) => r.classList.remove('is-unread')); $('.shell-bell__badge')?.remove(); toast('Все уведомления прочитаны'); },
+    railhint: (el) => { closeModal(true); toast(esc(el.dataset.text), { icon: 'info-circle' }); if (el.dataset.to) later(900, () => go(el.dataset.to)); },
+    modswitch: () => modSwitch(),
+    palette: () => palette(),
   };
   const ROOM_ACTS = {};
   document.addEventListener('click', (ev) => {
+    if (!ev.target.closest('.shell-apprail__profile, .shell-bell')) $$('.shell-apprail .is-open').forEach((x) => x.classList.remove('is-open'));
     const a = ev.target.closest('[data-act]');
     const g = ev.target.closest('[data-go]');
     if (a && (!g || a.contains(g) === false || a === g) && a.dataset.act) {
@@ -158,9 +224,11 @@
     document.addEventListener('click', (ev) => { if (!ev.target.closest('.nav2')) n.classList.remove('is-open'); else if (ev.target.closest('.nav2__it')) n.classList.remove('is-open'); });
   }
   document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') { closeModal(); $('.nav2')?.classList.remove('is-open'); }
+    if (ev.key === 'Escape') { closeModal(); $('.nav2')?.classList.remove('is-open'); $$('.shell-apprail .is-open').forEach((x) => x.classList.remove('is-open')); }
     if (ev.target.closest && ev.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+    if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k' && $('.shell-search-btn')) { ev.preventDefault(); palette(); return; }
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    if (ev.key === '/' && $('.shell-search-btn')) { ev.preventDefault(); palette(); return; }
     if (ev.key === 'ArrowRight') { ev.preventDefault(); step(1); }
     if (ev.key === 'ArrowLeft') { ev.preventDefault(); step(-1); }
   });
@@ -173,6 +241,6 @@
     mountNav(); window.addEventListener('hashchange', render); render();
   }
 
-  window.P = { D, S, $, $$, esc, rub, num, I, av, person, add, go, every, later, onLeave, shell, videoNav, toast, modal, closeModal, ROOM_ACTS, screens, btn, chip, sw, opt, seg, pick, li, kpi, tile, tabs, pane, yuNote, note, page, attrs, get current() { return current; } };
+  window.P = { GLOBAL, D, S, $, $$, esc, rub, num, I, av, person, add, go, every, later, onLeave, shell, videoNav, toast, modal, closeModal, ROOM_ACTS, screens, btn, chip, sw, opt, seg, pick, li, kpi, tile, tabs, pane, yuNote, note, page, attrs, get current() { return current; } };
   document.addEventListener('DOMContentLoaded', boot);
 })();

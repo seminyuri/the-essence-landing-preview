@@ -2,7 +2,7 @@
   const { D, S, add, I, av, esc, rub, num, shell, videoNav, toast, modal, go, later, $, $$, btn, chip, sw, opt, seg, pick, li, kpi, tile, tabs, pane, yuNote, note, page } = P;
   const G = 'Кабинет специалиста';
   const kindGo = { call: 'prejoin', meeting: 'meeting', stage: 'event', practice: 'practice', constellation: 'constellation' };
-  const shellV = (on, body) => shell({ module: 'Встречи', active: 'video', compose: { label: 'Начать встречу', icon: 'video', go: 'prejoin' }, nav: videoNav(on), body });
+  const shellV = (on, body) => shell({ module: 'Видео', active: 'video', compose: { label: 'Начать встречу', icon: 'video', go: 'prejoin' }, nav: videoNav(on), body });
 
   // подготовка к сессии — Юя говорит языком психолога
   const brief = () => modal(`<div class="row"><span class="yu2 yu2--lg">${I('sparkles', 'lg')}</span><div><div class="t-sm muted">Юя · подготовка к сессии</div><div class="modal2__t" style="padding:0">Мария, 9-я встреча</div></div></div>
@@ -31,7 +31,7 @@
     render() {
       const rows = D.sessions.map((s) => `<div class="li li--click" data-go="${kindGo[s.kind]}"><div class="li__time"><b>${s.time}</b><span>${s.day}</span></div>${av(s.who, 44)}<div class="li__m"><div class="li__t">${esc(s.title)}</div><div class="li__s">${esc(s.sub)}</div></div>${s.state === 'soon' ? chip('через 36 мин', 'accent') : I('chevron-right', 'md', 'subtle')}</div>`).join('');
       return shellV('hub', `<div class="page">
-        <div class="phead"><div class="phead__t"><h1 class="h1">Доброе утро, Анна</h1><div class="phead__sub">Среда, 21 октября. Сегодня две встречи, в четверг — эфир.</div></div></div>
+        <div class="phead"><div class="phead__t"><span class="eyebrow">21 октября 2026 · среда · 09:24</span><h1 class="h1">Доброе утро, <em>Анна</em></h1><div class="phead__sub">Сегодня две встречи, в четверг — эфир.</div></div></div>
         <div class="next">${av('maria', 64, 'av--ring')}<div class="next__m"><span class="next__in">Через 36 минут</span><div class="next__t">Мария Иванова · 9-я встреча</div><div class="next__s">10:00–11:00 · оплачено · согласие на запись есть · анкета: 6 из 10</div></div>
           ${btn('Подготовка от Юи', { size: 'lg', icon: 'sparkles', act: 'brief', kind: 'white' })}${btn('Войти', { kind: 'primary', size: 'lg', icon: 'video', go: 'prejoin' })}</div>
         <div class="tiles mt16">${tile({ primary: true, icon: 'video', t: 'Начать встречу', s: 'Комната сразу, ссылку — в любой мессенджер', go: 'prejoin' })}${tile({ icon: 'calendar', t: 'Запланировать', s: 'Сессия, группа, практика', go: 'new', params: 'tpl=call' })}${tile({ icon: 'broadcast', t: 'Новый эфир', s: 'Страница, билеты, напоминания', go: 'new', params: 'tpl=paid' })}${tile({ icon: 'link', t: 'Подключиться', s: 'По ссылке или номеру', act: 'join' })}</div>

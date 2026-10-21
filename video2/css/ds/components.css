@@ -1,5 +1,16 @@
-/* Дизайн-система the-essence — копия для прототипа */
+/* Копия из the-essence develop a4059ecec — НЕ ПРАВИТЬ здесь: правка идёт в продукт, сюда — новой копией. */
+/*
+ * Phase 1 component layer — minimal CSS rules for the 99 ViewComponents
+ * shipped in this branch. All values come from `_design_tokens.css` so
+ * persona × theme cascades just work.
+ *
+ * Naming uses BEM-ish: `.<component>__<element>--<modifier>`. No
+ * Tailwind utility classes inside this file — components stay
+ * design-token-pure so the brand-probe RuboCop and Lighthouse gates
+ * don't fail on `bg-blue-*` leaks.
+ */
 
+/* ===== ButtonComponent ===== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -17,9 +28,11 @@
               color var(--motion-duration-fast) var(--motion-ease),
               border-color var(--motion-duration-fast) var(--motion-ease);
 }
+
 .btn--sm  { padding: 6px 10px; font-size: 13px; }
 .btn--md  { padding: var(--space-2) var(--space-4); font-size: 14px; }
 .btn--lg  { padding: var(--space-3) var(--space-5); font-size: 15px; }
+
 .btn--primary   { background: var(--color-accent); color: var(--color-accent-on); }
 .btn--primary:hover  { background: var(--color-accent-strong); }
 .btn--secondary { background: var(--color-bg-elevated); color: var(--color-fg); border-color: var(--color-border); }
@@ -34,6 +47,7 @@
 .btn--link      { background: transparent; color: var(--color-accent); padding: 0; border: 0; text-decoration: underline; }
 .btn--loading   { cursor: wait; opacity: 0.7; }
 .btn--disabled, .btn[disabled] { cursor: not-allowed; opacity: 0.5; }
+
 .btn__spinner {
   width: 12px; height: 12px;
   border: 2px solid currentColor; border-right-color: transparent;
@@ -41,12 +55,26 @@
   animation: btn-spin 600ms linear infinite;
 }
 @keyframes btn-spin { to { transform: rotate(360deg); } }
+
+/* ===== IconComponent ===== */
 .icon { display: inline-block; vertical-align: middle; }
+/* 🔴 `--xs` НЕ БЫЛО, хотя классом пользовались одиннадцать мест календаря.
+   У `<svg>` без ширины и высоты собственный размер — 300×150 (так велит
+   спецификация для замещаемого элемента без внутренних пропорций), и
+   несуществующий модификатор размера не даёт НИЧЕГО: иконка раздувается на
+   пол-экрана. Замер 13.09.2026 на странице календаря: четырнадцать таких
+   svg, пункт окна поиска высотой 170px вместо ~44. Ступень ниже `sm`. */
 .icon--xs { width: 14px; height: 14px; }
 .icon--sm { width: 16px; height: 16px; }
 .icon--md { width: 20px; height: 20px; }
 .icon--lg { width: 24px; height: 24px; }
 .icon--xl { width: 32px; height: 32px; }
+
+/* Pin inline-SVG icon sizes used by PM/admin chrome — Tailwind v4 utilities
+   like `w-4 h-4` resolve to `calc(var(--spacing) * 4)`, and several PM
+   surfaces showed inflated icons when the utility layer lost to flexbox
+   parents or the `--spacing` cascade. Match by the Tailwind class names
+   directly so this works even if the v4 layer order is wrong. */
 button > svg.w-4,
 a > svg.w-4    { width: 1rem; height: 1rem; flex-shrink: 0; }
 button > svg.w-5,
@@ -55,6 +83,13 @@ button > svg.w-6,
 a > svg.w-6    { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
 button > svg.w-8,
 a > svg.w-8    { width: 2rem; height: 2rem; flex-shrink: 0; }
+
+/* ===== AvatarComponent =====
+   `aspect-ratio: 1/1` + `flex-shrink: 0` keep the avatar perfectly round
+   when it sits inside narrow flex containers (PM table cells, avatar-stack
+   with several photos). Without these the parent flex squeezed `width:20px`
+   down to a sliver while `height:20px` stayed full, producing horizontal
+   ovals on /pm/tasks. */
 .avatar {
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 999px; overflow: hidden; position: relative;
@@ -63,6 +98,9 @@ a > svg.w-8    { width: 2rem; height: 2rem; flex-shrink: 0; }
   aspect-ratio: 1 / 1;
   flex-shrink: 0;
 }
+/* Size scale — ported from the design-system (essence.css). Prod carried only
+   the base .avatar; the Support module needs the full set (client-360° uses xs,
+   queue/thread use sm–lg). Explicit w+h avoid the oval-collapse noted above. */
 .avatar--xs { width: 20px; height: 20px; font-size: 8px; }
 .avatar--sm { width: 28px; height: 28px; font-size: 10px; }
 .avatar--md { width: 36px; height: 36px; font-size: 12px; }
@@ -78,6 +116,8 @@ a > svg.w-8    { width: 2rem; height: 2rem; flex-shrink: 0; }
 .avatar__presence--online  { background: var(--color-success); }
 .avatar__presence--idle    { background: var(--color-warning); }
 .avatar__presence--offline { background: var(--color-fg-subtle); }
+
+/* ===== AvatarStackComponent ===== */
 .avatar-stack { display: inline-flex; align-items: center; }
 .avatar-stack > .avatar { margin-left: -6px; box-shadow: 0 0 0 2px var(--color-bg); }
 .avatar-stack > .avatar:first-child { margin-left: 0; }
@@ -87,12 +127,15 @@ a > svg.w-8    { width: 2rem; height: 2rem; flex-shrink: 0; }
   border-radius: 999px; font-size: 11px; font-weight: 500;
   box-shadow: 0 0 0 2px var(--color-bg);
 }
+
+/* ===== FieldComponent + InputComponent ===== */
 .field { display: flex; flex-direction: column; gap: var(--space-2); }
 .field__label { font-size: 13px; font-weight: 500; color: var(--color-fg-muted); }
 .field__required { color: var(--color-danger-text); margin-left: 2px; }
 .field__hint  { font-size: 12px; color: var(--color-fg-subtle); }
 .field__error { font-size: 12px; color: var(--color-danger-text); }
 .field--with-error .input { border-color: var(--color-danger); }
+
 .input, .select {
   width: 100%; padding: 8px 12px; border-radius: 6px;
   border: var(--hairline-width) solid var(--color-border);
@@ -103,6 +146,23 @@ a > svg.w-8    { width: 2rem; height: 2rem; flex-shrink: 0; }
 }
 .input:focus, .select:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 2px var(--color-accent-soft); }
 .input--textarea { min-height: 80px; resize: vertical; }
+
+/* ===== Bare `<input type="checkbox">` styling =====
+   Tailwind v4 dropped its built-in form-control reset (it lived in
+   `@tailwindcss/forms`, which the project never installed). Without
+   that plugin every bare `<input type="checkbox">` in PM templates
+   inherits browser-native chrome — 13×13 unstyled square in the column-
+   visibility dropdown, etc. The `CheckboxComponent` (below) renders
+   a structured `.checkbox__input + .checkbox__indicator` pair and is
+   the recommended way, but many existing templates emit raw
+   `<input type="checkbox">` and we don't want to rewrite each of them
+   just to get a nicely-styled control.
+
+   This rule re-creates the missing form-reset for bare checkboxes
+   without disturbing the structured `.checkbox__input` variant. It
+   mirrors what `@tailwindcss/forms` v0.5.x would emit: 16×16 box,
+   subtle border + bg, accent-coloured fill + white check on `:checked`.
+*/
 input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__input) {
   appearance: none;
   -webkit-appearance: none;
@@ -132,6 +192,15 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ===== CheckboxComponent / RadioComponent / ToggleComponent ===== */
+/* 🔴 `position: relative` — НЕ УКРАШЕНИЕ. Скрытый `input` стоит абсолютно, и
+   без позиционированного предка его опорой становится вся страница, а не
+   подпись. Внутри прокручиваемой колонки (`main` каркаса) такой input
+   выпадает из её обрезки и растягивает ДОКУМЕНТ до своей позиции в ленте.
+   Замер 05.10.2026, меню Яндекс.Еды (152 переключателя): документ 20 650 px
+   при окне 565 — под каркасом листалась пустота, а сам каркас уезжал вверх
+   (скриншоты Юрия). Тот же приём, что у `.segmented__option`. */
 .checkbox, .radio, .toggle {
   display: inline-flex; align-items: center; gap: var(--space-2);
   cursor: pointer; user-select: none; position: relative;
@@ -148,6 +217,7 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .radio__input:checked + .radio__indicator {
   border-color: var(--color-accent); background: var(--color-accent);
 }
+
 .toggle__track {
   width: 32px; height: 18px; border-radius: 999px;
   background: var(--color-border-strong); position: relative;
@@ -161,18 +231,31 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 }
 .toggle__input:checked ~ .toggle__track { background: var(--color-accent); }
 .toggle__input:checked ~ .toggle__track .toggle__thumb { transform: translateX(14px); }
+
+/* ===== SearchInputComponent ===== */
 .search-input {
   position: relative; display: inline-flex; align-items: center; gap: 6px;
   background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border);
   border-radius: 8px; padding: 6px 10px;
 }
+/* S-B-86: focus ring on the rounded container, not the bare field — the
+   magnifier sits inside the padding so the ring never overlaps it. */
 .search-input:focus-within { border-color: var(--color-accent); box-shadow: 0 0 0 2px var(--color-accent-soft); }
 .search-input__field { border: 0; outline: 0; background: transparent; flex: 1; min-width: 120px; color: var(--color-fg); }
+/* Крестик — кнопка со значком (`IconComponent`, как лупа слева). Глиф центрируется
+   в цели так же, как у той же группы в `_mobile.css`; `align-self: stretch` держит
+   цель высотой со строку поля. Без этого значок садился на строковую базу кнопки и
+   стоял на 2 px ниже лупы (замер 28.09.2026: 671 против 669). Размеров здесь нет:
+   на десктопе цель — по содержимому, на касании её задаёт `--tap-min`. */
 .search-input__clear { display: inline-flex; align-items: center; justify-content: center; align-self: stretch;
                        background: transparent; border: 0; color: var(--color-fg-subtle); cursor: pointer; }
 .search-input__kbd { font-family: var(--type-mono); font-size: 11px; color: var(--color-fg-subtle); padding: 2px 4px; border-radius: 4px; background: var(--color-bg-muted); }
+/* Flush variant for the command palette: the modal already frames the field,
+   so its own border + focus ring read as a "frame in a frame" (Юрий). */
 .search-input--bare { background: transparent; border-color: transparent; padding-left: 0; padding-right: 0; }
 .search-input--bare:focus-within { border-color: transparent; box-shadow: none; }
+
+/* ===== CardComponent ===== */
 .card { border-radius: 12px; background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border); }
 .card--padded     { padding: var(--space-4); }
 .card--elevated   { box-shadow: var(--shadow-card); }
@@ -180,6 +263,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .card--accent     { border-left: 3px solid var(--color-accent); }
 .card__header     { font-weight: 500; padding-bottom: var(--space-3); border-bottom: var(--hairline-width) solid var(--color-border); margin-bottom: var(--space-3); }
 .card__footer     { padding-top: var(--space-3); border-top: var(--hairline-width) solid var(--color-border); margin-top: var(--space-3); }
+
+/* ===== ChipComponent + BadgeComponent + TagComponent ===== */
 .chip {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 2px 8px; border-radius: 999px;
@@ -193,26 +278,34 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .chip--danger  { background: var(--color-danger-soft); color: var(--color-danger-text); }
 .chip--info    { background: var(--color-bg-muted); color: var(--color-accent-strong); }
 .chip__dot     { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
 .badge {
   display: inline-flex; min-width: 16px; padding: 0 5px; height: 16px;
   border-radius: 999px; font-size: 10px; font-weight: 600; align-items: center; justify-content: center;
 }
 .badge--accent  { background: var(--color-accent); color: var(--color-accent-on); }
 .badge--neutral { background: var(--color-fg-muted); color: var(--color-bg-elevated); }
+
 .tag {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 2px 8px; border-radius: 6px;
+  /* --tag-bg и --tag-fg считает TagComponent: фон при необходимости слегка
+     сдвинут от исходного --tag-color, чтобы текст добирал 4.5:1. */
   background: var(--tag-bg, var(--tag-color, var(--color-bg-muted)));
   color: var(--tag-fg, var(--color-fg));
   font-size: 12px;
 }
 .tag__remove { background: transparent; border: 0; cursor: pointer; padding: 0 2px; color: inherit; }
+
+/* ===== EyebrowComponent ===== */
 .eyebrow {
   display: inline-block; font-family: var(--type-mono);
   text-transform: uppercase; font-size: 11px;
   letter-spacing: 0.16em; color: var(--color-fg-subtle);
 }
 .eyebrow--accent { color: var(--color-accent-strong); }
+
+/* ===== StatusBadgeComponent ===== */
 .status-badge { display: inline-flex; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; }
 .status-badge--neutral  { background: var(--color-bg-muted); color: var(--color-fg-muted); }
 .status-badge--active   { background: var(--color-accent-soft); color: var(--color-accent-strong); }
@@ -223,25 +316,32 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .status-badge--pending  { background: var(--color-warning-soft); color: var(--color-warning-text); }
 .status-badge--review   { background: var(--color-warning-soft); color: var(--color-warning-text); }
 .status-badge--done     { background: var(--color-success-soft); color: var(--color-success-text); }
+
+/* ===== Priority + Health + DueDate + TimeEstimate + Subtask ===== */
 .priority { display: inline-block; width: 4px; height: 16px; border-radius: 2px; }
 .priority--p0 { background: var(--color-danger); }
 .priority--p1 { background: var(--color-warning); }
 .priority--p2 { background: var(--color-accent); }
 .priority--p3 { background: var(--color-fg-subtle); }
+
 .health-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
 .health-dot--good { background: var(--color-success); }
 .health-dot--warn { background: var(--color-warning); }
 .health-dot--risk { background: var(--color-danger); }
 .health-dot--neutral { background: var(--color-fg-subtle); }
+
 .due-date { font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--color-bg-muted); }
 .due-date--today    { background: var(--color-accent-soft); color: var(--color-accent-strong); }
 .due-date--soon     { background: var(--color-warning-soft); color: var(--color-warning-text); }
 .due-date--overdue  { background: var(--color-danger-soft); color: var(--color-danger-text); }
 .due-date--upcoming { color: var(--color-fg-muted); }
+
 .time-estimate { font-size: 12px; color: var(--color-fg-muted); }
 .subtask-progress { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
 .subtask-progress__track { width: 32px; height: 3px; background: var(--color-border); border-radius: 999px; overflow: hidden; display: inline-block; }
 .subtask-progress__fill  { height: 100%; background: var(--color-accent); display: block; }
+
+/* ===== ModalComponent ===== */
 .modal {
   border: 0; padding: 0; background: transparent;
   max-width: min(92vw, 640px); width: 100%;
@@ -259,10 +359,21 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 }
 .modal__header   { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
 .modal__title    { font-family: var(--type-display); font-weight: var(--type-weight-display); font-size: 20px; }
+/* 🔴 ЦЕЛЬ КРЕСТИКА — 44, И НЕ ТОЛЬКО НА ТЕЛЕФОНЕ.
+   Правило `min-height/min-width: var(--tap-min)` для `.modal__close` в проекте
+   было, но жило ВНУТРИ мобильной медиазапроса — на десктопе крестик оставался
+   10×30 (замер приёмки 22.09.2026 расширением от центра через
+   `elementFromPoint`, то есть настоящая зона нажатия, без скрытого запаса;
+   моя мутация воспроизвела те же 10×29). Десктоп — это и планшет с пальцем, и
+   человек с тремором, и попадание мышью в десять пикселей; мера у продукта
+   одна — 44 (`--tap-min`, та же, что у p9 в S-B-1498). Внутри — центрирование,
+   чтобы глиф не уехал в угол выросшей коробки. */
 .modal__close    { background: transparent; border: 0; font-size: 20px; cursor: pointer; color: var(--color-fg-muted);
                    display: inline-flex; align-items: center; justify-content: center;
                    min-width: var(--tap-min); min-height: var(--tap-min); }
 .modal__footer   { display: flex; justify-content: flex-end; gap: var(--space-2); padding-top: var(--space-3); border-top: var(--hairline-width) solid var(--color-border); margin-top: var(--space-3); }
+
+/* ===== SidePanelComponent ===== */
 .side-panel {
   position: fixed; top: 0; right: 0; bottom: 0;
   width: var(--side-panel-width, 720px); max-width: 92vw;
@@ -280,6 +391,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .side-panel__close  { background: transparent; border: 0; cursor: pointer; font-size: 20px; color: var(--color-fg-muted); }
 .side-panel__body   { flex: 1; overflow-y: auto; padding: var(--space-4); }
 .side-panel__footer { padding: var(--space-3) var(--space-4); border-top: var(--hairline-width) solid var(--color-border); }
+
+/* ===== Dropdown / Tooltip ===== */
 .dropdown { position: relative; display: inline-block; }
 .dropdown__trigger { cursor: pointer; }
 .dropdown__menu {
@@ -293,6 +406,10 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .dropdown--bottom-end   { right: 0; top: 100%; margin-top: 4px; }
 .dropdown--top-start    { left: 0; bottom: 100%; margin-bottom: 4px; }
 .dropdown--top-end      { right: 0; bottom: 100%; margin-bottom: 4px; }
+
+/* Standalone dropdown menu surface — used by the legacy raw-Tailwind
+   menus that haven't moved to DropdownComponent yet. Equivalent in
+   look to .dropdown__menu but works without the parent wrapper. */
 .dropdown-menu {
   background: var(--color-bg-elevated);
   border: var(--hairline-width) solid var(--color-border);
@@ -301,12 +418,17 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   padding: var(--space-2) 0;
   z-index: 40;
 }
+
+/* Modal / popover surface — heavier shadow, larger radius. Used by
+   raw-Tailwind modals (shortcuts, preview, example). New code should
+   reach for ModalComponent. */
 .modal-surface {
   background: var(--color-bg-elevated);
   border: var(--hairline-width) solid var(--color-border);
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16);
 }
+
 .tooltip { position: relative; display: inline-flex; }
 .tooltip__bubble {
   position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
@@ -317,6 +439,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   transition: opacity var(--motion-duration-fast) var(--motion-ease);
 }
 .tooltip:hover .tooltip__bubble, .tooltip:focus-within .tooltip__bubble { opacity: 1; }
+
+/* ===== Toast / UndoToast / Alert / NoticeBanner ===== */
 .toast {
   display: flex; align-items: center; gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
@@ -332,22 +456,49 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .toast__message { flex: 1; font-size: 13px; }
 .toast__action  { color: var(--color-accent); text-decoration: underline; font-size: 13px; }
 .toast__dismiss { background: transparent; border: 0; cursor: pointer; color: var(--color-fg-subtle); }
+
 .undo-toast { display: inline-flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: 10px; background: var(--color-fg); color: var(--color-bg-elevated); }
 .undo-toast__bar { display: block; height: 2px; background: var(--color-accent); animation: undo-bar 5s linear forwards; }
 @keyframes undo-bar { from { width: 100%; } to { width: 0%; } }
+
+/* 🔴 `:not(.hidden)` здесь ОБЯЗАТЕЛЕН, а не украшение.
+ *
+ * `.alert` объявлен НИЖЕ утилиты `.hidden { display: none }` из Tailwind, а
+ * специфичность у них одинаковая — значит побеждает последний, и `hidden` на
+ * элементе с классом `alert` не делал НИЧЕГО. Тринадцать мест в приложении
+ * показывали скрытые блоки всегда; на экране ожидания входа это означало
+ * «Время ожидания истекло» рядом с кодом сверки, в момент начала.
+ *
+ * ⛔ Лечить это переносом `.hidden` в конец файла НЕЛЬЗЯ — проверено, ломает
+ * весь адаптив: `hidden md:flex` означает «скрыт на мобильном, показан на
+ * десктопе», и `.hidden`, объявленный последним, побеждает и вариант `md:`.
+ * Элементы исчезают на ВСЕХ ширинах. Поэтому правится не утилита, а компонент:
+ * при наличии `hidden` правило просто не применяется, и работают обе вещи —
+ * и скрытие, и адаптивные варианты. */
 .alert:not(.hidden) { display: flex; gap: var(--space-3); padding: var(--space-3); border-radius: 8px; }
 .alert--info    { background: var(--color-accent-soft); color: var(--color-accent-strong); }
 .alert--success { background: var(--color-success-soft); color: var(--color-success-text); }
 .alert--warning { background: var(--color-warning-soft); color: var(--color-warning-text); }
 .alert--danger  { background: var(--color-danger-soft); color: var(--color-danger-text); }
+/* 🔴 У КРЕСТИКА НЕ БЫЛО РАЗМЕРА ВООБЩЕ. `.alert__dismiss` рисовался голой
+ * кнопкой с глифом «×»: ширина — по глифу (8px), высота — по растяжке флекса
+ * (48px). Замер на телефоне: цель 8×48 при норме 44×44, то есть попасть в неё
+ * пальцем нельзя, а промах по тосту с ошибкой человек читает как «кнопка не
+ * работает». Отрицательные поля возвращают увеличенной кнопке прежнее место в
+ * макете: цель растёт, а сам тост не раздувается.
+ * `align-self: flex-start` — тост бывает в две строки, и крестик обязан
+ * стоять у первой, а не висеть по центру высоты. */
 .alert__content { flex: 1; min-width: 0; }
 .alert__dismiss { flex: none; align-self: flex-start; display: grid; place-items: center;
                   min-width: 32px; min-height: 32px; margin: -4px -4px -4px 0;
                   border-radius: 6px; font-size: 18px; line-height: 1; color: inherit; }
 .alert__dismiss:hover { background: color-mix(in oklch, currentColor 12%, transparent); }
+
 .notice-banner:not(.hidden) { display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: var(--hairline-width) solid var(--color-border); }
 .notice-banner--warning { background: var(--color-warning-soft); color: var(--color-warning-text); }
 .notice-banner--info    { background: var(--color-accent-soft); color: var(--color-accent-strong); }
+
+/* ===== EmptyState / ErrorState / Skeleton ===== */
 .empty-state, .error-state {
   display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
   padding: var(--space-8); text-align: center;
@@ -355,6 +506,7 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .empty-state__icon, .error-state__icon { color: var(--color-fg-subtle); }
 .empty-state__title, .error-state__title { font-family: var(--type-display); font-weight: 200; font-size: 24px; }
 .empty-state__description, .error-state__description { color: var(--color-fg-muted); max-width: 480px; }
+
 .skeleton-stack { display: flex; flex-direction: column; gap: var(--space-2); }
 .skeleton {
   display: block; background: linear-gradient(90deg, var(--color-bg-muted), var(--color-border), var(--color-bg-muted));
@@ -368,17 +520,28 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .skeleton--avatar        { width: 36px; height: 36px; border-radius: 50%; }
 .skeleton--list          { height: 48px; }
 @keyframes skel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ===== DataRow / Accordion / Tabs / Breadcrumb / Pagination ===== */
 .data-row { display: grid; grid-template-columns: auto auto 1fr auto auto; align-items: center; gap: var(--space-3); padding: var(--space-3); border-bottom: var(--hairline-width) solid var(--color-border); }
 .data-row:hover { background: var(--color-bg-muted); }
 .data-row__leading, .data-row__meta, .data-row__actions, .data-row__selection { color: var(--color-fg-muted); }
+
 .accordion { border-bottom: var(--hairline-width) solid var(--color-border); }
 .accordion__summary { padding: var(--space-3) 0; cursor: pointer; font-weight: 500; }
 .accordion__panel   { padding-bottom: var(--space-3); }
+
+/* overflow-x: auto — 7-табная навигация (карточка контакта) не влезает на узком
+   экране; без скролла последние вкладки (Заметки/Файлы) клиппятся и недоступны.
+   Зеркалит .pm-project-tabs. tabs__tab не сжимается и не переносит подпись. */
 .tabs { display: flex; gap: var(--space-2); border-bottom: var(--hairline-width) solid var(--color-border); overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabs__tab { padding: var(--space-2) var(--space-3); color: var(--color-fg-muted); border-bottom: 2px solid transparent; white-space: nowrap; flex: 0 0 auto; }
 .tabs__tab--current { color: var(--color-accent-strong); border-bottom-color: var(--color-accent); }
 .tabs__count { font-family: var(--type-mono); font-size: 11px; padding: 2px 6px; border-radius: 999px; background: var(--color-bg-muted); }
+
+/* Per-project section tabs (Канбан/Список/…/Вехи + «Ещё» overflow). Mirrors
+   .tabs but scrolls horizontally and keeps an overflow menu (pm--project-tabs).
+   Without this the markup rendered as an unstyled run-on row of links. */
 .pm-project-tabs {
   display: flex; align-items: center; gap: var(--space-1);
   border-bottom: var(--hairline-width) solid var(--color-border);
@@ -418,6 +581,10 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   color: var(--color-fg); border-radius: 6px; font-size: 14px; white-space: nowrap;
 }
 .pm-project-tabs__more-menu a:hover { background: var(--color-bg-muted); }
+
+/* Colour swatch picker (ColorPickerComponent). The native radio is hidden; the
+   indicator shows --swatch-color. Without this CSS the swatches rendered as bare
+   blue browser radio buttons (the "blue" on the new-project form). */
 .color-picker { display: flex; flex-wrap: wrap; gap: var(--space-2); border: 0; padding: 0; margin: 0; }
 .color-picker__swatch { position: relative; display: inline-flex; cursor: pointer; line-height: 0; }
 .color-picker__input { position: absolute; opacity: 0; pointer-events: none; }
@@ -433,21 +600,27 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .color-picker__input:focus-visible + .color-picker__indicator {
   box-shadow: inset 0 0 0 2px var(--color-bg-elevated), 0 0 0 3px var(--color-accent);
 }
+
 .breadcrumb { font-size: 13px; color: var(--color-fg-muted); }
 .breadcrumb__list { display: inline-flex; gap: var(--space-2); list-style: none; padding: 0; margin: 0; }
 .breadcrumb__item:not(:last-child)::after { content: "/"; margin-left: var(--space-2); color: var(--color-fg-subtle); }
 .breadcrumb__current { color: var(--color-fg); font-weight: 500; }
+
 .pagination-footer { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-top: var(--hairline-width) solid var(--color-border); }
 .pagination-footer__meta { color: var(--color-fg-muted); font-size: 13px; }
 .pagination-footer__per-page { display: inline-flex; align-items: center; gap: var(--space-2); margin-left: auto; }
+
+/* ===== Stat / Progress / Segmented / Switch ===== */
 .stat-bar { display: flex; gap: var(--space-6); padding: var(--space-4); }
 .stat-bar__label { font-family: var(--type-mono); text-transform: uppercase; font-size: 11px; color: var(--color-fg-subtle); }
 .stat-bar__value { font-family: var(--type-display); font-weight: 200; font-size: 32px; }
+
 .stat-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border: var(--hairline-width) solid var(--color-border); border-radius: 12px; background: var(--color-bg-elevated); }
 .stat-card__label { font-family: var(--type-mono); text-transform: uppercase; font-size: 11px; color: var(--color-fg-subtle); }
 .stat-card__value { font-family: var(--type-display); font-weight: 200; font-size: 28px; }
 .stat-card__delta--positive { color: var(--color-success-text); }
 .stat-card__delta--negative { color: var(--color-danger-text); }
+
 .progress { display: flex; flex-direction: column; gap: 4px; }
 .progress__track { display: block; width: 100%; height: 6px; background: var(--color-border); border-radius: 999px; overflow: hidden; }
 .progress__fill  { display: block; height: 100%; }
@@ -456,31 +629,92 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .progress--warning .progress__fill { background: var(--color-warning); }
 .progress--danger  .progress__fill { background: var(--color-danger); }
 .progress--neutral .progress__fill { background: var(--color-fg-muted); }
+
 .segmented { display: inline-flex; padding: 2px; background: var(--color-bg-muted); border-radius: 8px; border: 0; }
 .segmented__option { padding: 4px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--color-fg-muted); }
+/* 🔴 ПИЛЮЛЯ ИДЁТ ЗА РАДИО, А НЕ ТОЛЬКО ЗА КЛАССОМ ОТ СЕРВЕРА.
+
+   Замер 22.09.2026 на странице настроек календаря: клик по «Воскресенье» даёт
+   `checked = sunday` — то есть форма приняла выбор, — а `--active` остаётся на
+   «Понедельник». На экране НЕ МЕНЯЕТСЯ НИЧЕГО.
+
+   Человек либо решит, что клик не сработал (нажмёт ещё раз, уйдёт), либо
+   сохранит настройку, которую экран ему ни разу не показал. Второе хуже: в
+   «Начале недели» это переставит всю сетку.
+
+   Причина: `--active` ставит СЕРВЕР при отрисовке, а на странице настроек нет
+   JS, который двигал бы его по клику (в шапке календаря такой JS есть —
+   `grid_controller`, и там расхождения не было). До того как нативный кружок
+   спрятали, о выборе говорил он; теперь не говорит ничто.
+
+   Лекарство домашнее и уже применено у соседей: состояние рисует `:checked`,
+   а не класс (`.checkbox__input:checked + .checkbox__indicator`, строка 208).
+   Серверный класс оставлен — он нужен первому кадру, до гидратации. */
 .segmented__option:has(input:checked),
+/* Пилюля БЕЗ входа внутри — это ссылки, а не радио: так собран выбор периода в
+   аналитике поддержки (`support/analytics`). Там выбранное может показать
+   только класс, и он остаётся хозяином. А там, где вход ЕСТЬ, класс от
+   серверной отрисовки уступает `:checked` — иначе после клика выбранными
+   выглядят ДВЕ опции сразу, и это хуже прежнего: раньше человек хотя бы видел
+   одну. Проверено собственной обратной гранью в
+   `spec/system/calendar/view_switch_spec.rb`. */
 .segmented__option--active:not(:has(input)) { background: var(--color-bg-elevated); color: var(--color-fg); box-shadow: var(--shadow-soft); }
+
+/* 🔴 НАТИВНЫЙ КРУЖОК РАДИО ПРЯЧЕМ — ЕГО ЗДЕСЬ НЕ ДОЛЖНО БЫТЬ ПО ЗАМЫСЛУ.
+   Находка Каи на стенде 22.09.2026: перед каждым видом в шапке календаря
+   стоял нативный кружок — у активного синий, у остальных серые. Замер:
+   `appearance: auto`, 13×13, `opacity: 1`, и НИ ОДНОГО правила для
+   `.segmented__input` в CSS. Подложка активной кнопки рисовалась как надо, а
+   сам `input` никто не прятал — значит кружки были видны в обеих темах.
+
+   Что это дефект, а не решение дизайнера, говорит сам компонент своими
+   словами: `SegmentedControlComponent` — «radio group STYLED AS a single
+   button row. FLIP-animated active PILL». Выбранное показывает пилюля;
+   нативный кружок — второй указатель того же, и он ей противоречит. Плюс
+   `_calendar.css` ужимает отступы и шрифт на узких экранах, чтобы шесть видов
+   влезли в шапку, — а 13 пикселей кружка на каждый съедали ровно то место, за
+   которое эти правила борются.
+
+   ⚠️ ПРЯЧЕМ ТАК, ЧТОБЫ КЛАВИАТУРА ОСТАЛАСЬ ЖИВОЙ. `display: none` и
+   `visibility: hidden` убрали бы элемент из порядка обхода: замер 22.09
+   показал, что стрелки влево-вправо СЕЙЧАС переключают вид (нативная группа
+   радио), и сломать это починкой косметики было бы дороже самой косметики.
+   Приём тот же, что у `.color-picker__input` строкой ниже: absolute + opacity,
+   элемент остаётся фокусируемым и доступным для чтения с экрана. */
 .segmented__option { position: relative; }
+/* 🔑 ПО СВОЙСТВУ, А НЕ ПО ИМЕНИ КЛАССА: «радио внутри пилюли», кем бы оно ни
+   было помечено. В настройках календаря та же пилюля собрана с классом
+   `radio__input` (он спрятан строкой 200 и потому дефекта там нет) — но
+   следующая разметка может не поставить ни того, ни другого класса, и кружок
+   вернётся. Селектор по типу закрывает КЛАСС дефекта, а не его случай. */
 .segmented__option input[type="radio"],
 .segmented__input { position: absolute; opacity: 0; pointer-events: none; }
+/* Фокус рисуется на самой пилюле — иначе он ушёл бы вместе со спрятанным
+   кружком, и человек с клавиатуры перестал бы видеть, где находится. */
 .segmented__option:has(.segmented__input:focus-visible) {
   outline: 2px solid var(--color-accent); outline-offset: 2px;
 }
+
+/* ===== Realtime / Conflict / Cursor ===== */
 .realtime { display: inline-flex; align-items: center; gap: 4px; font-family: var(--type-mono); font-size: 11px; color: var(--color-fg-muted); padding: 2px 8px; border-radius: 999px; background: var(--color-bg-muted); }
 .realtime__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-fg-subtle); }
 .realtime--connected .realtime__dot { background: var(--color-success); animation: rt-pulse 2s infinite; }
 .realtime--reconnecting .realtime__dot { background: var(--color-warning); }
 @keyframes rt-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
 .conflict-banner { padding: var(--space-3); border-radius: 8px; background: var(--color-warning-soft); color: var(--color-warning-text); }
 .presence-cursor { position: absolute; pointer-events: none; }
 .presence-cursor__caret { display: inline-block; width: 2px; height: 18px; background: var(--cursor-color, var(--color-accent)); }
 .presence-cursor__label { padding: 2px 6px; border-radius: 4px; background: var(--cursor-color, var(--color-accent-decorative)); color: #fff; font-size: 11px; }
+
+/* ===== Kanban + Timeline ===== */
 .kanban-column { display: flex; flex-direction: column; min-width: 280px; max-width: 320px; background: var(--color-bg-muted); border-radius: 12px; padding: var(--space-3); }
 .kanban-column__header { display: flex; align-items: center; gap: var(--space-2); padding-bottom: var(--space-2); border-bottom: var(--hairline-width) solid var(--color-border); }
 .kanban-column__title  { font-family: var(--type-display); font-weight: 200; font-size: 16px; flex: 1; }
 .kanban-column__count  { font-family: var(--type-mono); font-size: 11px; color: var(--color-fg-subtle); }
 .kanban-column__body   { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; padding: var(--space-2) 0; }
 .kanban-column__footer { padding-top: var(--space-2); border-top: var(--hairline-width) solid var(--color-border); }
+
 .kanban-card, .task-card {
   display: flex; flex-direction: column; gap: var(--space-2);
   padding: var(--space-3);
@@ -501,61 +735,113 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 }
 .kanban-card__title, .task-card__title { font-weight: 500; font-size: 14px; }
 .kanban-card__meta, .task-card__meta   { display: flex; align-items: center; gap: var(--space-2); font-size: 12px; color: var(--color-fg-muted); }
+
+/* ===== Drag-and-drop drop zones (kanban columns, CRM funnel stages) =====
+   Reusable primitive that fixes the "dropped card lands in second place" class
+   of bug once, everywhere.
+
+   The empty-state hint is rendered as an out-of-flow OVERLAY (`.dnd-empty-overlay`)
+   inside `.dnd-droppable`, NEVER as a flow child of the Sortable list
+   (`.dnd-list`). A hint inside the list would occupy a real slot in Sortable's
+   index space, so a card dropped into an "empty" column would appear AFTER the
+   hint (second place) and report the wrong position to the server. As an
+   absolutely-positioned, non-interactive overlay it occupies no slot: the first
+   dropped card always lands at visual index 0.
+
+   `:has()` toggles the hint declaratively — the instant the list holds any child
+   (a real card, the Sortable drag ghost, or an optimistic inline-create
+   placeholder) the hint hides; when the list empties again it returns. This
+   replaces the per-surface JS empty-state bookkeeping that used to drift out of
+   sync across the drag / inline-create / live-broadcast paths.
+
+   Sortable must ALSO set `draggable` to the card selector (see
+   BaseSortableController) so the overlay — and any non-card child — is excluded
+   from both drag and `newDraggableIndex` math. CSS + JS together make the
+   first-slot drop correct visually and on the wire. */
 .dnd-droppable { position: relative; display: flex; flex-direction: column; min-height: 0; }
 .dnd-empty-overlay {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: flex-start;   
+  align-items: flex-start;   /* hint sits at the TOP of the drop zone (under the
+                                "+ add" input), like the pre-overlay layout — not
+                                floating in the vertical centre of a tall column. */
   justify-content: center;
   pointer-events: none;
 }
 .dnd-droppable:has(> .dnd-list > *) .dnd-empty-overlay { display: none; }
+
 .timeline { list-style: none; padding: 0; margin: 0; }
 .timeline__item { display: flex; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: var(--hairline-width) solid var(--color-border); }
 .timeline__actor { font-weight: 500; }
 .timeline__text  { color: var(--color-fg-muted); }
 .timeline__when  { color: var(--color-fg-subtle); margin-left: auto; font-size: 12px; }
+
+/* ===== Sidebar items ===== */
 .sidebar-section { padding: var(--space-2) 0; }
 .sidebar-section__header { display: flex; align-items: center; padding: 0 var(--space-3); }
 .sidebar-section__toggle { background: transparent; border: 0; cursor: pointer; flex: 1; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; color: var(--color-fg-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
 .sidebar-section__count  { font-family: var(--type-mono); font-size: 11px; }
 .sidebar-section__body   { padding: 0 var(--space-2); }
+
 .sidebar-item { display: flex; align-items: center; gap: var(--space-2); padding: 6px 10px; border-radius: 6px; color: var(--color-fg); font-size: 14px; }
 .sidebar-item:hover { background: var(--color-bg-muted); }
 .sidebar-item--current { background: var(--color-accent-soft); color: var(--color-accent-strong); }
 .sidebar-item__label { flex: 1; }
+
 .sidebar-tree-node { padding-left: calc(var(--tree-depth, 0) * 12px); }
 .sidebar-tree__link { display: flex; gap: var(--space-2); padding: 4px var(--space-2); align-items: center; border-radius: 6px; }
 .sidebar-tree__link:hover { background: var(--color-bg-muted); }
 .sidebar-tree__color { width: 8px; height: 8px; border-radius: 50%; background: var(--tree-color, var(--color-fg-subtle)); }
 .sidebar-tree__disclosure { background: transparent; border: 0; cursor: pointer; color: var(--color-fg-subtle); width: 16px; }
+
+/* ===== Mobile shell + bottom nav + drawer ===== */
 .mobile-bottom-nav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: var(--color-bg-elevated); border-top: var(--hairline-width) solid var(--color-border); z-index: 30; }
+/* Bottom nav is mobile-only — on ≥md navigation lives in the desktop sidebar.
+   This non-layered rule sets `display`, which beats Tailwind's `md:hidden`
+   (an @layer utility), so the markup's `md:hidden` was a no-op and the fixed
+   bar overlapped page content on desktop. Hide it explicitly at the same
+   specificity, later in the cascade. */
 @media (min-width: 768px) { .mobile-bottom-nav { display: none; } }
 .mobile-bottom-nav__item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; color: var(--color-fg); font-size: 11px; background: transparent; border: 0; cursor: pointer; }
 .mobile-bottom-nav__item--current { color: var(--color-accent-strong); }
 .mobile-bottom-nav__item span { font-size: 11px; }
+
 .bottom-sheet { border: 0; padding: 0; width: 100%; max-width: none; margin: auto auto 0 auto; background: var(--color-bg-elevated); border-radius: 16px 16px 0 0; box-shadow: var(--shadow-card); }
 .bottom-sheet::backdrop { background: rgba(0,0,0,0.4); }
 .bottom-sheet__handle  { display: block; margin: 8px auto; width: 40px; height: 4px; border-radius: 999px; background: var(--color-border-strong); }
+
+/* bottom — второй слот лестницы (--float-slot-2): над ланчером поддержки и над
+   нижним таб-баром. Хардкод 72px не учитывал ни safe-area, ни ланчер. */
 .fab { position: fixed; right: 16px; bottom: var(--float-slot-2); padding: 12px; border-radius: 999px; background: var(--color-accent); color: var(--color-accent-on); border: 0; box-shadow: var(--shadow-card); cursor: pointer; transition: transform var(--motion-duration-fast) var(--motion-ease); z-index: 35; }
 .fab--hidden { transform: translateY(120%); }
+
+/* ===== TipTap editor stub ===== */
 .tiptap { display: flex; flex-direction: column; gap: var(--space-2); border: var(--hairline-width) solid var(--color-border); border-radius: 8px; padding: var(--space-3); background: var(--color-bg-elevated); }
 .tiptap__toolbar { display: flex; gap: 4px; padding-bottom: var(--space-2); border-bottom: var(--hairline-width) solid var(--color-border); }
 .tiptap__surface { min-height: 120px; outline: none; }
+
+/* ===== AI components ===== */
 .ai-suggest { padding: var(--space-3); border-left: 3px solid var(--color-accent); background: var(--color-accent-soft); border-radius: 0 8px 8px 0; }
 .ai-suggest__source { font-size: 12px; color: var(--color-fg-subtle); }
 .ai-suggest__actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+
 .ai-verdict--ok                  { border-color: var(--color-success); }
 .ai-verdict--needs_clarification { border-color: var(--color-warning); }
 .ai-verdict--rejected            { border-color: var(--color-danger); }
+
+/* ===== KbdComponent ===== */
 .kbd-set { display: inline-flex; align-items: center; gap: 2px; }
 .kbd { font-family: var(--type-mono); font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--color-bg-muted); border: var(--hairline-width) solid var(--color-border); }
 .kbd__sep { color: var(--color-fg-subtle); margin: 0 2px; }
+
+/* ===== Markdown ===== */
 .markdown h1, .markdown h2, .markdown h3 { font-family: var(--type-display); font-weight: 200; }
 .markdown a { color: var(--color-accent); text-decoration: underline; }
 .markdown code { font-family: var(--type-mono); padding: 2px 4px; background: var(--color-bg-muted); border-radius: 4px; }
 .markdown pre  { padding: var(--space-3); background: var(--color-bg-muted); border-radius: 8px; overflow-x: auto; }
+
+/* ===== Phase 7 §IV.7.3 magic-moment renderer ===== */
 .magic-moment {
   position: fixed;
   bottom: 24px;
@@ -578,6 +864,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 @media (prefers-reduced-motion: reduce) {
   .magic-moment { transition: none; transform: none !important; }
 }
+
+/* ===== Phase 3 §IV.3.3 #35 typing indicator ===== */
 .typing-indicator {
   display: inline-flex;
   align-items: center;
@@ -601,6 +889,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 @media (prefers-reduced-motion: reduce) {
   .typing-indicator__dots span { animation: none; opacity: 0.6; }
 }
+
+/* ===== Phase 4 §IV.4.3 KB inline comments + sidebar ===== */
 .tiptap-inline-comment {
   background: color-mix(in oklch, var(--color-warning) 18%, transparent);
   border-bottom: 1.5px dashed var(--color-warning);
@@ -617,6 +907,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   font-size: 12px; cursor: pointer; padding: 2px 4px;
 }
 .kb-comment__actions button:hover { color: var(--color-accent); }
+
+/* ===== Phase 4 §IV.4.3 #28 KB outline panel ===== */
 .kb-outline { font-family: var(--type-body); font-size: 13px; }
 .kb-outline__list { list-style: none; padding: 0; margin: 0; }
 .kb-outline__list li { margin-bottom: 4px; }
@@ -627,10 +919,14 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   padding: 2px 0;
 }
 .kb-outline__link:hover { color: var(--color-accent); }
+
+/* ===== Phase 4 §IV.4.3 #17 backlinks panel ===== */
 .kb-backlinks { padding: var(--space-3); border-top: 0.5px solid var(--color-border); margin-top: var(--space-4); }
 .kb-backlinks__list { list-style: none; padding: 0; margin: 0; }
 .kb-backlinks__link { color: var(--color-accent); text-decoration: none; }
 .kb-backlinks__link:hover { text-decoration: underline; }
+
+/* ===== Phase 6 §IV.6 Quality Gate wizard ===== */
 .pm-quality-wizard { padding: var(--space-4); }
 .pm-quality-wizard__steps li { padding: 4px 8px; border-radius: 6px; }
 .pm-quality-wizard__steps li.is-active { background: var(--color-accent); color: var(--color-accent-on); }
@@ -642,6 +938,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   width: 18px; height: 18px; font-size: 11px; cursor: pointer;
   color: var(--color-fg-muted);
 }
+
+/* ===== Phase 8 §IV.8 deploy-window banner ===== */
 .deploy-banner {
   position: sticky;
   top: 0;
@@ -660,6 +958,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   background: none; border: none; cursor: pointer;
   font-size: 16px; color: inherit;
 }
+
+/* ===== Phase 8 §IV.8 in-app changelog ===== */
 .in-app-changelog {
   position: relative;
   padding: 12px 16px;
@@ -674,19 +974,36 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   background: none; border: none; cursor: pointer;
   color: var(--color-fg-muted); font-size: 18px;
 }
+
+/* ===== S-B-157: исход сделки на карточке CRM =====
+ * Свой класс вместо PM-приоритета: «выиграна» — это не «приоритет p1», и правка
+ * шкалы приоритетов в PM не должна перекрашивать сделки. Цвета берём смысловые —
+ * успех и потеря, — а не заимствованные у срочности. */
 .crm-deal__outcome { font-weight: 700; padding: 2px 6px; border-radius: 5px; letter-spacing: 0.03em; }
 .crm-deal__outcome--won { background: var(--color-success-soft); color: var(--color-success-text); }
 .crm-deal__outcome--lost { background: var(--color-danger-soft); color: var(--color-danger-text); }
+
+/* ===== Phase 5 §IV.5 CRM activities timeline ===== */
 .crm-activities-timeline { padding: var(--space-3); }
 .crm-activities-timeline__list { list-style: none; padding: 0; margin: 0; }
 .crm-activities-timeline__icon { width: 22px; flex-shrink: 0; }
+
+/* ===== Phase 5 §IV.5 CRM analytics charts ===== */
 .crm-charts .chart-card  { background: var(--color-bg); }
 .kpi-card { background: var(--color-bg); }
+
+/* ===== Phase 5 §IV.5 funnel stages settings ===== */
 .crm-funnel-stages__list li { background: var(--color-bg); }
+
+/* ===== Phase 4 §IV.4 KB 3-pane layout ===== */
 .kb-pane { background: var(--color-bg); }
+
+/* ===== Phase 5 inline-edit panel chips ===== */
 .pm-task-inline-edit .input,
 .crm-deal-inline-edit .input,
 .crm-contact-inline-edit .input { font-size: 13px; }
+
+/* ===== Phase 8 Pomodoro widget ===== */
 .pomodoro-widget {
   display: inline-flex;
   align-items: center;
@@ -696,6 +1013,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   background: color-mix(in oklch, var(--color-accent) 12%, transparent);
   font-size: 13px;
 }
+
+/* ===== Phase 3 inline-comment sidebar slot ===== */
 .tiptap-mention { color: var(--color-accent); font-weight: 500; }
 .tiptap-doc-link { color: var(--color-accent); text-decoration: none; }
 .tiptap-doc-link:hover { text-decoration: underline; }
@@ -718,7 +1037,11 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 .tiptap-mention-item.is-selected,
 .tiptap-doclink-item.is-selected,
 .tiptap-slash-item.is-selected { background: var(--color-bg-muted); }
+
+/* ===== Phase 7 trash UI rows ===== */
 .crm-all-deals__filters .input { min-width: 140px; }
+
+/* ===== Phase 4 KB outline ===== */
 .kb-outline { padding: 8px; }
 .kb-outline__item {
   border-left: 2px solid transparent;
@@ -732,6 +1055,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   border-left-color: var(--color-accent, #2563eb);
 }
 .kb-outline__item--level-1 { font-weight: 500; }
+
+/* ===== Phase 8 persona tour ===== */
 .persona-tour__tooltip {
   background: var(--color-bg-elevated, #fff);
   color: var(--color-fg, #111);
@@ -744,6 +1069,22 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 }
 .persona-tour__copy { margin: 0 0 10px; }
 .persona-tour__actions { display: flex; gap: 8px; justify-content: flex-end; }
+/* 🔴 ВЫСОТА КНОПОК — 44, МЕРА ПАЛЬЦА. Замер на телефоне 390×844 (26.09.2026)
+   давал 96×33 и 81×33: по высоте не хватало одиннадцати. Ширины хватало обеим,
+   поэтому добирается только вертикаль.
+
+   ⚠️ Зона расширяется САМИМ элементом, а не псевдоэлементом. Приём «расширить
+   зону, не трогая вид» в проекте есть (`.cal-source::after`,
+   `.pm-sidebar-tree__actions-trigger::after`) и хорош там, где цель одна.
+   Здесь кнопки СТОЯТ ПАРОЙ и ведут к противоположным исходам — «Пропустить»
+   закрывает тур, «Дальше» ведёт по нему. Невидимая зона, вылезающая за
+   видимые границы, означала бы, что человек метит в одну надпись, а попадает
+   мимо неё: он не может видеть, где кончается цель. Поэтому граница видимая.
+
+   `--tap-min` — тот же токен, что у шапки и рельса; своего числа здесь нет.
+
+   Тур ОБЩИЙ с PM (подсказку рисует `pm/task_tour_controller.js`), так что
+   правка чинит обе площадки сразу. */
 .persona-tour__skip,
 .persona-tour__next {
   min-height: var(--tap-min);
@@ -759,6 +1100,19 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   background: var(--color-accent, #2563eb); color: var(--color-accent-on, #fff); border: 0;
   border-radius: 8px; padding: 6px 14px; cursor: pointer; font-weight: 500;
 }
+/* Подсветка того, на что тур показывает.
+
+   🔴 `position: relative` и слой — не украшение. До 22.09.2026 здесь стояли
+   только `outline` и радиус, то есть подсветка жила в общем потоке с
+   `z-index: auto`: обводка рисовалась на уровне подсвечиваемого узла и её так
+   же накрывал сосед, стоящий выше. Ступень та же, что у карточки, — тур
+   показывает и объясняет одно и то же, и разъезжаться этим двум слоям нельзя.
+
+   ⚠️ `relative` без сдвигов ничего не двигает, но создаёт контекст наложения:
+   если внутри подсвечиваемого узла когда-нибудь окажется собственный
+   всплывающий слой, он останется внутри этой ступени. У нынешних восьми целей
+   (переключатель видов, «+», ярлыки рельса, кнопки тулбара, таб-бар) такого
+   нет. */
 .persona-tour__highlight {
   position: relative;
   z-index: var(--z-tour, 1025);
@@ -773,6 +1127,17 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   display: block; margin: 0 0 6px;
   font-size: 12px; color: var(--color-fg-muted, #6b7280);
 }
+
+/* ============================================================
+   Phase 1 — Brand accent overrides for legacy Tailwind palette.
+   Existing host views still emit `bg-blue-600` / `bg-indigo-600` /
+   `bg-purple-600` everywhere. Until each is migrated to ButtonComponent,
+   these selectors map the old palette to the rose-gold redesign accent
+   so users see the new look immediately. Pages that *want* the literal
+   blue (alerts, chrome devtools links) can opt out via `data-no-brand`.
+   ============================================================ */
+
+/* Solid filled buttons / links — extended palette */
 :where(html:not([data-no-brand]))
   :is(button, a, input[type="submit"]):is(
     .bg-blue-600, .bg-blue-700,
@@ -814,6 +1179,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   :is(button, a, input[type="submit"]).hover\:bg-indigo-700:hover {
   background-color: var(--color-accent-strong) !important;
 }
+
+/* Active sidebar item — soft rose-gold tint instead of cold blue */
 :where(html:not([data-no-brand])) .bg-blue-50,
 :where(html:not([data-no-brand])) .bg-indigo-50 {
   background-color: var(--color-accent-soft) !important;
@@ -836,6 +1203,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 :where(html:not([data-no-brand])) .bg-blue-200 {
   background-color: var(--color-accent-soft) !important;
 }
+
+/* Borders/rings — soft accent replacement */
 :where(html:not([data-no-brand])) .ring-blue-500:focus,
 :where(html:not([data-no-brand])) .focus\:ring-blue-500:focus {
   --tw-ring-color: var(--color-accent-soft) !important;
@@ -844,6 +1213,8 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
 :where(html:not([data-no-brand])) .focus\:border-blue-500:focus {
   border-color: var(--color-accent) !important;
 }
+
+/* Shared `.btn` / `.btn--primary` (used by some new partials) */
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
   gap: 6px; padding: 8px 14px; font-size: 14px; font-weight: 500;
@@ -865,12 +1236,16 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   border-color: var(--color-border);
 }
 .btn--secondary:hover { background: color-mix(in oklch, var(--color-bg-muted), var(--color-fg) 10%); }
+
+/* Cards — softer radius + warmer surface, override Tailwind hardcoded white. */
 :where(html:not([data-no-brand])) .rounded-xl.bg-white,
 :where(html:not([data-no-brand])) .rounded-lg.bg-white,
 :where(html:not([data-no-brand])) .bg-white.shadow-sm {
   background-color: var(--color-bg-elevated) !important;
   border: var(--hairline-width) solid var(--color-border);
 }
+
+/* Inputs — soft rounded with warm border */
 :where(html:not([data-no-brand])) input[type="text"].rounded-lg,
 :where(html:not([data-no-brand])) input[type="email"].rounded-lg,
 :where(html:not([data-no-brand])) input[type="tel"].rounded-lg,
@@ -879,13 +1254,26 @@ input[type="checkbox"]:not(.checkbox__input):not(.toggle__input):not(.radio__inp
   border-color: var(--color-border) !important;
   background-color: var(--color-bg-elevated);
 }
+
+/* Eyebrow utility (used by partials Round 2) */
 .eyebrow {
   font-family: var(--type-mono, "JetBrains Mono", monospace);
   font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--color-fg-muted); display: block; margin-bottom: 4px;
 }
+/* 🔴 …но НЕ на ячейке таблицы. `display: block` превращает каждый `th` в свою
+   строку: шапка складывается в столбец, а тело остаётся таблицей — и колонки
+   перестают соответствовать заголовкам. Так выглядели ВСЕ 27 таблиц админки
+   (`<th class="eyebrow">`), и заметить это можно было только глазами: разметка
+   верна, спеки зелёные, ломает вид одно свойство из третьего по счёту
+   определения `.eyebrow`. Поймано проверкой в браузере 16.08.2026.
+   Правим точечно, а не убираем `display` у самого утилити: блочная форма
+   используется вне таблиц и там нужна. */
 th.eyebrow, td.eyebrow { display: table-cell; margin-bottom: 0; }
 .text-muted { color: var(--color-fg-muted); }
+
+/* Inline link — used by host views via class="text-link" (sweep'нуто
+   из text-blue-600 hover:text-blue-700 dark:text-blue-400). */
 .text-link {
   color: var(--color-accent-strong);
   text-decoration: none;
@@ -897,7 +1285,12 @@ th.eyebrow, td.eyebrow { display: table-cell; margin-bottom: 0; }
 }
 [data-theme="dark"] .text-link { color: var(--color-accent); }
 [data-theme="dark"] .text-link:hover { color: var(--color-accent-strong); }
+
+/* Hover-border variant — used by raw-Tailwind dashed avatar slots
+   that get a subtle accent border when interacted with. */
 .hover\:border-accent:hover { border-color: var(--color-accent) !important; }
+
+/* Page background when redesign chrome is active (new pm/crm/kb layouts). */
 body {
   background: var(--color-bg);
   color: var(--color-fg);
@@ -905,6 +1298,8 @@ body {
 [data-theme="dark"] body {
   background: var(--color-bg-elevated); color: var(--color-fg);
 }
+
+/* ===== Phase 1.5 appearance toolbar (theme + density) ===== */
 .appearance-toolbar {
   position: fixed; top: 12px; right: 12px; z-index: 60;
   display: flex; gap: 6px;
@@ -952,6 +1347,12 @@ body {
 .appearance-toolbar__menu button:hover {
   background: var(--color-bg-muted);
 }
+
+/* ============================================================
+   Density cascade — Phase 1.5. Selectors below adjust spacing
+   when `<html data-density="compact">` or `data-density="spacious"`
+   is set. The default cascade matches `comfortable`.
+   ============================================================ */
 [data-density="compact"] body { font-size: 13px; }
 [data-density="compact"] .card { border-radius: 8px; }
 [data-density="compact"] .card--padded { padding: var(--space-3); }
@@ -963,11 +1364,20 @@ body {
 [data-density="spacious"] .stat-card { padding: var(--space-6); }
 [data-density="spacious"] .stat-card__value { font-size: 32px; }
 [data-density="spacious"] .btn { padding: 10px 18px; }
+
+/* ============================================================
+   CRM/KB sidebar polish — apply design tokens to existing sidebar
+   markup so the chrome looks like the redesign without touching the
+   partials structure. (PM uses the .shell-sidebar component; its
+   legacy .pm-sidebar chrome + collapse feature were removed.)
+   ============================================================ */
 aside.kb-pane--spaces,
 aside[class*="crm-sidebar"] {
   background: var(--color-bg-elevated);
   border-right: var(--hairline-width) solid var(--color-border);
 }
+
+/* Mobile bottom nav warm-white instead of stark white */
 .mobile-bottom-nav {
   background: var(--color-bg-elevated) !important;
   border-top: var(--hairline-width) solid var(--color-border) !important;
@@ -978,6 +1388,8 @@ aside[class*="crm-sidebar"] {
 .mobile-bottom-nav__item--current {
   color: var(--color-accent-strong) !important;
 }
+
+/* CRM/PM tables — apply design tokens to existing table markup */
 :where(html:not([data-no-brand])) table:where(.w-full) {
   background: var(--color-bg-elevated);
   border-radius: 12px;
@@ -994,17 +1406,23 @@ aside[class*="crm-sidebar"] {
 :where(html:not([data-no-brand])) table:where(.w-full) tbody tr:hover {
   background: var(--color-bg-muted);
 }
+
+/* Notification popup — design system surfaces */
 [data-controller*="dropdown"] [data-dropdown-target="menu"]:where(.bg-white) {
   background: var(--color-bg-elevated) !important;
   border: var(--hairline-width) solid var(--color-border) !important;
   border-radius: 12px;
   box-shadow: 0 16px 40px -12px rgba(0,0,0,0.18);
 }
+
+/* Pm slide-over header — polish */
 [data-controller*="pm--task-slide-over"] header,
 .pm-task-slide-over__header {
   background: var(--color-bg-elevated);
   border-bottom: var(--hairline-width) solid var(--color-border);
 }
+
+/* Tables — warm-white instead of stark, subtle hairline */
 :where(html:not([data-no-brand])) table {
   border-collapse: collapse;
 }
@@ -1019,10 +1437,22 @@ aside[class*="crm-sidebar"] {
   text-transform: uppercase;
   color: var(--color-fg-muted);
 }
+
+/* Modals/dialogs — warm-white scrim instead of stark black */
 :where(html:not([data-no-brand])) dialog::backdrop {
   background: rgba(26, 22, 18, 0.42);
   backdrop-filter: blur(2px);
 }
+
+/* ============================================================
+   PM Sidebar — Project Tree
+   ============================================================
+   Replaces the deeply-nested per-project sub-menu (Overview / Documents
+   / Settings / Boards) with a flat folder→project→board tree. Folders
+   open by default, projects collapsed by default. Drag-and-drop
+   between folders is in `pm--sidebar-reorder` JS. Tokens are muted
+   on purpose — sidebar is ambient navigation, not foreground content.
+*/
 .pm-sidebar-tree__search {
   width: 100%;
   padding: 6px 10px;
@@ -1038,6 +1468,7 @@ aside[class*="crm-sidebar"] {
   border-color: var(--color-accent, #6366f1);
   box-shadow: 0 0 0 2px var(--color-accent-soft, rgba(99, 102, 241, 0.12));
 }
+
 .pm-sidebar-tree__heading {
   display: flex;
   align-items: center;
@@ -1065,6 +1496,7 @@ aside[class*="crm-sidebar"] {
   color: var(--color-accent-strong, #4f46e5);
   background: var(--color-bg-muted, rgba(0, 0, 0, 0.04));
 }
+
 .pm-sidebar-tree__row {
   display: flex;
   align-items: center;
@@ -1133,6 +1565,7 @@ aside[class*="crm-sidebar"] {
   color: var(--color-accent-strong, #4f46e5);
   font-weight: 600;
 }
+
 .pm-sidebar-tree__actions {
   position: relative;
   opacity: 0;
@@ -1155,11 +1588,13 @@ aside[class*="crm-sidebar"] {
   color: var(--color-fg, #111827);
   background: rgba(0, 0, 0, 0.06);
 }
+
 .pm-sidebar-tree__children {
   margin-left: 18px;
   padding-left: 6px;
   border-left: 1px solid var(--color-border-muted, rgba(0, 0, 0, 0.06));
 }
+
 .pm-sidebar-tree__board {
   display: flex;
   align-items: center;
@@ -1180,6 +1615,14 @@ aside[class*="crm-sidebar"] {
   color: var(--color-accent-strong, #4f46e5);
   font-weight: 600;
 }
+
+/* S-B-94 / S-B-129 — board row + hover-revealed actions menu. Plain (unlayered)
+   CSS so the opacity reveal isn't overridden by Tailwind @layer utilities
+   (#374). The board link flex-grows; the «…» trigger sits at the end, revealed
+   on row hover or keyboard focus (mirrors .pm-sidebar-tree__actions).
+   S-B-129: раньше здесь висела одинокая корзина (.pm-sidebar-tree__board-delete)
+   — единственное действие строки, и сразу разрушительное. Теперь это обёртка
+   меню, поэтому position: relative — выпадашка позиционируется absolute. */
 .pm-sidebar-tree__board-row {
   display: flex;
   align-items: center;
@@ -1199,6 +1642,7 @@ aside[class*="crm-sidebar"] {
 .pm-sidebar-tree__board-actions:focus-within {
   opacity: 1;
 }
+
 .pm-sidebar-tree__folder-drop {
   min-height: 16px;
 }
@@ -1208,6 +1652,7 @@ aside[class*="crm-sidebar"] {
   color: var(--color-fg-subtle, #9ca3af);
   font-style: italic;
 }
+
 .pm-sidebar-tree__row--ghost {
   opacity: 0.4;
 }
@@ -1215,6 +1660,11 @@ aside[class*="crm-sidebar"] {
   background: var(--color-bg-elevated, #fff);
   box-shadow: var(--shadow-medium, 0 4px 12px rgba(0, 0, 0, 0.1));
 }
+
+/* === Admin-panel widget utilities (audit 60: replace inline style=) ===
+ * Runtime/semantic values arrive via custom properties (--fg/--bar-w/--bar-bg/
+ * --bl-color/--soft-bg/--dot-bg) — the sanctioned way to hand a runtime value
+ * to CSS. Static dimensions are plain utility classes. */
 .admin-fg { color: var(--fg); }
 .admin-progress-bar { width: var(--bar-w, 0%); background: var(--bar-bg); }
 .admin-card-accent { border-left-color: var(--bl-color); background: var(--soft-bg); }
@@ -1223,20 +1673,33 @@ aside[class*="crm-sidebar"] {
 .admin-range-output { width: 5rem; }
 .admin-block-preview-frame { min-height: 200px; max-height: 600px; overflow: auto; }
 .admin-block-preview-empty { min-height: 60px; }
+
+/* === More app-surface inline-style replacements (audit 60, wave 3) === */
+/* Typing-dots stagger (specialists/ai_chat/_loading) */
 .dot-delay-1 { animation-delay: 0s; }
 .dot-delay-2 { animation-delay: 0.2s; }
 .dot-delay-3 { animation-delay: 0.4s; }
+/* Static token-backed surfaces */
 .u-overlay-scrim { background: rgba(0, 0, 0, 0.5); }
 .u-bg-danger-soft { background: var(--color-danger-soft); }
 .u-bg-muted { background: var(--color-bg-muted); }
 .u-bg-warning-soft { background: var(--color-warning-soft); border-color: var(--color-warning); }
 .u-border-danger { border-color: var(--color-danger); }
+/* Timeline marker — colours passed at render time via --mk-bg / --mk-fg */
 .u-timeline-marker { background-color: var(--mk-bg); color: var(--mk-fg); }
+/* Static nudges */
 .u-mt-0 { margin-top: 0; }
 .u-mt-1px { margin-top: 1px; }
 .u-no-caps { text-transform: none; letter-spacing: 0; }
+/* Width driven by --w custom prop (analytics/admin progress bars) */
 .u-w-pct { width: var(--w, 0%); }
+/* Tree/heading indent driven by --indent custom prop */
 .u-indent { padding-left: var(--indent, 0); }
+/* Embedded HTML email iframe — sized to content by shared--iframe-autosize.
+   The small min-height is only a pre-load fallback (NOT 200px, which forced a
+   tall empty white box on short emails — the «белое пятно»). Rendered as a
+   clean white «paper» card (emails are authored for white) rounded into the
+   dark reading-pane surface. */
 .u-email-frame {
   width: 100%;
   border: none;
@@ -1245,6 +1708,11 @@ aside[class*="crm-sidebar"] {
   background: #fff;
   border-radius: var(--radius-md);
 }
+
+/* ===== Mail slide-over reading pane =====
+   Visibility is pure CSS: the overlay shows the moment the reading_pane frame
+   gets a thread (no JS race). It covers the list area only — the persistent
+   sidebar sits outside the list root, so it never moves. */
 .mail-reading { display: none; position: absolute; inset: 0; z-index: 30; }
 .mail-reading:has(#reading_pane > *) { display: flex; justify-content: flex-end; }
 .mail-reading__backdrop {
@@ -1263,9 +1731,16 @@ aside[class*="crm-sidebar"] {
   to   { transform: none; opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .mail-reading__panel { animation: none; } }
+/* Static surface (admin fraud stat card) — bg via --bg custom prop */
 .u-bg-dynamic { background: var(--bg); }
+/* Birth-time field collapse (onboarding / profile time-unknown toggle).
+   birth-time-toggle / natal-chart-form Stimulus controllers override
+   max-height + opacity inline at runtime; this only sets the server-rendered
+   initial state, so the value no longer needs an inline style attribute. */
 .birth-time-collapse { max-height: 80px; opacity: 1; }
 .birth-time-collapse.is-collapsed { max-height: 0; opacity: 0; }
+
+/* Auth page (auth/new) — rose-gold gradient + glassmorphism card (audit 60). */
 .auth-bg {
   background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-muted) 60%,
                              color-mix(in oklch, var(--color-accent) 22%, var(--color-bg-muted)) 100%);
@@ -1281,15 +1756,72 @@ aside[class*="crm-sidebar"] {
   background: var(--color-accent-soft);
   border-color: color-mix(in oklch, var(--color-accent) 40%, transparent);
 }
+
+/* Кнопка «Войти через VK ID» (#1152) — фон затемнён до порога AA.
+   ------------------------------------------------------------------------
+   Виджет рисует @vkid/sdk своим `<style>`, и белый текст на фирменном
+   #0077FF даёт 4.13 при пороге 4.5. Цвет непрозрачный, от нашего фона не
+   зависит — считается точно и не проходит.
+
+   Замер по палитре самого SDK (widgets/oneTap/template.js), белый текст:
+     #0077FF base         4.13  ✗
+     #0071F2 light hover  4.52  ✓
+     #0069E1 light active 5.11  ✓
+     #097EFF dark hover   3.86  ✗
+     #1385FF dark active  3.60  ✗
+   Отсюда важное: в тёмной теме наведение и нажатие ХУЖЕ покоя — починить
+   один базовый цвет значило бы оставить дыру ровно там, где курсор.
+
+   Поэтому лестница сдвинута на ступень вниз и одинакова для обеих схем:
+   base = их light-hover, hover = их light-active, active = затемнение того
+   же цвета. Свои синие не выдуманы — два из трёх взяты из их же палитры.
+   Тёмная тема теряет «подсветку при наведении» и тоже темнеет: другого
+   способа удержать AA в ней нет, светлее #0071F2 порог не проходит.
+
+   `!important` здесь не небрежность. SDK объявляет переменные селектором
+   `:root #<сгенерированный-id>`, id заранее неизвестен, а идентификатор
+   весит больше любого числа атрибутов — перебить специфичностью нельзя.
+   Имена переменных недокументированы: если обновление SDK их переименует,
+   правка молча перестанет действовать. Это стережёт
+   spec/system/auth/vk_one_tap_contrast_spec.rb — он проверяет вычисленный
+   каскад с настоящим `<style>` из установленного пакета. */
 [data-test-id="oneTap"][data-skin="primary"] {
   --onetap--button_background: #0071F2 !important;
   --onetap--background_hover: #0069E1 !important;
   --onetap--background_active: color-mix(in srgb, #0069E1 90%, #000) !important;
 }
+
+/* ---- ЦВЕТНОЙ СВОТЧ (.pm-swatch) -----------------------------------------
+   Переехал из pm/_board.css при разделении бандла: класс рисует и доска
+   (колонки, проекты, метки), и страница тегов базы знаний. Префикс `pm-`
+   исторический: под этим именем его знают шаблоны и ColorContrastHelper.
+   ------------------------------------------------------------------------- */
+/* Data-driven colour swatch (project / label / column dots & avatars). The
+   per-record colour is a user value, so it can't be a token — it rides in via
+   the `--pm-swatch` custom property (the sanctioned inline-style escape hatch),
+   keeping templates free of direct-property inline colour. Swatches carry white
+   text (initials), so the no-colour fallback must stay readable in BOTH themes:
+   --color-accent-decorative (#9A6E55) is theme-stable, whereas --color-accent
+   flips to light tan in dark → white-on-tan. Matches the inline-style fallback
+   used by the board-header / settings / search swatches. */
 .pm-swatch {
   background: var(--pm-swatch, var(--color-accent-decorative));
+  /* --pm-swatch-fg считает ColorContrastHelper по яркости фона: свотч красится
+     пользовательским цветом, и статичный белый текст на светлом пропадал. */
   color: var(--pm-swatch-fg, inherit);
 }
+
+/* ---- ВЫБОР ИНСТРУМЕНТОВ АССИСТЕНТА (.tool-picker) -------------------------
+   Один компонент на три места: политика личности сотрудника, политика
+   служебной личности, область долгоживущего ключа.
+
+   🔴 ГЛАВНОЕ, ЧТО ДЕЛАЮТ ЭТИ СТИЛИ: отличают «не выбрано» от «НЕДОСТУПНО».
+   Первое человек меняет галочкой; второе запретил владелец политикой, и
+   галочка бессильна. Одинаковый вид заставил бы тыкать в мёртвый чекбокс и
+   гадать, почему ключ выпустился без половины выбранного. Поэтому у
+   недоступного и приглушённый цвет, и `not-allowed`, и подпись словами —
+   цвета одного мало: он не читается ни скринридером, ни при дальтонизме.
+   ------------------------------------------------------------------------- */
 .tool-picker__presets {
   display: flex;
   flex-wrap: wrap;
@@ -1335,12 +1867,28 @@ aside[class*="crm-sidebar"] {
 }
 .tool-picker__name { font-family: var(--type-mono); font-size: 12px; }
 .tool-picker__write { color: var(--color-warning, #b45309); cursor: help; }
+/* Недоступное: приглушено, не нажимается и ПОДПИСАНО. Три признака, а не
+   один — цвет сам по себе не сообщение. */
 .tool-picker__item.is-unavailable label { cursor: not-allowed; opacity: 0.55; }
 .tool-picker__blocked {
   font-size: 11px;
   color: var(--color-fg-subtle);
   font-style: italic;
 }
+
+/* ===== Вход по номеру телефона: экран ожидания звонка ==========================
+
+   🔴 ЭТОТ ЭКРАН — ЕДИНСТВЕННОЕ МЕСТО В ПРОДУКТЕ, ГДЕ ЧЕЛОВЕК ЖДЁТ НАС, А НЕ
+   НАОБОРОТ. Он держит трубку, слушает робота и ловит ОДНО слово. Форма из поля
+   и кнопки этого не выражает: она выглядит так, будто ничего не происходит, —
+   а происходит звонок, который мы уже оплатили и который живёт пять минут.
+
+   Поэтому экран ждёт ВМЕСТЕ с человеком: пульс дозвона показывает, что вызов
+   идёт прямо сейчас, а поле под слово сделано крупным и засечным — это не ввод
+   пароля, это одно произнесённое вслух слово.
+
+   Всё ниже — прогрессивное улучшение: без CSS и без JS форма остаётся формой. */
+
 .dial {
   display: flex;
   flex-direction: column;
@@ -1348,6 +1896,9 @@ aside[class*="crm-sidebar"] {
   gap: var(--space-3);
   padding: var(--space-5) var(--space-4);
 }
+
+/* Пульс дозвона: точка и три расходящихся кольца. Кольца стартуют со сдвигом,
+   поэтому волна читается как повторяющийся вызов, а не как один всплеск. */
 .dial__pulse {
   position: relative;
   width: 72px;
@@ -1356,6 +1907,7 @@ aside[class*="crm-sidebar"] {
   place-items: center;
   flex: none;
 }
+
 .dial__pulse::before {
   content: "";
   width: 12px;
@@ -1364,6 +1916,7 @@ aside[class*="crm-sidebar"] {
   background: var(--color-accent);
   box-shadow: var(--shadow-glow, 0 0 12px var(--color-accent-soft));
 }
+
 .dial__ring {
   position: absolute;
   inset: 0;
@@ -1372,28 +1925,38 @@ aside[class*="crm-sidebar"] {
   opacity: 0;
   animation: dial-ring 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
+
 .dial__ring:nth-child(2) { animation-delay: 0.8s; }
 .dial__ring:nth-child(3) { animation-delay: 1.6s; }
+
 @keyframes dial-ring {
   0%   { transform: scale(0.28); opacity: 0.55; }
   70%  { opacity: 0.12; }
   100% { transform: scale(1);    opacity: 0; }
 }
+
+/* ⚠️ Уважаем системную настройку: анимация здесь — украшение смысла, а не сам
+   смысл. Тому, кто просил покоя, остаётся статичное кольцо. */
 @media (prefers-reduced-motion: reduce) {
   .dial__ring { animation: none; opacity: 0.2; transform: scale(0.7); }
 }
+
 .dial__number {
   font-family: var(--font-mono);
   font-size: 18px;
   letter-spacing: 0.02em;
   color: var(--color-fg);
 }
+
 .dial__hint {
   font-size: 13px;
   color: var(--color-fg-muted);
   text-align: center;
   max-width: 34ch;
 }
+
+/* Поле под одно слово. Не коробка, а строка с подчёркиванием: код произносят
+   вслух, и вводят его как слово, а не как пароль. */
 .word-field {
   width: 100%;
   padding: var(--space-3) var(--space-2);
@@ -1410,32 +1973,45 @@ aside[class*="crm-sidebar"] {
   transition: border-color var(--motion-duration-fast) var(--motion-ease),
               box-shadow var(--motion-duration-fast) var(--motion-ease);
 }
+
 .word-field::placeholder {
   color: var(--color-fg-subtle);
   font-size: 22px;
 }
+
 .word-field:focus {
   outline: none;
   border-bottom-color: var(--color-accent);
   box-shadow: 0 6px 16px -12px var(--color-accent);
 }
+
+/* Отсчёт живёт рядом с полем и меняет цвет на исходе: последняя минута — это
+   уже «поторопитесь», и человек должен видеть это, а не узнавать отказом. */
 .word-countdown {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--color-fg-subtle);
   font-variant-numeric: tabular-nums;
 }
+
 .word-countdown--urgent { color: var(--color-warning-text, var(--color-danger-text)); }
 .word-countdown--dead   { color: var(--color-danger-text); }
+
+/* Мягкое появление блока входа. Смысл не в красоте: экран меняет состояние
+   после редиректа (заказали звонок → ждём слово), и без перехода это выглядит
+   как «страница моргнула», а не «мы позвонили». */
 .rise {
   animation: rise-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
 .rise--2 { animation-delay: 70ms; }
 .rise--3 { animation-delay: 140ms; }
+
 @keyframes rise-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .rise { animation: none; }
 }

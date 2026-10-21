@@ -1,5 +1,43 @@
-/* Дизайн-система the-essence — копия для прототипа */
+/* Копия из the-essence develop a4059ecec — НЕ ПРАВИТЬ здесь: правка идёт в продукт, сюда — новой копией. */
+/*
+ * R7-21 — Self-hosted typography mirroring landing v14.
+ *
+ * 🔴 ПОЧЕМУ `fallback`, А НЕ `optional` (замер 22.08.2026, решение владельца).
+ *
+ * Было `optional`: не успел за ~100 мс — браузер берёт запасной и УЖЕ НЕ
+ * МЕНЯЕТ его до конца жизни страницы. На медленном мобильном это означало, что
+ * нашу гарнитуру человек не видит ВООБЩЕ — весь визит читает системной.
+ *
+ * Лечить это предзагрузкой оказалось нельзя: замер на проде показал, что
+ * подсказки отбирают полосу у единственного файла, который блокирует отрисовку
+ * (первая отрисовка 2 450 → 3 020 мс, разбор — в
+ * layouts/shared/_app_head_assets.html.erb).
+ *
+ * `fallback` снимает саму развилку: блок-период те же ~100 мс, но дальше есть
+ * окно подмены в 3 с. Гарнитура применяется, когда доедет, — предзагружать её
+ * не нужно, и полосу у стиля она не отбирает.
+ *
+ * Подмена при этом НЕ двигает вёрстку: ниже объявлены метрические запасные
+ * (`Manrope-Fallback` и пара) с `size-adjust` и overrides — коробка текста
+ * совпадает до пикселя. Именно ради этого они и заводились.
+ *
+ * Why self-host: Google Fonts CDN is unreliable through the user's RU
+ * VPN — first paint frequently fell back to system-ui and the chrome
+ * looked off-brand. landing_v14.html already ships eight subsetted woff2
+ * files (cyrillic + latin × Manrope, Lora roman, Lora italic, JetBrains
+ * Mono — ~197 KB total) with `font-display: fallback` for zero CLS.
+ * We mirror that exact setup here so the app and the landing read as
+ * one type system.
+ *
+ * Tokens (used by Tailwind theme + handful of overrides below) sit at
+ * :root so any consumer can `font-family: var(--font-sans)` etc.
+ *
+ * The `_google_fonts.html.erb` partial that previously loaded these via
+ * Google CDN is now a no-op (kept as an empty file so layouts that
+ * `render "shared/google_fonts"` don't 500 — see comment there).
+ */
 
+/* ── @font-face — Manrope 200..700, cyrillic + latin subsets ───────── */
 @font-face {
   font-family: "Manrope";
   font-style: normal;
@@ -16,6 +54,8 @@
   src: url("../../fonts/manrope-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
+/* ── Lora — roman + italic, 400..600, cyrillic + latin ─────────────── */
 @font-face {
   font-family: "Lora";
   font-style: normal;
@@ -48,6 +88,8 @@
   src: url("../../fonts/lora-italic-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
+/* ── JetBrains Mono — 400, cyrillic + latin ────────────────────────── */
 @font-face {
   font-family: "JetBrains Mono";
   font-style: normal;
@@ -64,6 +106,23 @@
   src: url("../../fonts/jetbrains-mono-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
+/* ── Метрические подмены — страховка на период блокировки ──────────────
+ *
+ * 🔴 Почему это важно ИМЕННО здесь. Все наши @font-face стоят с
+ * `font-display: fallback`: если шрифт не успел за ~100 мс, браузер берёт
+ * запасной и УЖЕ НЕ МЕНЯЕТ его до конца жизни страницы. То есть запасной —
+ * это не мгновение перед подменой, а то, чем человек читает весь визит.
+ *
+ * Без выровненных метрик такой визит выглядит чужим шрифтом другой ширины:
+ * строки набегают, заголовки переносятся не там. `size-adjust` и overrides
+ * приводят системную гарнитуру к метрикам нашей — коробка текста совпадает
+ * до пикселя, и подмена перестаёт читаться глазом.
+ *
+ * Значения выверены для лендинга (landing/core/_font_fallbacks.scss) и до сих
+ * пор доставались кабинету случайно — через landing.css, который подключался
+ * на каждой странице. Теперь они свои.
+ * ------------------------------------------------------------------ */
 @font-face {
   font-family: "Manrope-Fallback";
   src: local("Helvetica Neue"), local("Arial"), local("Liberation Sans"),
@@ -91,6 +150,9 @@
   descent-override: 25%;
   line-gap-override: 0%;
 }
+
+/* ── Tokens — same names landing v14 uses, so a future shared design
+   system can read either side without translation. ────────────────── */
 :root {
   --font-sans:    "Manrope", "Manrope-Fallback", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: "Manrope", "Manrope-Fallback", -apple-system, system-ui, sans-serif;
@@ -98,6 +160,10 @@
   --font-mono:    "JetBrains Mono", "JetBrainsMono-Fallback", "SF Mono", ui-monospace, monospace;
   --num-tabular: "tnum" 1, "lnum" 1;
 }
+
+/* Body default — Manrope 400 via token. `!important` because Tailwind v4's
+   preflight sets `font-family: var(--font-sans)` on body and the redesign
+   layouts re-define that token to system-ui in some places. */
 body {
   font-family: var(--font-sans) !important;
   font-weight: 400;
@@ -105,25 +171,38 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Display headings — Manrope 500 (200 was too light for cyrillic). h1
+   gets a touch more weight. Letter-spacing tightens display sizes. */
 h1, h2, h3, h4 {
   font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: -0.01em;
 }
 h1 { font-weight: 600; }
+
 em, .serif {
   font-family: var(--font-italic);
   font-style: italic;
   font-weight: 400;
 }
+
 code, kbd, pre, samp, .mono {
   font-family: var(--font-mono);
   font-feature-settings: var(--num-tabular);
 }
+
+/* ── Token utilities — same names as the landing tokens above so any
+   utility-class consumer (Tailwind class strings, ad-hoc partials)
+   can opt into the type system without re-declaring `font-family`.
+   `.font-display` adds the tighter tracking the display family wants. ─ */
 .font-sans     { font-family: var(--font-sans); }
 .font-display  { font-family: var(--font-display); letter-spacing: -0.01em; }
 .font-italic   { font-family: var(--font-italic); font-style: italic; font-weight: 400; }
 .font-mono     { font-family: var(--font-mono); font-feature-settings: var(--num-tabular); }
+
+/* ── Eyebrow — small uppercase label used in breadcrumbs, "JUST CREATED"
+   lanes, sidebar section headers. Single source of truth. ─ */
 .eyebrow {
   font-family: var(--font-display);
   font-size: 10px;
@@ -132,6 +211,11 @@ code, kbd, pre, samp, .mono {
   text-transform: uppercase;
   color: var(--color-fg-muted);
 }
+
+/* ── Motion primitives — a small set of named transitions and keyframes
+   so partials don't re-invent timing/easing each time. The easing values
+   are iOS-style spring (open/close panels) and a subtle pop (toggle
+   confirmation) — both feel "native", not jQuery-tween. ─ */
 :root {
   --ease-spring: cubic-bezier(.32, .72, 0, 1);
   --ease-pop:    cubic-bezier(.5, 1.6, .4, .9);
@@ -139,23 +223,33 @@ code, kbd, pre, samp, .mono {
   --motion-medium: 250ms;
   --motion-slow:   400ms;
 }
+
 @keyframes star-pop {
   0%   { transform: scale(1)    rotate(0); }
   40%  { transform: scale(1.25) rotate(-8deg); }
   100% { transform: scale(1)    rotate(0); }
 }
+
 @keyframes lane-row-in {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes complete-pulse {
   0%   { box-shadow: 0 0 0 0   var(--color-accent-soft); }
   60%  { box-shadow: 0 0 0 8px transparent; }
   100% { box-shadow: 0 0 0 0   transparent; }
 }
+
 .animate-star-pop      { animation: star-pop      var(--motion-medium) var(--ease-pop); }
 .animate-lane-row-in   { animation: lane-row-in   var(--motion-medium) var(--ease-spring); }
 .animate-complete-pulse{ animation: complete-pulse var(--motion-slow)  ease-out; }
+
+/* ── Respect the user's motion preference. Anyone with prefers-reduced-
+   motion gets the same UI without the spring/pop/slide — mandatory for
+   WCAG 2.1 SC 2.3.3 and standard product practice. The keyframes still
+   exist so consumers don't break, but their effective duration drops to
+   ~0 and the animation simply settles into its end state. ─ */
 @media (prefers-reduced-motion: reduce) {
   .animate-star-pop,
   .animate-lane-row-in,
@@ -164,6 +258,11 @@ code, kbd, pre, samp, .mono {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ── New-tasks lane — left-rail accent + eyebrow heading. The previous
+   thin bottom-border was almost invisible against the muted background
+   in dark mode, so the user never had a strong "your task landed here"
+   signal. Linear / Notion both use a left-rail for the same affordance. ─ */
 .new-tasks-lane {
   position: relative;
   margin-bottom: var(--space-3, 12px);
@@ -186,3 +285,4 @@ code, kbd, pre, samp, .mono {
 .new-tasks-lane:has(> table > tbody:empty) {
   display: none;
 }
+

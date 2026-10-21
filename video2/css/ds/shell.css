@@ -1,5 +1,14 @@
-/* Дизайн-система the-essence — копия для прототипа */
+/* Копия из the-essence develop a4059ecec — НЕ ПРАВИТЬ здесь: правка идёт в продукт, сюда — новой копией. */
+/* =============================================================================
+   Global shell — chrome shared across modules (concept «Суть ✕ Задачи»).
+   Top bar (52px) · module sidebar (240px) · app-rail. Token-driven, both
+   [data-theme] palettes, density-aware. No raw Tailwind colour utilities.
+   ============================================================================= */
 
+/* ─────────────── Шапка шторки модуля (бренд) ───────────────
+   Верхней полосы у приложения больше нет: бренд «Суть ✕ <Модуль>» стоит здесь,
+   в шапке левой шторки. Высота та же 52px, но она больше не отрезает 52px у
+   КАЖДОГО модуля по всей ширине окна. */
 .shell-sidebar__brand {
   display: flex;
   align-items: center;
@@ -36,8 +45,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ─────────────── Строка главного действия + поиск ───────────────
+   Лупа стоит вплотную к главной кнопке модуля — там, где рука уже находится,
+   когда создаёт. Это ЕДИНСТВЕННЫЙ вход в поиск на странице. */
 .shell-action { display: flex; gap: 8px; margin-bottom: 12px; flex: none; }
 .shell-action .shell-compose { flex: 1; min-width: 0; margin-bottom: 0; }
+
 .shell-search-btn {
   width: 44px;
   height: 44px;
@@ -60,6 +74,8 @@
   color: var(--color-accent);
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
+/* Модуль без главной кнопки (Главная, Отчёты): лупа занимает всю строку и
+   подписывается — иначе строка выглядела бы наполовину пустой. */
 .shell-search-btn--wide {
   width: auto;
   flex: 1;
@@ -89,6 +105,7 @@
   padding: 3px 7px;
   flex: none;
 }
+
 .shell-icon-btn {
   width: 36px;
   height: 36px;
@@ -106,14 +123,25 @@
 .shell-icon-btn__moon { display: none; }
 [data-theme="dark"] .shell-icon-btn__sun { display: none; }
 [data-theme="dark"] .shell-icon-btn__moon { display: inline-flex; }
+
+/* Focus-mode minimal header (shown when the sidebar is hidden on desktop). */
 .shell-focus-header {
   background: var(--color-bg-elevated);
   border-bottom: var(--hairline-width) solid var(--color-border);
 }
+
+/* Таймер и колокол — ленивые turbo-frames в служебной группе рельса.
+   turbo-frame ОБЯЗАН иметь box (НЕ display:contents): у loading="lazy" Turbo
+   подгружает frame через IntersectionObserver, а элемент с display:contents не
+   создаёт box → observer его не видит → frame НИКОГДА не загружается. */
 .shell-apprail__timer,
 .shell-apprail__bell { flex: none; display: flex; justify-content: center; width: 100%; }
 .shell-apprail__timer turbo-frame,
 .shell-apprail__bell turbo-frame { display: inline-flex; align-items: center; }
+
+/* Пилюля активного таймера в 56px не помещается горизонтально — складываем её
+   в 42×42 плитку: точка-пульс сверху, время под ней моноширинным 9px. ID задачи
+   и «стоп» прячем: и то и другое в одном клике отсюда — на самой задаче. */
 .shell-apprail__timer .shell-timer-pill {
   flex-direction: column;
   gap: 1px;
@@ -127,6 +155,7 @@
 .shell-apprail__timer .shell-timer-pill__stop { display: none; }
 .shell-apprail__timer .shell-timer-pill__time { font-size: 9px; letter-spacing: -0.03em; }
 .shell-apprail__timer .shell-timer-pill__dot { width: 5px; height: 5px; }
+
 .shell-apprail__bell button {
   position: relative;
   width: 42px;
@@ -139,6 +168,7 @@
               color var(--motion-duration-fast) var(--motion-ease);
 }
 .shell-apprail__bell button:hover { background: var(--color-bg-muted); color: var(--color-accent); }
+
 .shell-avatar {
   width: 34px;
   height: 34px;
@@ -157,9 +187,14 @@
 }
 .shell-avatar:hover { box-shadow: 0 0 0 3px var(--color-accent-soft); }
 .shell-avatar--lg { width: 42px; height: 42px; font-size: 15px; }
+/* Аватар-фото (users.avatar_url) заполняет круг; инициалы-fallback
+   центрируются гридом родителя и показываются shell--avatar-контроллером
+   при ошибке загрузки <img>. */
 .shell-avatar__img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .shell-avatar__initials { display: grid; place-items: center; width: 100%; height: 100%; }
+
 .shell-apprail__profile { position: relative; flex: none; }
+/* Свёрнутая кнопка профиля — только аватар (телефон/роль/тема живут в шторке). */
 .shell-apprail__item--profile {
   padding: 0;
   background: transparent;
@@ -167,6 +202,13 @@
   cursor: pointer;
 }
 .shell-apprail__item--profile:hover { background: var(--color-bg-muted); }
+
+/* 🔴 Слой — ТОКЕНОМ, а не числом. Сырое `z-index: 80` проигрывало любому
+   элементу на `--z-sticky` (1010) и выше: липкая шапка дня в календаре
+   (`.tg__head`) накрывала открытое меню пользователя. Календарь тут ни при
+   чём — он просто первым завёл липкий заголовок; с сырым числом меню
+   проиграло бы и любому следующему. `--z-popover` (1050) — штатный слой
+   выпадающих меню, ради этого он и заведён. */
 .shell-menu {
   position: absolute;
   right: 0;
@@ -204,6 +246,16 @@
 .shell-menu__item:hover { background: var(--color-bg-muted); color: var(--color-fg); }
 .shell-menu__item--danger:hover { color: var(--color-danger-text); }
 .shell-menu form { margin: 0; }
+
+/* Тот же список — но внутри мобильной панели модулей, а не в шторке.
+ *
+ * 🔴 Профиль, смена роли, тема и ВЫХОД жили только в шторке аватара, а она
+ * часть десктопного рельса (`hidden md:block`). На телефоне их не было вовсе —
+ * выйти из аккаунта было нечем (04.09.2026). Панель уже сама себе карточка:
+ * снимаем рамку, тень и фон, оставляем только пункты. Размер под палец: 44px,
+ * как у остальных строк панели, и 14px текст, иначе профиль выглядел бы
+ * мельче соседних модулей.
+ */
 .shell-menu--panel {
   min-width: 0;
   background: transparent;
@@ -220,6 +272,11 @@
   color: var(--color-fg);
 }
 .shell-menu--panel .shell-menu__head { padding: 4px 9px 10px; }
+
+/* Те же пункты внутри ЧУЖОЙ шторки: у шапок дашборда и лэйаута `application`
+ * свой dropdown со своим позиционированием и фоном. Нам от `.shell-menu` нужны
+ * только правила для пунктов и `form { margin: 0 }` — карточку и позицию
+ * снимаем, иначе они наложились бы на обёртку и меню уехало бы вбок. */
 .shell-menu--inline {
   position: static;
   min-width: 0;
@@ -229,6 +286,8 @@
   box-shadow: none;
   padding: 0;
 }
+
+/* Секция смены роли в шторке (плоский список — не вложенный dropdown). */
 .shell-menu__role { display: flex; flex-direction: column; gap: 1px; }
 .shell-menu__role-cap {
   font-family: var(--type-mono);
@@ -240,7 +299,13 @@
 }
 .shell-menu__item--role.is-active { color: var(--color-accent); font-weight: 600; }
 .shell-menu__item--role.is-active .icon { color: var(--color-accent); }
+/* Невыбранные роли выравниваются под активную (галочка-иконка ≈16px). */
 .shell-menu__role-spacer { width: 16px; flex: none; }
+
+/* ─────────────────────────── Notification bell ─────────────────────────── */
+/* Колокол + выпадашка уведомлений. Та же лексика, что у профиль-шторки
+   (.shell-menu): токены, 13px-радиус, shadow-pop. Segmented-табы вместо
+   наезжающего ряда. */
 .shell-bell { position: relative; display: inline-flex; }
 .shell-bell__trigger {
   position: relative;
@@ -258,7 +323,10 @@
 }
 .shell-bell__trigger:hover { background: var(--color-bg-muted); color: var(--color-accent); }
 .shell-bell__trigger:active { transform: scale(0.94); }
+/* Колокол «теплеет» (accent), когда есть непрочитанные — счётчик рендерится
+   только при count>0, поэтому :has(.shell-bell__count) = «есть непрочитанные». */
 .shell-bell:has(.shell-bell__count) .shell-bell__trigger { color: var(--color-accent); }
+/* Микро-«звон» иконки на наведение — колокол качается у подвеса. */
 .shell-bell__trigger .icon { transform-origin: 50% 3px; }
 .shell-bell__trigger:hover .icon { animation: shell-bell-ring 0.75s var(--motion-ease); }
 @keyframes shell-bell-ring {
@@ -269,7 +337,11 @@
   60% { transform: rotate(-5deg); }
   76% { transform: rotate(2deg); }
 }
+
 .shell-bell__badge { position: absolute; top: 3px; right: 3px; pointer-events: none; }
+/* Счётчик — «живой»: объёмная заливка-градиент, кольцо-обводка под фон шапки
+   (отрывает бэйдж от иконки), мягкая тень и пинг-ореол при появлении (3 раза,
+   затем покой; повторяется, когда broadcast заменяет счётчик новым числом). */
 .shell-bell__count {
   position: relative;
   z-index: 0;
@@ -293,6 +365,9 @@
   70%  { transform: scale(1.9); opacity: 0; }
   100% { transform: scale(1.9); opacity: 0; }
 }
+
+/* Тот же дефект, что у `.shell-menu` выше, во втором месте того же файла:
+   сырое число проигрывает липкой шапке на `--z-sticky`. */
 .shell-bell__menu {
   position: absolute;
   right: 0;
@@ -305,6 +380,8 @@
   border-radius: 14px;
   box-shadow: var(--shadow-pop);
   overflow: hidden;
+  /* hover-intent: shell--bell снимает .hidden, затем добавляет .is-open на
+     следующем кадре → плавное появление. */
   opacity: 0;
   transform: translateY(-6px) scale(0.985);
   transform-origin: top right;
@@ -312,6 +389,7 @@
               transform var(--motion-duration-fast) var(--motion-ease);
 }
 .shell-bell__menu.is-open { opacity: 1; transform: translateY(0) scale(1); }
+/* Невидимый мост через зазор колокол↔меню, чтобы hover не прерывался. */
 .shell-bell__menu::before {
   content: "";
   position: absolute;
@@ -340,6 +418,8 @@
 }
 .shell-bell__markall:hover { background: var(--color-bg-muted); color: var(--color-accent); }
 .shell-bell__markall .icon { width: 16px; height: 16px; }
+
+/* Segmented-табы — единый трек со скользящим pill (как у Linear/Vercel). */
 .shell-bell__tabs {
   position: relative;
   display: flex;
@@ -349,6 +429,8 @@
   background: var(--color-bg-muted);
   border-radius: 10px;
 }
+/* Скользящий pill под активным табом — двигает shell--bell-tabs (transform/width,
+   GPU-дёшево). До инициализации JS opacity:0; fallback ниже держит активный. */
 .shell-bell__tab-pill {
   position: absolute;
   top: 3px;
@@ -385,13 +467,16 @@
   transition: color var(--motion-duration-fast) var(--motion-ease);
 }
 .shell-bell__tab:hover { color: var(--color-fg); }
+/* Грубый focus-ring убран (он давал «двойную рамку»); активный держит pill. */
 .shell-bell__tab:focus { outline: none; }
 .shell-bell__tab:focus-visible { outline: 2px solid var(--color-accent-soft); outline-offset: -2px; }
 .shell-bell__tab[aria-selected="true"] { color: var(--color-fg); }
+/* Fallback, если JS не успел спозиционировать pill — статичная подложка. */
 .shell-bell__tabs:not(:has(.shell-bell__tab-pill[style*="opacity: 1"])) .shell-bell__tab[aria-selected="true"] {
   background: var(--color-bg-elevated);
   box-shadow: var(--shadow-card);
 }
+
 .shell-bell__list { max-height: 360px; overflow-y: auto; overscroll-behavior: contain; }
 .shell-bell__row {
   position: relative;
@@ -406,16 +491,19 @@
 .shell-bell__row:hover { background: var(--color-bg-muted); }
 .shell-bell__row.is-unread { background: color-mix(in oklch, var(--color-accent) 7%, transparent); }
 .shell-bell__row.is-unread:hover { background: color-mix(in oklch, var(--color-accent) 12%, transparent); }
+/* Левый флажок непрочитанного. */
 .shell-bell__row-flag {
   position: absolute;
   left: 0; top: 9px; bottom: 9px;
   width: 3px; border-radius: 0 3px 3px 0;
   background: var(--color-accent);
 }
+/* Основная зона (клик → прочитать + перейти к задаче). */
 .shell-bell__row-main {
   display: flex; align-items: center; gap: 11px;
   min-width: 0; flex: 1; text-decoration: none;
 }
+/* Иконка-в-круге по типу уведомления (тон семантичен). */
 .shell-bell__icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; }
 .shell-bell__icon .icon { width: 17px; height: 17px; }
 .shell-bell__icon--accent  { background: var(--color-accent-soft);  color: var(--color-accent); }
@@ -424,17 +512,21 @@
 .shell-bell__icon--success { background: var(--color-success-soft); color: var(--color-success-text); }
 .shell-bell__icon--muted   { background: var(--color-bg-muted);     color: var(--color-fg-subtle); }
 .shell-bell__row-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+/* Заголовок — до 2 строк (line-clamp), чтобы имя задачи в «Просрочен дедлайн: ХХХ»
+   не обрезалось в многоточие. */
 .shell-bell__row-title {
   font-size: 13px; font-weight: 500; color: var(--color-fg-muted);
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
   overflow: hidden;
 }
 .shell-bell__row.is-unread .shell-bell__row-title { font-weight: 600; color: var(--color-fg); }
+/* Подзаголовок (body) — контекст задачи: проект, срок. Одна строка, приглушён. */
 .shell-bell__row-sub {
   font-size: 12px; color: var(--color-fg-subtle); line-height: 1.35;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .shell-bell__row-time { font-size: 11px; color: var(--color-fg-subtle); opacity: 0.85; }
+/* Hover-действия справа: прочитать / удалить (как у топов). */
 .shell-bell__row-actions {
   display: flex; align-items: center; gap: 2px; flex: none;
   opacity: 0; transform: translateX(5px);
@@ -453,6 +545,8 @@
 .shell-bell__act .icon { width: 15px; height: 15px; }
 .shell-bell__act:hover { background: var(--color-bg-elevated); color: var(--color-accent); }
 .shell-bell__act--danger:hover { color: var(--color-danger-text); }
+
+/* Stagger-появление строк при открытии меню. */
 @keyframes shell-bell-row-in {
   from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: none; }
@@ -466,6 +560,7 @@
 .shell-bell__menu.is-open .shell-bell__row:nth-child(4) { animation-delay: 110ms; }
 .shell-bell__menu.is-open .shell-bell__row:nth-child(5) { animation-delay: 140ms; }
 .shell-bell__menu.is-open .shell-bell__row:nth-child(n+6) { animation-delay: 165ms; }
+
 .shell-bell__empty {
   display: flex;
   flex-direction: column;
@@ -476,7 +571,9 @@
   font-size: 13px;
 }
 .shell-bell__empty .icon { width: 28px; height: 28px; color: var(--color-fg-subtle); opacity: 0.55; }
+/* display:flex выше перебивает UA-правило [hidden]{display:none} — возвращаем. */
 .shell-bell__empty[hidden] { display: none; }
+
 .shell-bell__foot {
   display: flex;
   align-items: center;
@@ -493,6 +590,7 @@
 .shell-bell__foot:hover { background: var(--color-bg-muted); }
 .shell-bell__foot .icon { width: 15px; height: 15px; }
 .shell-bell form { margin: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   .shell-bell__menu.is-open .shell-bell__row { animation: none; }
   .shell-bell__count::after { animation: none; }
@@ -501,6 +599,8 @@
   .shell-bell__tab-pill,
   .shell-bell__row-actions { transition: opacity var(--motion-duration-fast) var(--motion-ease); }
 }
+
+/* ─────────────────────────── Module sidebar ─────────────────────────── */
 .shell-sidebar {
   width: 250px;
   height: 100%;
@@ -518,13 +618,14 @@
   flex-direction: column;
   gap: 1px;
 }
+
 .shell-compose {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   height: 44px;
-  flex: none; 
+  flex: none; /* never shrink when the sidebar column overflows (e.g. PM tree) */
   border-radius: 12px;
   background: var(--color-accent);
   color: var(--color-accent-on);
@@ -539,12 +640,23 @@
               transform var(--motion-duration-fast) var(--motion-ease);
 }
 .shell-compose:hover { background: var(--color-accent-strong); transform: translateY(-1px); }
+
+/* Главная кнопка рельса, когда она не ссылка, а действие (button_to оборачивает
+   её в <form>): элементом колонки становится форма, поэтому ширину и нижний
+   отступ несёт она, а кнопка внутри растягивается на всю ширину. Без этого
+   кнопка съезжает — колонка растягивает форму, а не её содержимое. */
 .shell-compose-form { display: flex; flex: none; margin-bottom: 12px; }
 .shell-compose-form .shell-compose { flex: 1; margin-bottom: 0; }
+
 .shell-nav { display: flex; flex-direction: column; gap: 1px; }
 .shell-nav__item {
   display: flex;
   align-items: center;
+  /* Пункт рисуется и ссылкой, и КНОПКОЙ (`shared/_sidebar.html.erb`), а браузер
+     центрует текст кнопки по умолчанию — подпись отрывалась бы от иконки.
+     Правило живёт здесь, у причины: раньше оно стояло в `support/_support.css`
+     как «прод-оверрайд, шелл не трогаем», то есть модуль правил чужой примитив
+     на весь продукт. Так расхождение и начинается. */
   text-align: left;
   gap: 12px;
   padding: 8px 11px;
@@ -584,6 +696,7 @@
   font-size: 11px;
   font-weight: 600;
 }
+
 .shell-nav-label { display: flex; align-items: center; padding: 15px 11px 6px; }
 .shell-nav-label > span:first-child {
   font-family: var(--type-mono);
@@ -605,6 +718,7 @@
               color var(--motion-duration-fast) var(--motion-ease);
 }
 .shell-nav-label__add:hover { background: var(--color-bg-muted); color: var(--color-accent); }
+
 .shell-tree { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
 .shell-tree__search {
   width: 100%;
@@ -622,6 +736,7 @@
 .shell-tree__search:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-soft); }
 .shell-tree__search::placeholder { color: var(--color-fg-subtle); }
 .shell-tree__empty { font-size: 12px; color: var(--color-fg-subtle); padding: 6px 11px; }
+
 .shell-sidebar__timer {
   padding: 10px 12px;
   border-top: var(--hairline-width) solid var(--color-border);
@@ -630,6 +745,8 @@
 .shell-timer-link { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--color-success-text); font-size: 13px; }
 .shell-timer-link__time { font-family: var(--type-mono); font-size: 12px; }
 .shell-timer-link__id { font-size: 11px; color: var(--color-fg-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Workspace switcher (bottom). */
 .shell-ws { position: relative; border-top: var(--hairline-width) solid var(--color-border); padding: 10px 12px; flex: none; }
 .shell-ws__current {
   width: 100%;
@@ -662,6 +779,7 @@
 .shell-ws__name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .shell-ws__role { font-size: 10.5px; color: var(--color-fg-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .shell-ws__chev { color: var(--color-fg-subtle); flex: none; }
+
 .shell-ws__menu {
   position: absolute;
   left: 12px;
@@ -670,6 +788,7 @@
   max-width: 340px;
   width: max-content;
   bottom: 64px;
+  /* Третье выпадающее меню того же файла — та же причина. */
   z-index: var(--z-popover);
   background: var(--color-bg-elevated);
   border: var(--hairline-width) solid var(--color-border-strong);
@@ -683,31 +802,65 @@
 .shell-ws__item:hover { background: var(--color-bg-muted); }
 .shell-ws__item.is-active { background: var(--color-accent-soft); }
 .shell-ws__item-name { flex: 1; font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Two-line switcher item (e.g. mail: address + role). PM single-line is unaffected. */
 .shell-ws__item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .shell-ws__item-text .shell-ws__item-name { flex: none; }
 .shell-ws__item-sub { font-size: 11px; color: var(--color-fg-subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Mail switcher: address shown in mono so the long e-mail fits the narrow button. */
 .shell-ws--mail .shell-ws__name { font-family: var(--type-mono); font-size: 12px; letter-spacing: -0.01em; }
 .shell-ws__check { color: var(--color-accent); flex: none; }
 .shell-ws__div { height: var(--hairline-width); background: var(--color-border); margin: 5px 0; }
 .shell-ws__link { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; cursor: pointer; color: var(--color-fg-muted); font-size: 12.5px; font-weight: 500; text-decoration: none; }
 .shell-ws__link:hover { background: var(--color-bg-muted); color: var(--color-fg); }
 .shell-ws__link .icon { color: var(--color-fg-subtle); flex: none; }
+
+/* On mobile the sidebar fills the slide-in drawer.
+   🔴 ГРАНИЦА 767.98, А НЕ 768 — И ЭТО НЕ ПРИДИРКА.
+   Замер 13.09.2026 (нашёл кабинет Павла на iPad mini в портрете, ширина ровно
+   768): у оболочки стояло `max-width: 768px`, а модули переходят в десктопную
+   раскладку с `min-width: 768px` (так же работает и Tailwind `md:`). На ровно
+   768 срабатывали ОБА правила: календарь уже прятал свой рельс, а сайдбар
+   растягивался на всю ширину и закрывал страницу.
+   Парная граница `N − 0.02` ↔ `min-width: N` — соглашение, которое в проекте
+   де-факто уже есть (`calendar/_calendar.css` на 767.98) и которое теперь
+   держит страж `spec/assets/media_breakpoint_pairs_spec.rb`. */
 @media (max-width: 767.98px) { .shell-sidebar { width: 100%; } }
+
+/* Узкий экран: поиск сжимается в иконку, топбар поджимает промежутки.
+   Правило жило ДВАЖДЫ и дословно — в `calendar/_calendar.css` и
+   `support/_support.css`, — то есть два модуля независимо правили примитивы
+   шелла на весь продукт, а у самого шелла обработки не было вовсе. Здесь оно
+   одно, и менять его теперь можно в одном месте. Порог 620px сохранён как был:
+   правка переносит правило, а не поведение. */
 @media (max-width: 620px) {
   .shell-search__placeholder, .shell-search__kbd { display: none; }
   .shell-search { flex: none; width: 40px; padding: 0; justify-content: center; }
   .shell-topbar { gap: 8px; }
 }
+
+/* Сайдбар — ОСНОВНАЯ мобильная навигация (открывается гамбургером и табом
+   «Ещё»), то есть по нему попадают пальцем. Замер на 390px показал 36px у
+   пунктов навигации и 22×22 у кнопок «+» — обе ниже WCAG 2.5.5 (44px), и это
+   122 промахиваемые цели на КАЖДОМ экране PM. Глобальные правила из
+   _mobile.css сюда не достают: они написаны под классы .btn/.input, которых
+   шелл не использует. */
 @media (pointer: coarse) {
   .shell-nav__item { min-height: var(--tap-min); }
   .shell-tree__search { min-height: var(--tap-min); }
+
+  /* Дерево проектов — то, ради чего сайдбар и открывают пальцем. */
   .pm-sidebar-tree__trigger { min-height: var(--tap-min); }
+
+  /* «⋮» у проекта: 22×22 — как и «+», расширяем зону, а не сам элемент. */
   .pm-sidebar-tree__actions-trigger { position: relative; }
   .pm-sidebar-tree__actions-trigger::after {
     content: "";
     position: absolute;
     inset: calc((var(--tap-min) - 22px) / -2);
   }
+
+  /* У «+» область попадания растягивается псевдоэлементом, а не размером —
+     иначе кнопка визуально раздувается втрое и ломает строку заголовка. */
   .shell-nav-label__add { position: relative; }
   .shell-nav-label__add::after {
     content: "";
@@ -715,13 +868,16 @@
     inset: calc((var(--tap-min) - 22px) / -2);
   }
 }
+
+/* ─────────────────────────── App-rail (cross-module) ─────────────────────────── */
 .shell-apprail {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
   width: var(--app-rail-w);
-  height: 100%; 
+  height: 100%; /* без 100% .shell-apprail__spacer (flex:1) не имеет свободного
+                   места → шестерёнка «Настройки» не прижимается вниз */
   flex: none;
   padding: 14px 0;
   background: var(--color-bg);
@@ -762,14 +918,33 @@
   pointer-events: none;
   transition: opacity var(--motion-duration-fast) var(--motion-ease),
               transform var(--motion-duration-fast) var(--motion-ease);
+  /* Подпись выезжает ВЛЕВО от рельса (right: 52px) — то есть в чужую зону, где
+     внизу плавает ланчер поддержки (--z-popover). При z-index: 20 подпись
+     «Настройки» пряталась за круглой кнопкой: шестерёнка теперь последняя в
+     рельсе и стоит с ланчером на одной высоте. 20 к тому же вне шкалы токенов,
+     где всё живое начинается с 1000. Берём --z-toast, а не popover+1: тултип
+     обязан лечь поверх плавающих кнопок, но при равенстве с тостом побеждает
+     тост (он позже в DOM) — и это правильный порядок, тревога важнее подписи. */
   z-index: var(--z-toast);
 }
 .shell-apprail__item:hover .shell-apprail__tip { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+/* Пункты-кнопки (Юя, поиск) — те же 42×42, что и ссылки: сбрасываем нативную
+   обивку <button>, иначе в рельсе появлялась бы серая плашка и другой шрифт. */
 .shell-apprail__item {
   padding: 0;
   background: transparent;
   font: inherit;
 }
+/* ── вкладка Юи в рельсе ───────────────────────────────────────────────────
+   Жила в yuia/_panel.css — вместе со стилями самой шторки. Это была ошибка
+   адреса, и она стала видна, когда приложение начало отдавать шелл наружу
+   (ShellAssetsController): кабинет получал бы вкладку без её акцента, потому
+   что _panel.css туда не входит и входить не должен — шторка внутри кабинета
+   не рендерится. Вкладка — элемент рельса, её место здесь.
+
+   Единственная дверь к ассистенту, поэтому у неё есть тёплое присутствие даже
+   в покое — но ровно настолько, чтобы не спорить с колоколом рядом. */
 .shell-apprail__item--yuia {
   position: relative;
   display: inline-flex;
@@ -786,6 +961,7 @@
               background var(--motion-duration-fast) var(--motion-ease),
               transform var(--motion-duration-fast) var(--motion-ease);
 }
+
 .shell-apprail__item--yuia::after {
   content: "";
   position: absolute;
@@ -795,19 +971,24 @@
   transition: box-shadow var(--motion-duration-base) var(--motion-ease);
   pointer-events: none;
 }
+
 .shell-apprail__item--yuia:hover {
   color: var(--color-accent);
   background: color-mix(in oklch, var(--color-accent) 10%, transparent);
   transform: translateY(-1px);
 }
+
 .shell-apprail__item--yuia:hover::after {
   box-shadow: 0 0 14px 2px color-mix(in oklch, var(--color-accent) 26%, transparent);
 }
+
 .shell-apprail__item--yuia:active { transform: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .shell-apprail__item--yuia,
   .shell-apprail__item--yuia::after { transition: none; }
 }
+
 .shell-apprail__div {
   width: 26px;
   height: var(--hairline-width);
@@ -815,6 +996,13 @@
   margin: 5px 0;
   flex: none;
 }
+
+/* Выпадашки рельса — position: FIXED, а не absolute.
+   Рельс лежит внутри контейнера с overflow:hidden (строка «шторка · контент ·
+   рельс»), и абсолютная шторка профиля/колокола обрезалась бы этим контейнером —
+   тот же класс дефекта, что «меню троеточия рендерится внутри overflow-блока»
+   (S-B-24/65). Рельс всегда прижат к правому краю и имеет известную ширину,
+   поэтому фиксированная привязка к краю окна точна и не зависит от предков. */
 .shell-apprail__profile .shell-menu--rail,
 .shell-apprail__bell .shell-bell__menu {
   position: fixed;
@@ -827,7 +1015,14 @@
 .shell-apprail__profile .shell-menu--rail { transform: none; }
 .shell-apprail__bell .shell-bell__menu { transform: translateY(-6px) scale(0.985); }
 .shell-apprail__bell .shell-bell__menu.is-open { transform: translateY(0) scale(1); }
+/* Мост для hover-intent разворачиваем вправо, к колоколу: меню теперь слева
+   от него, а не под ним. */
 .shell-apprail__bell .shell-bell__menu::before { inset: 0 -12px 0 auto; width: 12px; height: auto; }
+
+
+/* ─────────────────────────── Top-bar timer pill ─────────────────────────── */
+/* Активный таймер в топбаре (turbo-frame pm_global_timer). Когда таймер не
+   запущен — frame пуст (никакого текста «не запущен»). */
 .shell-timer-pill {
   display: inline-flex;
   align-items: center;
@@ -878,7 +1073,34 @@
   transition: background var(--motion-duration-fast) var(--motion-ease);
 }
 .shell-timer-pill__stop:hover { background: color-mix(in oklch, var(--color-success) 22%, transparent); }
+
+
+/* ---- ПЕЧАТЬ: хром кабинета на бумаге не нужен ----------------------------
+   Правило живёт ЗДЕСЬ, у владельца примитивов, а не в модуле. До раздела
+   бандла глобальную шапку/рельс на печати прятали календарь и поддержка —
+   каждый своим `@media print`, где рядом с модульными селекторами стояли
+   общие `.shell-*`. Работало это лишь потому, что оба модуля лежали в общем
+   бандле: стоило вынести поддержку на свои страницы, и печать любого экрана
+   начинала зависеть от того, случайно ли остался в сборке чужой файл.
+   Модульные списки (.cal-fab, .sup-fab и прочие) остаются у своих модулей —
+   здесь только то, что рисует сам шелл. `.mobile-bottom-nav` объявлена в
+   _components.css, но это тот же хром навигации, и прячется вместе с ним.
+   `.shell-topbar` из старых списков сюда НЕ перенесена: этого класса нет ни
+   в одном шаблоне и контроллере — правило для него ничего не прячет. */
 @media print {
+  /* ---- ТЁМНАЯ ТЕМА НА БУМАГЕ -------------------------------------------
+     Браузер при печати не рисует фоны, а цвет текста берёт из активной темы.
+     В тёмной теме это давало светлый текст по белой бумаге: замер на странице
+     задачи показал rgb(181, 171, 157) — светло-серое по белому.
+     Прежние правила модулей (pm/_print.css) целились в классы Tailwind
+     (`dark:bg-gray-900`, `.bg-white`, `dark:text-white`), которых в разметке
+     БОЛЬШЕ НЕТ ни одного: проект перешёл на дизайн-токены, и в шаблонах PM их
+     208 вхождений. Поэтому палитра возвращается к светлой ЗДЕСЬ — у владельца
+     примитивов, одним местом на все модули.
+
+     Значения — зеркало светлой палитры из `:root` (_design_tokens.css);
+     spec/system/pm/print_dark_theme_spec.rb следит, чтобы зеркало не
+     разошлось с оригиналом. */
   :root[data-theme="dark"] {
     --color-bg:            #FFFCF9;
     --color-bg-elevated:   #FFFFFF;
@@ -889,22 +1111,56 @@
     --color-border:        #E8E0D6;
     --color-border-strong: #C9BCAB;
   }
+
   .shell-sidebar, .shell-apprail, .mobile-bottom-nav { display: none !important; }
+  /* Оболочка на бумаге разворачивается: на экране она держит 100dvh и режет
+     overflow, а печатать надо весь документ. `#main` — идентификатор main'а
+     в оболочках страниц, поэтому правило одно на всех. Раньше жило в
+     календаре и работало ровно потому, что тот лежал в общем бандле. */
   .cal-app, .cal-body, .cal-main, #main { height: auto !important; overflow: visible !important; display: block !important; }
   body, .cal-app { background: #fff !important; }
   @page { margin: 10mm; }
 }
+
+/* ---- ОБОЛОЧКА СТРАНИЦЫ (.cal-app) ---------------------------------------
+   Историческое имя: каркас родился в концепте календаря, но им пользуется и
+   layout видео-хаба (views/layouts/video.html.erb, views/video/hub/*). Пока
+   календарь лежал в общем бандле, разницы не было; теперь модуль грузится
+   только на своих страницах, и оболочка обязана жить у владельца — здесь.
+   Переименование отложено: это правка разметки в двух layout'ах и десятке
+   шаблонов, и она не про производительность. */
 .cal-app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden;
            background: var(--color-bg); color: var(--color-fg); }
 .cal-body { flex: 1; display: flex; min-height: 0; overflow: hidden; }
 .cal-main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--color-bg); overflow: hidden; }
+
+/* Глифы <use> внутри оболочки: спрайт отдаёт контуры, а UA по умолчанию
+   заливает их чёрным — заметно на замкнутых фигурах (пустое состояние). */
 .cal-app svg.icon:has(> use) {
   fill: none; stroke: currentColor;
   stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
 }
+
+/* 🔴 СЛОЙ ШТОРКИ — ТОКЕНОМ, И ЭТО ТОТ ЖЕ КЛАСС, ЧТО УЖЕ ЧИНИЛИ ВЫШЕ.
+   Строкой 205 объяснено, почему сырое число проигрывает: меню шелла на
+   `z-index: 80` уходило под липкую шапку календаря (`--z-sticky`, 1010).
+   Починили — но только в CSS, а шторка мобильного меню задаёт слой УТИЛИТОЙ
+   Tailwind прямо в разметке (`z-50` = 50), и страж
+   `spec/assets/shell_menu_layer_spec.rb` читал только CSS-файлы. Правило
+   проверялось на одном языке, а нарушалось на другом.
+
+   Замер 13.09.2026 (прислал кабинет Павла, проверено здесь): шторка `z-50` в
+   пяти раскладках, подложка `z-40` в четырёх — то есть НИЖЕ любого элемента
+   на токенах (`--z-dropdown` 1000 и выше). Поверх открытой шторки рисовались
+   липкая шапка сетки календаря и кнопка «+».
+
+   ⚠️ Ланчер поддержки (`--z-popover`, 1050) остаётся ВЫШЕ шторки намеренно:
+   переносить его — отдельное продуктовое решение, а не побочный эффект этой
+   правки (кабинет Павла сейчас прячет его на время своих модалок). */
 .shell-drawer {
   z-index: var(--z-modal);
 }
+
 .shell-drawer-overlay {
   z-index: var(--z-overlay);
 }

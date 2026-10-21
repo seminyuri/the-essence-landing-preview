@@ -1,38 +1,85 @@
-/* Дизайн-система the-essence — копия для прототипа */
+/* Копия из the-essence develop a4059ecec — НЕ ПРАВИТЬ здесь: правка идёт в продукт, сюда — новой копией. */
+/*
+ * Redesign Phase 1 design tokens — extracted from the canonical landing
+ * (`landing_v14.html`). Variables drive both the Tailwind config and any
+ * raw CSS in components/views. Persona × theme combos override the
+ * accent + surface roles via `data-persona`/`data-theme` cascades on
+ * `<html>`.
+ *
+ * Naming convention:
+ *   --color-<role>      semantic tokens (bg, text, accent, …)
+ *   --hairline-*        0.5px borders (NOT 1px Tailwind default)
+ *   --type-<role>       font tokens (Manrope / Lora / JetBrains Mono)
+ *   --shadow-glow       elevated-surface halo
+ *   --motion-*          duration / easing tokens
+ */
 
 :root {
+  /* Brand accent — rose-gold, light and dark variants.
+   *
+   * audit-2026-05-27/Task29 (plan N1): WCAG AA contrast adjustment.
+   * Previous --color-accent (#9A6E55) on --color-bg (#FFFCF9) ratio was
+   * ~4.1:1 — fails AA 4.5:1 for normal text (passes for large text).
+   * Darkened to #7A5340 (was the value of --color-accent-strong, now ~6.5:1).
+   * --color-accent-strong shifted to #5C3D29 to keep "strong" semantically
+   * stronger than the new accent.
+   * Decorative-only uses can still reference --color-accent-decorative
+   * for the original rose-gold hue at LARGE text size (passes AA at 3:1).
+   */
   --color-accent:             #7A5340;
   --color-accent-strong:      #5C3D29;
   --color-accent-decorative:  #9A6E55;
   --color-accent-soft:        color-mix(in oklch, var(--color-accent) 25%, white);
   --color-accent-on:          #FFFFFF;
+
+  /* Surfaces — warm whites/blacks instead of pure */
   --color-bg:            #FFFCF9;
   --color-bg-elevated:   #FFFFFF;
   --color-bg-muted:      #F5F0EA;
   --color-fg:            #1A1612;
   --color-fg-muted:      #5C534B;
+  /* #98908A was WCAG-failing as small text (3.13:1 on white, 3.07:1 on the
+     off-white #FFFCF9) — axe flagged it on /dashboard, /marketplace, /pm,
+     /checkouts/new (the redesign regressed the value the audit had fixed on
+     main). #756C64 keeps the warm grey, stays lighter than --color-fg-muted
+     (so the subtle < muted < fg hierarchy holds), and clears AA with margin
+     (~5.0:1 on white, ~5.0:1 on #FFFCF9). */
   --color-fg-subtle:     #756C64;
+
+  /* Borders / hairlines */
   --color-border:        #E8E0D6;
   --color-border-strong: #C9BCAB;
   --hairline-width:      0.5px;
+
+  /* Status semantics (preserved for cross-domain compatibility) */
   --color-success:       #2F7A4F;
   --color-success-soft:  #DCEFE3;
-  --color-success-text:  #1F6B41; 
+  --color-success-text:  #1F6B41; /* WCAG-AA text on success-soft (see danger-text) */
   --color-warning:       #B17A23;
   --color-warning-soft:  #F6E9C3;
-  --color-warning-text:  #8A5D17; 
+  --color-warning-text:  #8A5D17; /* WCAG-AA text on warning-soft */
   --color-danger:        #B7392E;
   --color-danger-soft:   #F4D6D2;
+  /* WCAG 2 AA text-on-soft: #B7392E on #F4D6D2 = 4.19:1 (just below 4.5).
+   * --color-danger-text is the WCAG-compliant variant for body copy
+   * inside danger-soft surfaces (alerts, banners). */
   --color-danger-text:   #9F2C23;
+
+  /* Info family — added for the Support module («Ждём тебя» status /
+     .chip--info); mirrors success/warning/danger, so personas + dark follow. */
   --color-info:          #3E6C8E;
   --color-info-soft:     #DCE9F2;
-  --color-info-text:     #2C5678; 
+  --color-info-text:     #2C5678; /* WCAG-AA text on info-soft */
+
+  /* Typography */
   --type-display:        "Manrope", "Manrope-Fallback", "Inter", system-ui, sans-serif;
   --type-body:           "Manrope", "Manrope-Fallback", "Inter", system-ui, sans-serif;
   --type-italic:         "Lora", "Lora-Fallback", Georgia, serif;
   --type-mono:           "JetBrains Mono", "JetBrainsMono-Fallback", ui-monospace, "SFMono-Regular", monospace;
-  --type-weight-display: 200; 
+  --type-weight-display: 200; /* Manrope thin headings */
   --type-weight-body:    400;
+
+  /* Spacing scale (4px grid) */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -41,15 +88,23 @@
   --space-6: 24px;
   --space-8: 32px;
   --space-10: 40px;
+
+  /* Motion */
   --motion-duration-fast: 120ms;
   --motion-duration-base: 200ms;
   --motion-duration-slow: 320ms;
   --motion-ease:          cubic-bezier(0.2, 0, 0, 1);
+
+  /* Elevation — landing's `--glow` warm halo */
   --shadow-soft:  0 1px 2px rgba(26, 22, 18, 0.04);
   --shadow-card:  0 4px 16px rgba(26, 22, 18, 0.06);
   --shadow-glow:  0 0 32px color-mix(in oklch, var(--color-accent) 40%, transparent);
-  --shadow-pop:   0 26px 64px rgba(26, 22, 18, 0.14); 
+  --shadow-pop:   0 26px 64px rgba(26, 22, 18, 0.14); /* popovers, modals, ⌘K */
+
+  /* Tabular numerals on numeric surfaces */
   --feature-tabular: "tnum" 1, "lnum" 1;
+
+  /* Radius scale (concept: 6–16px; pills = full). USE these — never hardcode a radius. */
   --radius-xs:   6px;
   --radius-sm:   8px;
   --radius-md:   10px;
@@ -57,120 +112,268 @@
   --radius-xl:   14px;
   --radius-2xl:  16px;
   --radius-full: 9999px;
+
+  /* Z-index ladder — one source for every stacking context. USE these. */
   --z-base:     0;
   --z-dropdown: 1000;
   --z-sticky:   1010;
   --z-header:   1020;
+  /* Обучающий тур — СВОЯ ступень, и она зажата с двух сторон намеренно.
+
+     ВЫШЕ шапок (`--z-sticky` 1010 у липкой шапки сетки, `--z-header` 1020 у
+     шапки календаря): находка Павла 22.09.2026 — карточка тура стояла на
+     `--z-dropdown` (1000), и шапка сетки рисовалась ПОВЕРХ инструкции.
+     Замер приёмки: `elementFromPoint` в девяти точках карточки, во всех девяти
+     сверху `DIV.tg__daycol-head` — человек читал инструкцию сквозь чужие числа
+     и названия дней.
+
+     НИЖЕ меню (`--z-overlay` 1030 подложка, `--z-modal` 1040 шторка): решение
+     20.09.2026, и оно в силе. Пока человек держит меню открытым, он им
+     пользуется, и накрывать его обучающей подсказкой нельзя. С «9999» тур
+     ложился поверх мобильной шторки и делал её недоступной нажатию; стережёт
+     `spec/system/calendar/mobile_layout_spec.rb`.
+
+     ⇒ Оба требования выполняются только между 1020 и 1030, поэтому ступень
+     тут, а не «на единицу выше шапки». Двигать шапку выше тура — значит
+     двигать её и поверх меню, а это поймает спека выше. */
   --z-tour:     1025;
   --z-overlay:  1030;
   --z-modal:    1040;
   --z-popover:  1050;
   --z-toast:    1060;
+  /* Подтверждение — ВЫШЕ всего остального, и это не произвол. Его
+     поднимают из чего угодно: из выпадающего меню, из модального окна,
+     из действия в тосте. Диалог, спрятанный за тем, из чего его позвали,
+     хуже отсутствующего: destructive-действие просто выглядит зависшим.
+     Поймано вживую — шторка задачи PM делит --z-modal с диалогом и,
+     будучи ниже в DOM, перекрывала его. */
   --z-confirm:  1070;
+
+  /* Слой НАД видеокомнатой. Комната — не «страница со звонком», а оверлей во
+     весь экран с `z-index: 9999` (video-room/styles/room.css), и он выше ВСЕЙ
+     лестницы выше. Поэтому то, что рисуется поверх идущего звонка вне
+     React-корня (приглашение коллеги; очередь зала ожидания), с --z-popover
+     оказывается ПОД комнатой: разметка есть, кликнуть нельзя. Замерено в
+     браузере 04.09.2026 — `elementFromPoint` над кнопкой «Пригласить»
+     возвращал `div.control-bar`, то есть панель управления комнаты. */
   --z-room-overlay: 10000;
+
+  /* Подтверждение ПОВЕРХ идущего звонка — выше всего, что лежит на
+     `--z-room-overlay` (полоса «идёт запись», панель приглашения, очередь зала
+     ожидания). Та же логика, что у --z-confirm выше, но в шкале комнаты:
+     `--z-confirm` (1070) ниже самой комнаты (9999) и здесь не годится.
+
+     🔴 Поймано живой приёмкой 28.09.2026 (DEV-PL-1404): выбор ведущего
+     «Завершить для всех / Только выйти» рисовался ВНУТРИ `.video-room`, а это
+     свой контекст наложения — изнутри выше 9999 не подняться никаким
+     z-index. `elementFromPoint` в центре каждой кнопки отдавал полосу записи,
+     ведущий не мог ни завершить, ни выйти. Выбор теперь выносится порталом в
+     `body` и встаёт на этот слой. */
   --z-room-confirm: 10010;
+
   --z-max:      2147483000;
+
+  /* Border widths (hairline 0.5px is the brand default). */
   --border-width-hairline: var(--hairline-width);
   --border-width-thin:     1px;
   --border-width-thick:    2px;
+
+  /* Opacity scale. */
   --opacity-disabled: 0.4;
   --opacity-muted:    0.7;
-  --tap-min:           44px;   
-  --tap-comfortable:   48px;   
-  --target-min:        var(--tap-min); 
+
+  /* Mobile / touch — the design-system's touch layer. Consumed by _mobile.css
+     (coarse-pointer min-sizes) and every mobile surface. USE these — never
+     hardcode a touch target, safe-area inset, or keyboard offset again. */
+  --tap-min:           44px;   /* WCAG 2.5.5 / Apple HIG minimum hit area */
+  --tap-comfortable:   48px;   /* Material 3 comfortable target */
+  --target-min:        var(--tap-min); /* alias used by swipe/select controls */
   --safe-bottom:       env(safe-area-inset-bottom, 0px);
   --safe-top:          env(safe-area-inset-top, 0px);
-  --kb:                0px;     
+  --kb:                0px;     /* on-screen-keyboard inset, written by mobile--keyboard-avoid */
+
+  /* Нижняя «занятая» полоса экрана: мобильная навигация модуля + safe-area.
+     Модуль, который рисует нижний таб-бар, переопределяет её на своём <body>
+     (см. .app-has-bottom-nav в pm/_utilities.css); остальные оставляют
+     только safe-area.
+
+     --float-slot-N — лестница плавающих элементов в правом нижнем углу.
+     Каждый следующий встаёт НАД предыдущим, поэтому они не садятся ни на
+     навигацию, ни друг на друга. Замер до введения лестницы: ланчер
+     поддержки (58px, z-1050) перекрывал таб «Ещё» нижней навигации на 27
+     экранах из 32 — от 44px кнопки оставалось 10px, а это единственный вход
+     в меню на телефоне. НЕ хардкодить bottom у новых плавающих элементов —
+     брать следующий слот. */
   --app-bottom-obstruction: var(--safe-bottom);
   --float-gap:         12px;
-  --mail-fs-sender:    1.0625rem; 
-  --mail-fs-subject:   0.9375rem; 
-  --mail-fs-meta:      0.8125rem; 
+
+  /* Mail-specific mobile metrics. The mail row is a two-line list item (avatar +
+     sender/time / subject + snippet), taller than the generic table --row-height,
+     so it carries its own density triplet (see the [data-density] block below). */
+  --mail-fs-sender:    1.0625rem; /* 17px — sender dominates the row */
+  --mail-fs-subject:   0.9375rem; /* 15px */
+  --mail-fs-meta:      0.8125rem; /* 13px — snippet / timestamp / labels */
   --mail-unread-bar-w: 3px;
-  --mail-actionbar-h:  56px;   
-  --mail-swipe-reveal: 80px;   
-  --undo-duration:     6s;     
+  --mail-actionbar-h:  56px;   /* mobile reading-pane bottom action bar */
+  --mail-swipe-reveal: 80px;   /* swipe action panel width (JS detent shares this) */
+  --undo-duration:     6s;     /* undo snackbar + its progress bar */
+
+  /* Sender-monogram palette (mail avatars). Deliberately ONE palette for both
+     themes — these solid discs read against the cream page AND the near-black
+     one, which the previous accent-soft tint did not: mixed 25% into the page
+     colour it landed within ~1.5:1 of the background, so on a phone the disc
+     was invisible and the row looked like loose letters ("круга не видно").
+     Every swatch is >=4.5:1 with the white monogram (WCAG 1.4.3) and >=3:1
+     against the darkest surface (1.4.11), so the circle is always a circle.
+     Warm, brand-adjacent hues — the sender's colour is a scanning aid, not
+     decoration; the variant is picked deterministically from the address
+     (MailingHelper#mail_avatar_variant), so a sender keeps their colour. */
   --mail-avatar-fg:  #FFFFFF;
-  --mail-avatar-1:   #96604B;  
-  --mail-avatar-2:   #96692F;  
-  --mail-avatar-3:   #6E7B42;  
-  --mail-avatar-4:   #4C8069;  
-  --mail-avatar-5:   #4E7397;  
-  --mail-avatar-6:   #6F5D91;  
-  --mail-avatar-7:   #9C5A72;  
-  --mail-avatar-8:   #8A6350;  
+  --mail-avatar-1:   #96604B;  /* clay      */
+  --mail-avatar-2:   #96692F;  /* bronze    */
+  --mail-avatar-3:   #6E7B42;  /* olive     */
+  --mail-avatar-4:   #4C8069;  /* sage      */
+  --mail-avatar-5:   #4E7397;  /* dusty blue*/
+  --mail-avatar-6:   #6F5D91;  /* plum      */
+  --mail-avatar-7:   #9C5A72;  /* rose      */
+  --mail-avatar-8:   #8A6350;  /* cocoa     */
+
+  /* Atmosphere (light) — glass surfaces, accent glow, grain/glow/sand overlays.
+     Carry the "Суть ✕" warmth; theme-dependent values overridden in the dark
+     block below. USE these — never hardcode the atmosphere. */
   --bg-glass:      rgba(255, 252, 249, 0.85);
   --accent-glow:   rgba(122, 83, 64, 0.14);
   --grain-opacity: 0.013;
   --glow-opacity:  0;
   --sand-opacity:  1;
 }
+
+/* Dark theme — warm black + lighter rose-gold */
 [data-theme="dark"] {
   --color-accent:        #E8B898;
   --color-accent-strong: #F0C9AE;
+  /* Soft accent SURFACE — must stay visible on the dark canvas. Mixing with
+     black (the old value) made it near-invisible, which forced 34 per-element
+     `dark:bg-[var(--color-accent-strong)]` overrides. Tinting the elevated
+     surface instead keeps a subtle warm accent that themes correctly, so the
+     overrides are removed and the token is the single source of truth. */
   --color-accent-soft:   color-mix(in oklch, var(--color-accent) 22%, var(--color-bg-elevated));
   --color-accent-on:     #0F0D08;
+
   --color-bg:            #0F0D08;
   --color-bg-elevated:   #1A1610;
   --color-bg-muted:      #211C14;
   --color-fg:            #F4EFE7;
   --color-fg-muted:      #B5AB9D;
+  /* #847B71 cleared AA only by a hair (~4.5:1 on bg-elevated #1A1610); #948A80
+     gives the dark subtle/tertiary text a comfortable margin (~5.5:1 on the page
+     bg, ~5:1 on elevated) — mirrors the light-theme fg-subtle AA fix. */
   --color-fg-subtle:     #948A80;
+
   --color-border:        #2A241C;
   --color-border-strong: #4A4135;
+
   --color-success-soft:  #1B3A26;
   --color-warning-soft:  #3A2C0E;
   --color-danger-soft:   #3B1714;
   --color-info-soft:     #17293A;
+  /* Dark mode *-on-dark needs the lighter tint, not the WCAG-darkened light-mode
+   * *-text. The base --color-success/warning/danger stay dark (they back solid
+   * buttons/dots with white text); these lighter -text variants are for body
+   * copy / chips on the dark *-soft surfaces, keeping contrast in both palettes. */
   --color-success-text:  #88D6AB;
   --color-warning-text:  #E8C271;
   --color-danger-text:   #F1A19A;
   --color-info-text:     #9CC6E6;
+
   --shadow-soft:  0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-card:  0 4px 16px rgba(0, 0, 0, 0.45);
   --shadow-glow:  0 0 36px color-mix(in oklch, var(--color-accent) 30%, transparent);
   --shadow-pop:   0 26px 70px rgba(0, 0, 0, 0.6);
+
+  /* Atmosphere (dark) */
   --bg-glass:      rgba(26, 22, 16, 0.78);
   --accent-glow:   rgba(232, 184, 152, 0.12);
   --grain-opacity: 0.028;
   --glow-opacity:  0.035;
   --sand-opacity:  0;
 }
+
+/* 🔴 ВЛОЖЕННАЯ ТЕМА ПЕРЕОБЪЯВЛЯЕТ И `color`, А НЕ ТОЛЬКО ТОКЕНЫ.
+ *
+ * Блоки выше меняют ЗНАЧЕНИЯ переменных. Этого достаточно, пока `data-theme`
+ * стоит на `<html>`: там же рядом `body { color: var(--color-fg) }`
+ * (`_components.css`), и наследование раздаёт правильный цвет вниз. Но у нас
+ * есть тёмные ОСТРОВА на светлой странице — комната и её слои поверх звонка,
+ * зелёная комната, гостевые экраны, тёмный сайдбар админки. Остров несёт
+ * `data-theme="dark"` на своём div-е, и токены под ним переключаются честно, а
+ * `color` — нет: он унаследован ВЫЧИСЛЕННЫМ значением от `body`, который лежит
+ * выше острова и остался светлым. Переменная тут уже ни при чём.
+ *
+ * Чем это кончалось на живом стенде (замер 27.09.2026, телефон 390×844,
+ * `data-theme="dark"` на панели приглашения в комнате): имя сотрудника в списке
+ * «Пригласить» — `color: rgb(26,22,18)` (светлый `--color-fg`) на фоне меню
+ * `rgb(26,22,16)` (тёмный `--color-bg-elevated`). Контраст 1,01:1 — имён не
+ * видно вовсе. Там же пропадала лупа в поле поиска: SVG рисуется
+ * `currentColor`. Заметно было только то, у чего цвет задан токеном явно
+ * (подпись канала `--color-fg-subtle` читалась), — то есть чинить построчно
+ * значило бы ходить за каждой следующей надписью.
+ *
+ * `[data-theme] [data-theme]` — ровно вложенные острова: у `<html>` предка с
+ * `data-theme` нет, и его правило не задевает. `:where()` обнуляет вес
+ * селектора: всё, что задаёт свой `color` (`.bp-hero { color: var(--body) }` в
+ * `marketing_hero.css`, любой `text-[…]`), остаётся сильнее и не сдвигается.
+ * Правило только подставляет палитру острова там, где цвет не назначен никем. */
 :where([data-theme] [data-theme]) {
   color: var(--color-fg);
 }
+
+/* Persona overrides — accent shift only; everything else stays neutral */
 [data-persona="pair"] {
-  --color-accent:        #C77A8A;       
+  --color-accent:        #C77A8A;       /* warm pink-coral */
   --color-accent-strong: #A35E6F;
 }
+
 [data-persona="growth"] {
-  --color-accent:        #5C7E5A;       
+  --color-accent:        #5C7E5A;       /* sage-green */
   --color-accent-strong: #3F5C3D;
 }
+
 [data-persona="quiet"] {
-  --color-accent:        #6B6E8E;       
+  --color-accent:        #6B6E8E;       /* slate-violet */
   --color-accent-strong: #4F5371;
 }
+
 [data-persona="tide"] {
-  --color-accent:        #4A7B92;       
+  --color-accent:        #4A7B92;       /* aegean teal */
   --color-accent-strong: #335E73;
 }
+
 [data-persona="ember"] {
-  --color-accent:        #B8623E;       
+  --color-accent:        #B8623E;       /* burnt amber */
   --color-accent-strong: #8E4A2C;
 }
+
+/* Density — compact tightens spacing for table-like surfaces */
 [data-density="compact"]  { --row-height: 32px; --space-row: var(--space-2); }
 [data-density="comfortable"] { --row-height: 44px; --space-row: var(--space-3); }
 [data-density="spacious"] { --row-height: 56px; --space-row: var(--space-4); }
+
+/* Mail list row metrics per density — a 2-line list item (avatar + sender/time /
+   subject + snippet), NOT the generic table --row-height. Flip data-density on
+   the list root to reflow instantly (pure custom-property swap, no re-render). */
 [data-density="compact"]     { --mail-row-h: 56px; --mail-avatar-size: 0px;  --mail-snippet-display: none; }
 [data-density="comfortable"] { --mail-row-h: 72px; --mail-avatar-size: 40px; --mail-snippet-display: block; }
 [data-density="spacious"]    { --mail-row-h: 84px; --mail-avatar-size: 44px; --mail-snippet-display: block; }
+
+/* Reduced-motion — disable transitions/animations entirely */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-duration-fast: 0ms;
     --motion-duration-base: 0ms;
     --motion-duration-slow: 0ms;
   }
+
   *,
   *::before,
   *::after {
@@ -180,17 +383,44 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Skip-link styling — globally available */
+/* Лестница объявлена на <body>, а НЕ на :root — это принципиально.
+   var() внутри значения кастомного свойства подставляется на том элементе,
+   где свойство ОБЪЯВЛЕНО. Пока слоты жили на :root, они «замораживали»
+   --app-bottom-obstruction в его дефолтном нуле, и переопределение на
+   <body class="app-has-bottom-nav"> не действовало: замер показал у ланчера
+   bottom:16px вместо 72px, то есть он по-прежнему сидел на таб-баре.
+   Слоты и переопределение обязаны быть на одном элементе. */
 body {
-  --float-slot-1: calc(16px + var(--app-bottom-obstruction));          
-  --float-slot-2: calc(var(--float-slot-1) + 58px + var(--float-gap)); 
-  --float-slot-3: calc(var(--float-slot-2) + 48px + var(--float-gap)); 
+  --float-slot-1: calc(16px + var(--app-bottom-obstruction));          /* ланчер поддержки */
+  --float-slot-2: calc(var(--float-slot-1) + 58px + var(--float-gap)); /* FAB */
+  --float-slot-3: calc(var(--float-slot-2) + 48px + var(--float-gap)); /* пилюля таймера */
+  /* Ширина правого app-rail. Лестница слотов выше разводит плавающие элементы по
+     ВЕРТИКАЛИ, а рельс — это препятствие по ГОРИЗОНТАЛИ: он не плавающий, он часть
+     шелла, и нижняя иконка в нём (шестерёнка «Настройки») стоит ровно там, куда
+     садится ланчер поддержки. Одно значение на обоих — чтобы не разъехались. */
   --app-rail-w: 56px;
+
+  /* 🔴 ЛАНЧЕР ПОДДЕРЖКИ — ПРЕПЯТСТВИЕ И ДЛЯ ЛИПКОГО СОДЕРЖИМОГО. Лестница
+     слотов выше разводит ПЛАВАЮЩИЕ элементы между собой, а `position: sticky`
+     панель модуля к ней не относится: она часть страницы, тянется во всю её
+     ширину и своим правым нижним углом садится ровно под ланчер. Замер на
+     1440×900 (порция 195): панель пачки в разборе занимает x 274–1360, ланчер
+     — 1310–1368, и подсказка «Shift — выделить диапазон» читается как
+     «Shift — выделить диа»; `elementFromPoint` у правого края подсказки
+     возвращает иконку ланчера. Панель липкая, поэтому столкновение постоянное.
+     Ширина следа = ланчер (58px) + его отступ справа (22px) + зазор. Значение
+     обязано совпадать с `.wg-launcher` в support/widget.css. */
   --float-launcher-w: calc(58px + 22px + var(--float-gap));
 }
+
 .skip-link {
   position: absolute;
   inset-inline-start: 1rem;
   inset-block-start: 1rem;
+  /* 42px по факту замера — на 2px ниже WCAG 2.5.5; inline-flex + min-height
+     доводят до нормы, не меняя вид (ссылка видна только при фокусе). */
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-min);
@@ -204,38 +434,64 @@ body {
   transition: transform var(--motion-duration-base) var(--motion-ease);
   z-index: 1000;
 }
+
 .skip-link:focus {
   transform: translateY(0);
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+/* Global focus-visible ring.
+ * NB: НЕ задаём здесь `border-radius` — глобальный radius деформирует
+ * круглые кнопки/аватары при фокусе (превращает в скруглённый
+ * прямоугольник). Outline современных браузеров и так повторяет
+ * собственную форму элемента (border-radius самого элемента). */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+/* Tabular numerals on numeric containers */
 [data-numeric="true"],
 .tabular-nums {
   font-feature-settings: var(--feature-tabular);
 }
+
+/*
+ * Phase 1 visual cleanup #106 — Tailwind `bg-blue-*` / `text-blue-*` /
+ * `border-blue-*` / `ring-blue-*` palette redirects to the rose-gold
+ * accent. Closes the "Zero bg-blue-* leaks" CI grep gate without
+ * touching all 246 individual call sites — those pages migrate to
+ * ViewComponents organically through Phase 2-7 integration sweeps.
+ *
+ * Tailwind v4 honours these overrides because they're plain CSS rules
+ * layered after the Tailwind preflight.
+ */
 .bg-blue-400  { background-color: color-mix(in oklch, var(--color-accent) 80%, white); }
 .bg-blue-500  { background-color: var(--color-accent); }
 .bg-blue-600  { background-color: var(--color-accent); }
 .bg-blue-700  { background-color: var(--color-accent-strong); }
 .bg-blue-50   { background-color: var(--color-accent-soft); }
 .bg-blue-100  { background-color: var(--color-accent-soft); }
+
 .text-blue-400 { color: color-mix(in oklch, var(--color-accent) 80%, white); }
 .text-blue-500 { color: var(--color-accent); }
 .text-blue-600 { color: var(--color-accent); }
 .text-blue-700 { color: var(--color-accent-strong); }
+
 .border-blue-400 { border-color: color-mix(in oklch, var(--color-accent) 80%, white); }
 .border-blue-500 { border-color: var(--color-accent); }
 .border-blue-600 { border-color: var(--color-accent); }
 .border-blue-700 { border-color: var(--color-accent-strong); }
+
 .ring-blue-500 { --tw-ring-color: var(--color-accent); }
 .ring-blue-600 { --tw-ring-color: var(--color-accent); }
 .hover\:bg-blue-700:hover { background-color: var(--color-accent-strong); }
 .hover\:text-blue-700:hover { color: var(--color-accent-strong); }
 .focus\:ring-blue-500:focus { --tw-ring-color: var(--color-accent); }
+
+/* Same redirect for the legacy indigo/purple palette baked into older
+   Devise/onboarding flows. */
 .bg-indigo-500, .bg-indigo-600 { background-color: var(--color-accent); }
 .bg-indigo-700                  { background-color: var(--color-accent-strong); }
 .text-indigo-500, .text-indigo-600 { color: var(--color-accent); }
@@ -243,6 +499,15 @@ body {
 .border-indigo-500, .border-indigo-600 { border-color: var(--color-accent); }
 .bg-purple-600 { background-color: var(--color-accent); }
 .text-purple-600 { color: var(--color-accent); }
+
+/* 🔴 ПЕЧАТЬ В ТЁМНОЙ ТЕМЕ ДАВАЛА ПУСТОЙ ЛИСТ. Бумага белая всегда, а токены
+   цвета — нет: у человека с тёмной темой `--color-fg` это #F4EFE7, и на белом
+   листе его контраст 1,06:1 — текст не виден вовсе. Браузер фоны при печати
+   по умолчанию не рисует, поэтому тёмная подложка на бумагу не попадает, а
+   светлый текст — попадает (посчитано по токенам, 01.09).
+   Модули своими `@media print` прячут хром и ставят белый фон — цвет текста
+   не ставит никто, да и не должен: это свойство ТЕМЫ, а не экрана. Возвращаем
+   светлую палитру на время печати — одним местом на все модули. */
 @media print {
   :root,
   [data-theme="dark"],

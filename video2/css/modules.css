@@ -365,3 +365,49 @@
 .bo-msg[hidden] { display: none; }
 .tl__role { position: absolute; left: 10px; top: 10px; z-index: 3; padding: 4px 10px; border-radius: 9px; background: rgba(20, 18, 16, .65); color: #F4EFE7; font-size: 13px; }
 @media (max-width: 760px) { .st-grid[data-layout="grid"][style] { grid-template-columns: 1fr 1fr !important; } }
+
+/* ── вместе с платформой: окна модулей на их классах ───────────────── */
+.tpgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 1100px) { .tpgrid { grid-template-columns: minmax(0, 1fr); } }
+.tp { padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+.tp__h { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: var(--hairline-width) solid var(--color-border); }
+.tp__h .shell-sidebar__name { font-size: 14px; }
+.tp__ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--color-accent); color: var(--color-accent-on); }
+.tp__ic .icon { width: 17px; height: 17px; }
+.tp__b { padding: 18px 18px 20px; flex: 1; background: var(--color-bg); }
+.tp__f { display: flex; gap: 10px; padding: 14px 16px; font-size: 13.5px; line-height: 1.5; color: var(--color-fg-muted); border-top: var(--hairline-width) solid var(--color-border); }
+.tp__f > .icon { color: var(--color-accent); margin-top: 2px; }
+.tp__f b { color: var(--color-fg); font-weight: 600; }
+.tp__ph { font-family: var(--type-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-subtle); margin-top: 6px; }
+/* календарь: сетка недели как в calendar/_calendar.css (моно-часы, круг сегодняшнего дня) */
+.tpcal { position: relative; }
+.tpcal__days, .tpcal__grid { display: grid; grid-template-columns: 52px repeat(3, minmax(0, 1fr)); }
+.tpcal__d { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-bottom: 8px; }
+.tpcal__d i { font-style: normal; font-size: 11px; text-transform: uppercase; color: var(--color-fg-muted); }
+.tpcal__d b { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 500; font-size: 16px; }
+.tpcal__d.is-on b { background: var(--color-accent); color: var(--color-accent-on); }
+.tpcal__grid { grid-auto-rows: 40px; border-top: var(--hairline-width) solid var(--color-border); position: relative; }
+.tpcal__grid > span { border-bottom: var(--hairline-width) solid var(--color-border); border-left: var(--hairline-width) solid var(--color-border); }
+.tpcal__h { border-left: 0 !important; font-family: var(--type-mono); font-size: 10.5px; color: var(--color-fg-subtle); padding-top: 4px; }
+.tpcal__ev { margin: 2px 4px; padding: 5px 8px; border-radius: 7px; font-size: 12px; font-weight: 600; display: flex; gap: 5px; align-items: flex-start; background: var(--color-accent-soft); color: var(--color-accent-strong); border-left: 3px solid var(--color-accent); overflow: hidden; z-index: 1; }
+.tpcal__ev--grp { background: var(--color-success-soft); color: var(--color-success-text); border-left-color: var(--color-success); }
+.tpcal__pop { position: absolute; right: -4px; top: 50px; width: 250px; z-index: 2; padding: 14px; border-radius: 13px; background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border-strong); box-shadow: var(--shadow-pop); }
+.tpcal__link { margin-top: 10px; font-size: 11px; color: var(--color-fg-subtle); }
+/* задачник */
+.tpkb__col { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; background: var(--color-bg-muted); }
+.tpkb__h { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 4px; }
+.tpkb .kanban-card { background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.tpkb__src { display: inline-flex; gap: 4px; align-items: center; color: var(--color-accent); font-family: var(--type-mono); font-size: 11px; }
+/* главная, база знаний, почта */
+.tphome { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border); }
+.tphome--sub { color: var(--color-fg-muted); }
+.tpkbdoc { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+.tpkbdoc li { display: flex; gap: 14px; padding: 8px 0; border-bottom: var(--hairline-width) solid var(--color-border); font-size: 14px; }
+.tpkbdoc li:last-child { border-bottom: 0; }
+.tpkbdoc a { color: var(--color-accent); font-size: 12px; width: 44px; flex: none; padding-top: 2px; }
+.tpmail { padding: 14px; border-radius: 12px; background: var(--color-bg-elevated); border: var(--hairline-width) solid var(--color-border); }
+/* образцы дизайн-системы */
+.dsx { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1100px) { .dsx { grid-template-columns: minmax(0, 1fr); } }
+.dsx__i { padding: 18px; border-radius: var(--radius-2xl); border: var(--hairline-width) dashed var(--color-border-strong); }
+.dsx__i .kpi { margin: -18px; box-shadow: none; border: 0; }
