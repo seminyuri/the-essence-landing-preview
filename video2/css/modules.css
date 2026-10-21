@@ -322,3 +322,46 @@
 .vs-r .vs-l { color: var(--color-fg-muted); font-weight: 500; }
 @media (max-width: 520px) { .vs-us, .vs-r { grid-template-columns: 1fr; gap: 2px; } }
 .vs-who, .vs-ver { flex-wrap: wrap; }
+
+/* ── редакция 4: экраны клиента, ученика, кабинета и модулей ─────────────── */
+.card--click { display: block; cursor: pointer; transition: box-shadow var(--motion-duration-fast), transform var(--motion-duration-fast); }
+.card--click:hover { box-shadow: var(--shadow-pop, 0 12px 30px rgba(0, 0, 0, .08)); transform: translateY(-1px); }
+.pub .kv2 span, .page .kv2 span { color: var(--color-fg-muted); }
+.fmt2 { display: block; width: 100%; text-align: left; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--c-line, rgba(20, 18, 16, .12)); background: var(--c-surface, #fff); color: inherit; font-size: 15px; }
+.fmt2.is-on { border-color: var(--color-accent); box-shadow: inset 0 0 0 1px var(--color-accent); }
+.days2 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.days2 button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 12px; border: 0; background: var(--c-fill); color: inherit; font-size: 12px; }
+.days2 button b { font-size: 16px; }
+.days2 button.is-on { background: var(--color-accent); color: #fff; }
+.steps3 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; font-size: 15px; }
+@media (max-width: 760px) { .steps3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.spec2.is-dim { opacity: .45; }
+.qz__a { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.qz__a button { padding: 10px 8px; border-radius: 12px; border: 1.5px solid var(--c-line, rgba(20, 18, 16, .12)); background: var(--c-surface, #fff); color: inherit; font-size: 13.5px; }
+.qz__a button.is-on { border-color: var(--color-accent); background: var(--color-accent-soft); font-weight: 600; }
+.mm-log { display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; overflow: auto; }
+.mm-in { display: flex; gap: 6px; padding: 8px 12px 26px; border-top: 1px solid var(--c-line, rgba(20, 18, 16, .08)); }
+.mm-in .in { flex: 1; min-width: 0; }
+.mob .hw2 .box { border-color: rgba(20, 18, 16, .25); }
+.mob .hw2.is-done { color: var(--color-fg-muted); }
+.csubs p { font-size: 22px; line-height: 1.35; margin: 0 0 16px; }
+.csubs p:last-child { color: #F4EFE7; }
+.csubs p:not(:last-child) { color: #8A8076; }
+.coh { display: inline-block; min-width: 54px; padding: 3px 8px; border-radius: 8px; background: color-mix(in oklch, var(--color-accent) calc(var(--o) * 60%), transparent); }
+.mig__r { padding: 12px 0; border-bottom: 1px solid var(--c-line, rgba(20, 18, 16, .08)); }
+.mig__r:last-child { border-bottom: 0; }
+/* сканер билетов */
+.scan { background: #141210; color: #F4EFE7; }
+.scan__vf { position: relative; margin: 8px 16px; aspect-ratio: 1; border-radius: 22px; background: radial-gradient(60% 60% at 50% 45%, #3a3128, #141210); overflow: hidden; }
+.scan__fr { position: absolute; inset: 18%; border: 3px solid rgba(244, 239, 231, .85); border-radius: 18px; }
+.scan__ln { position: absolute; left: 18%; right: 18%; height: 2px; background: #E8B898; box-shadow: 0 0 12px #E8B898; animation: scanl 2.2s ease-in-out infinite alternate; top: 20%; }
+@keyframes scanl { to { top: 78%; } }
+.scan__res { padding: 0 16px; min-height: 92px; }
+.scan__r { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 18px; }
+.scan__r--ok { background: #1f6b45; } .scan__r--warn { background: #8a6a1f; } .scan__r--bad { background: #8f2a21; }
+.scan__f { padding: 12px 16px 28px; margin-top: auto; }
+/* участник в зале */
+.bo-msg { display: flex; gap: 10px; align-items: center; padding: 12px 16px; border-radius: 16px; background: #E8B898; color: #141210; font-size: 15px; }
+.bo-msg[hidden] { display: none; }
+.tl__role { position: absolute; left: 10px; top: 10px; z-index: 3; padding: 4px 10px; border-radius: 9px; background: rgba(20, 18, 16, .65); color: #F4EFE7; font-size: 13px; }
+@media (max-width: 760px) { .st-grid[data-layout="grid"][style] { grid-template-columns: 1fr 1fr !important; } }

@@ -36,7 +36,8 @@
   // ── реестр экранов и маршруты ─────────────────────────────────────────
   const screens = [];
   const byId = {};
-  const add = (def) => { screens.push(def); byId[def.id] = def; };
+  // def.after — поставить экран сразу после родственного, чтобы стрелки листали по смыслу
+  const add = (def) => { const i = def.after ? screens.findIndex((x) => x.id === def.after) : -1; if (i >= 0) { let j = i + 1; while (screens[j] && screens[j].after === def.after) j++; screens.splice(j, 0, def); } else screens.push(def); byId[def.id] = def; };
   let current = null, timers = [], cleanups = [];
   const every = (ms, fn) => { const h = setInterval(fn, ms); timers.push(h); return h; };
   const later = (ms, fn) => { const h = setTimeout(fn, ms); timers.push(h); return h; };
